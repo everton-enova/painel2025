@@ -130,14 +130,12 @@ export default function Home() {
         </>
       )}
 
-      {allFiltersSet && (
+      {hasActiveFilter && (
         <>
-          <DataTable data={activeData} ano={2025} title="Resultado 2025" />
+          <DataTable data={filteredData} ano={2025} title="Resultado 2025" />
           <RankingTable data={filteredData} />
         </>
       )}
-
-      <DataTable data={data} ano={2025} title="Todos os Municípios — 2025" />
     </main>
   );
 }
