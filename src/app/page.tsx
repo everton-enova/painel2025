@@ -8,15 +8,21 @@ import { Filters } from "@/components/Filters";
 import { SummaryCards } from "@/components/SummaryCards";
 import { DataTable } from "@/components/DataTable";
 import { RankingTable } from "@/components/RankingTable";
-import { ChartEvolucao } from "@/components/ChartEvolucao";
-import { ChartComparativo } from "@/components/ChartComparativo";
+import { ChartIndicador } from "@/components/ChartIndicador";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { EmptyState } from "@/components/EmptyState";
 
 export default function Home() {
   const { data, updatedAt, source, isLoading, error } = useIdebData();
-  const { filters, setFilter, clearFilters, filteredData, filterOptions, hasActiveFilter } =
-    useFilters(data);
+  const {
+    filters,
+    setFilter,
+    clearFilters,
+    filteredData,
+    filterOptions,
+    hasActiveFilter,
+    searchTerm,
+    setSearchTerm,
+  } = useFilters(data);
 
   if (isLoading) {
     return (
@@ -39,8 +45,9 @@ export default function Home() {
     );
   }
 
-  const data2023 = filteredData.filter((r) => r.ano === 2023);
-  const data2025 = filteredData.filter((r) => r.ano === 2025);
+  const activeData = hasActiveFilter ? filteredData : data;
+  const data2023 = activeData.filter((r) => r.ano === 2023);
+  const data2025 = activeData.filter((r) => r.ano === 2025);
   const kpis2023 = computeKPIs(data2023);
   const kpis2025 = computeKPIs(data2025);
 
@@ -53,27 +60,61 @@ export default function Home() {
         options={filterOptions}
         onFilterChange={setFilter}
         onClear={clearFilters}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
       />
 
-      {!hasActiveFilter ? (
-        <EmptyState message="Selecione ao menos um filtro para visualizar os dados" />
-      ) : filteredData.length === 0 ? (
-        <EmptyState />
-      ) : (
+      {hasActiveFilter && (
         <>
           <SummaryCards kpis2023={kpis2023} kpis2025={kpis2025} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ChartEvolucao data={filteredData} />
-            <ChartComparativo data={filteredData} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <ChartIndicador
+              data={filteredData}
+              field="ideb"
+              title="IDEB"
+              color="#2563eb"
+            />
+            <ChartIndicador
+              data={filteredData}
+              field="indicador_rendimento"
+              title="Indicador de Rendimento"
+              color="#f59e0b"
+            />
+            <ChartIndicador
+              data={filteredData}
+              field="nota_padronizada"
+              title="Nota Padronizada"
+              color="#7c3aed"
+            />
+            <ChartIndicador
+              data={filteredData}
+              field="proficiencia_mat"
+              title="Proficiência Matemática"
+              color="#0d9488"
+            />
+            <ChartIndicador
+              data={filteredData}
+              field="proficiencia_lp"
+              title="Proficiência Língua Portuguesa"
+              color="#e11d48"
+            />
           </div>
-
-          <DataTable data={filteredData} ano={2025} title="Dados IDEB 2025" />
-          <DataTable data={filteredData} ano={2023} title="Dados IDEB 2023" />
-
-          <RankingTable data={filteredData} />
         </>
       )}
+
+      <DataTable
+        data={activeData}
+        ano={2025}
+        title="Dados IDEB 2025"
+      />
+      <DataTable
+        data={activeData}
+        ano={2023}
+        title="Dados IDEB 2023"
+      />
+
+      {hasActiveFilter && <RankingTable data={filteredData} />}
     </main>
   );
 }

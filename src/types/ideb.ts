@@ -19,7 +19,6 @@ export interface NteMapping {
 }
 
 export interface FilterState {
-  nte: string | null;
   municipio: string | null;
   rede: string | null;
   etapa: string | null;

@@ -4,7 +4,6 @@ import { useState, useMemo, useCallback } from "react";
 import { IdebRecord, FilterState } from "@/types/ideb";
 
 interface FilterOptions {
-  ntes: string[];
   municipios: string[];
   redes: string[];
   etapas: string[];
@@ -17,10 +16,11 @@ interface UseFiltersReturn {
   filteredData: IdebRecord[];
   filterOptions: FilterOptions;
   hasActiveFilter: boolean;
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
 }
 
 const INITIAL_FILTERS: FilterState = {
-  nte: null,
   municipio: null,
   rede: null,
   etapa: null,
@@ -28,6 +28,7 @@ const INITIAL_FILTERS: FilterState = {
 
 export function useFilters(data: IdebRecord[]): UseFiltersReturn {
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const setFilter = useCallback(
     (key: keyof FilterState, value: string | null) => {
@@ -38,30 +39,44 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
 
   const clearFilters = useCallback(() => {
     setFilters(INITIAL_FILTERS);
+    setSearchTerm("");
   }, []);
 
-  const hasActiveFilter = Object.values(filters).some((v) => v !== null);
+  const hasActiveFilter =
+    Object.values(filters).some((v) => v !== null) || searchTerm.length > 0;
 
   const filteredData = useMemo(() => {
     return data.filter((record) => {
-      if (filters.nte && record.nte !== filters.nte) return false;
       if (filters.municipio && record.municipio !== filters.municipio)
         return false;
       if (filters.rede && record.rede !== filters.rede) return false;
       if (filters.etapa && record.etapa !== filters.etapa) return false;
+      if (
+        searchTerm &&
+        !record.municipio.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+        return false;
       return true;
     });
-  }, [data, filters]);
+  }, [data, filters, searchTerm]);
 
   const filterOptions = useMemo((): FilterOptions => {
     const unique = <T>(arr: T[]) => [...new Set(arr)].sort();
     return {
-      ntes: unique(data.map((r) => r.nte).filter(Boolean)),
       municipios: unique(data.map((r) => r.municipio).filter(Boolean)),
       redes: unique(data.map((r) => r.rede).filter(Boolean)),
       etapas: unique(data.map((r) => r.etapa).filter(Boolean)),
     };
   }, [data]);
 
-  return { filters, setFilter, clearFilters, filteredData, filterOptions, hasActiveFilter };
+  return {
+    filters,
+    setFilter,
+    clearFilters,
+    filteredData,
+    filterOptions,
+    hasActiveFilter,
+    searchTerm,
+    setSearchTerm,
+  };
 }
