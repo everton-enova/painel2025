@@ -3,15 +3,14 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useIdebData } from "@/hooks/useIdebData";
 import { useFilters } from "@/hooks/useFilters";
-import { computeKPIs } from "@/lib/aggregations";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
-import { SummaryCards } from "@/components/SummaryCards";
+import { ChartSections } from "@/components/ChartSections";
 import { DataTable } from "@/components/DataTable";
 import { RankingTable } from "@/components/RankingTable";
-import { ChartIndicador } from "@/components/ChartIndicador";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { LoginScreen } from "@/components/LoginScreen";
+import { OnboardingTour } from "@/components/OnboardingTour";
 
 export default function Home() {
   const { isAuthenticated, login, logout } = useAuth();
@@ -23,7 +22,6 @@ export default function Home() {
     filteredData,
     filterOptions,
     hasActiveFilter,
-    allFiltersSet,
     searchTerm,
     setSearchTerm,
   } = useFilters(data);
@@ -53,12 +51,6 @@ export default function Home() {
     );
   }
 
-  const activeData = hasActiveFilter ? filteredData : data;
-  const data2023 = activeData.filter((r) => r.ano === 2023);
-  const data2025 = activeData.filter((r) => r.ano === 2025);
-  const kpis2023 = computeKPIs(data2023);
-  const kpis2025 = computeKPIs(data2025);
-
   const selectedLabel = [
     filters.municipio,
     filters.rede,
@@ -69,6 +61,8 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      <OnboardingTour />
+
       <Header updatedAt={updatedAt} source={source} onLogout={logout} />
 
       <Filters
@@ -87,47 +81,7 @@ export default function Home() {
       )}
 
       {filters.municipio && (
-        <>
-          <div>
-            <p className="text-xs text-gray-500 mb-3 italic">
-              Variação em relação à edição anterior (2023)
-            </p>
-            <SummaryCards kpis2023={kpis2023} kpis2025={kpis2025} />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            <ChartIndicador
-              data={filteredData}
-              field="ideb"
-              title="Ideb"
-              color="#2563eb"
-            />
-            <ChartIndicador
-              data={filteredData}
-              field="indicador_rendimento"
-              title="Indicador de Rendimento"
-              color="#f59e0b"
-            />
-            <ChartIndicador
-              data={filteredData}
-              field="nota_padronizada"
-              title="Nota Padronizada"
-              color="#7c3aed"
-            />
-            <ChartIndicador
-              data={filteredData}
-              field="proficiencia_mat"
-              title="Proficiência Matemática"
-              color="#0d9488"
-            />
-            <ChartIndicador
-              data={filteredData}
-              field="proficiencia_lp"
-              title="Proficiência Língua Portuguesa"
-              color="#e11d48"
-            />
-          </div>
-        </>
+        <ChartSections data={filteredData} filters={filters} />
       )}
 
       {hasActiveFilter && (
