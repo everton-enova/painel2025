@@ -3,11 +3,15 @@
 import { useState } from "react";
 
 interface LoginScreenProps {
-  onLogin: (password: string) => Promise<{ success: boolean; error?: string }>;
+  onLogin: (
+    password: string,
+    remember: boolean
+  ) => Promise<{ success: boolean; error?: string }>;
 }
 
 export function LoginScreen({ onLogin }: LoginScreenProps) {
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +23,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
     }
     setLoading(true);
     setError(null);
-    const result = await onLogin(password);
+    const result = await onLogin(password, remember);
     if (!result.success) {
       setError(result.error || "Senha incorreta");
     }
@@ -66,6 +70,16 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
             />
           </div>
+
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-600">Lembrar-me</span>
+          </label>
 
           {error && (
             <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">

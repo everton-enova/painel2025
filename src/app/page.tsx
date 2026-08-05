@@ -14,7 +14,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { LoginScreen } from "@/components/LoginScreen";
 
 export default function Home() {
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, login, logout } = useAuth();
   const { data, updatedAt, source, isLoading, error } = useIdebData();
   const {
     filters,
@@ -60,7 +60,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-      <Header updatedAt={updatedAt} source={source} />
+      <Header updatedAt={updatedAt} source={source} onLogout={logout} />
 
       <Filters
         filters={filters}

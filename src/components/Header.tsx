@@ -3,9 +3,10 @@
 interface HeaderProps {
   updatedAt: string | null;
   source: "sheet" | "mock" | null;
+  onLogout: () => void;
 }
 
-export function Header({ updatedAt, source }: HeaderProps) {
+export function Header({ updatedAt, source, onLogout }: HeaderProps) {
   const formattedDate = updatedAt
     ? new Date(updatedAt).toLocaleDateString("pt-BR", {
         day: "2-digit",
@@ -27,17 +28,26 @@ export function Header({ updatedAt, source }: HeaderProps) {
             Acompanhamento de indicadores educacionais
           </p>
         </div>
-        <div className="text-right text-xs sm:text-sm text-blue-100">
-          {formattedDate && (
-            <p>
-              Atualizado em: <span className="font-medium">{formattedDate}</span>
-            </p>
-          )}
-          {source === "mock" && (
-            <p className="text-yellow-200 text-xs mt-1">
-              Dados de demonstração
-            </p>
-          )}
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="text-right text-xs sm:text-sm text-blue-100">
+            {formattedDate && (
+              <p>
+                Atualizado em:{" "}
+                <span className="font-medium">{formattedDate}</span>
+              </p>
+            )}
+            {source === "mock" && (
+              <p className="text-yellow-200 text-xs mt-1">
+                Dados de demonstração
+              </p>
+            )}
+          </div>
+          <button
+            onClick={onLogout}
+            className="rounded-lg bg-blue-600 hover:bg-blue-500 px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors border border-blue-400/30"
+          >
+            Sair
+          </button>
         </div>
       </div>
     </header>

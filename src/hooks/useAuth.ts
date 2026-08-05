@@ -2,13 +2,18 @@
 
 import { useState, useCallback, useEffect } from "react";
 
-const STORAGE_KEY = "painel_ideb_auth";
-const STORAGE_PERFIL = "painel_ideb_perfil";
+const SESSION_KEY = "painel_ideb_auth";
+const SESSION_PERFIL = "painel_ideb_perfil";
+const PERSIST_KEY = "painel_ideb_auth_persist";
+const PERSIST_PERFIL = "painel_ideb_perfil_persist";
 
 interface UseAuthReturn {
   isAuthenticated: boolean;
   perfil: string | null;
-  login: (password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    password: string,
+    remember: boolean
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
@@ -18,17 +23,27 @@ export function useAuth(): UseAuthReturn {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem(STORAGE_KEY);
-    if (stored === "true") {
+    const session = sessionStorage.getItem(SESSION_KEY);
+    const persisted = localStorage.getItem(PERSIST_KEY);
+    if (session === "true") {
       setIsAuthenticated(true);
-      setPerfil(sessionStorage.getItem(STORAGE_PERFIL));
+      setPerfil(sessionStorage.getItem(SESSION_PERFIL));
+    } else if (persisted === "true") {
+      setIsAuthenticated(true);
+      setPerfil(localStorage.getItem(PERSIST_PERFIL));
+      sessionStorage.setItem(SESSION_KEY, "true");
+      sessionStorage.setItem(
+        SESSION_PERFIL,
+        localStorage.getItem(PERSIST_PERFIL) || ""
+      );
     }
     setLoaded(true);
   }, []);
 
   const login = useCallback(
     async (
-      password: string
+      password: string,
+      remember: boolean
     ): Promise<{ success: boolean; error?: string }> => {
       try {
         const res = await fetch("/api/auth", {
@@ -42,8 +57,12 @@ export function useAuth(): UseAuthReturn {
         if (json.success) {
           setIsAuthenticated(true);
           setPerfil(json.perfil);
-          sessionStorage.setItem(STORAGE_KEY, "true");
-          sessionStorage.setItem(STORAGE_PERFIL, json.perfil);
+          sessionStorage.setItem(SESSION_KEY, "true");
+          sessionStorage.setItem(SESSION_PERFIL, json.perfil);
+          if (remember) {
+            localStorage.setItem(PERSIST_KEY, "true");
+            localStorage.setItem(PERSIST_PERFIL, json.perfil);
+          }
           return { success: true };
         }
 
@@ -58,8 +77,10 @@ export function useAuth(): UseAuthReturn {
   const logout = useCallback(() => {
     setIsAuthenticated(false);
     setPerfil(null);
-    sessionStorage.removeItem(STORAGE_KEY);
-    sessionStorage.removeItem(STORAGE_PERFIL);
+    sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(SESSION_PERFIL);
+    localStorage.removeItem(PERSIST_KEY);
+    localStorage.removeItem(PERSIST_PERFIL);
   }, []);
 
   if (!loaded) {
