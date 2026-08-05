@@ -51,6 +51,11 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
     filters.rede !== null &&
     filters.etapa !== null;
 
+  const filteredByRede = useMemo(
+    () => data.filter((r) => r.rede === "Estadual"),
+    [data]
+  );
+
   const filteredData = useMemo(() => {
     return filteredByRede.filter((record) => {
       if (filters.municipio && record.municipio !== filters.municipio)
@@ -66,11 +71,6 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
       return true;
     });
   }, [filteredByRede, filters, searchTerm]);
-
-  const filteredByRede = useMemo(
-    () => data.filter((r) => r.rede === "Estadual"),
-    [data]
-  );
 
   const filterOptions = useMemo((): FilterOptions => {
     const unique = (arr: string[]) =>
