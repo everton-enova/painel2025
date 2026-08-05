@@ -117,7 +117,7 @@ function MunicipioSearch({
       />
       {open && suggestions.length > 0 && (
         <ul className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
-          {suggestions.slice(0, 20).map((m) => (
+          {suggestions.map((m) => (
             <li
               key={m}
               onClick={() => handleSelect(m)}
@@ -126,11 +126,6 @@ function MunicipioSearch({
               {m}
             </li>
           ))}
-          {suggestions.length > 20 && (
-            <li className="px-3 py-2 text-xs text-gray-400 italic">
-              +{suggestions.length - 20} resultados...
-            </li>
-          )}
         </ul>
       )}
     </div>
