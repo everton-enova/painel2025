@@ -52,7 +52,7 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
     filters.etapa !== null;
 
   const filteredData = useMemo(() => {
-    return data.filter((record) => {
+    return filteredByRede.filter((record) => {
       if (filters.municipio && record.municipio !== filters.municipio)
         return false;
       if (filters.rede && record.rede !== filters.rede) return false;
@@ -65,9 +65,12 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
         return false;
       return true;
     });
-  }, [data, filters, searchTerm]);
+  }, [filteredByRede, filters, searchTerm]);
 
-  const EXCLUDED_REDES = ["Federal", "Privada"];
+  const filteredByRede = useMemo(
+    () => data.filter((r) => r.rede === "Estadual"),
+    [data]
+  );
 
   const filterOptions = useMemo((): FilterOptions => {
     const unique = (arr: string[]) =>
@@ -75,15 +78,11 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
         a.localeCompare(b, "pt-BR", { sensitivity: "base" })
       );
     return {
-      municipios: unique(data.map((r) => r.municipio).filter(Boolean)),
-      redes: unique(
-        data
-          .map((r) => r.rede)
-          .filter((r) => Boolean(r) && !EXCLUDED_REDES.includes(r))
-      ),
-      etapas: unique(data.map((r) => r.etapa).filter(Boolean)),
+      municipios: unique(filteredByRede.map((r) => r.municipio).filter(Boolean)),
+      redes: ["Estadual"],
+      etapas: unique(filteredByRede.map((r) => r.etapa).filter(Boolean)),
     };
-  }, [data]);
+  }, [filteredByRede]);
 
   return {
     filters,
