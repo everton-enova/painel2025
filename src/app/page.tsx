@@ -80,14 +80,14 @@ export default function Home() {
         onSearchChange={setSearchTerm}
       />
 
-      {hasActiveFilter && (
-        <>
-          {selectedLabel && (
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800">
-              {selectedLabel}
-            </h2>
-          )}
+      {hasActiveFilter && selectedLabel && (
+        <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+          {selectedLabel}
+        </h2>
+      )}
 
+      {filters.municipio && (
+        <>
           <div>
             <p className="text-xs text-gray-500 mb-3 italic">
               Variação em relação à edição anterior (2023)

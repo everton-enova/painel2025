@@ -67,11 +67,17 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
     });
   }, [data, filters, searchTerm]);
 
+  const EXCLUDED_REDES = ["Federal", "Privada"];
+
   const filterOptions = useMemo((): FilterOptions => {
     const unique = <T>(arr: T[]) => [...new Set(arr)].sort();
     return {
       municipios: unique(data.map((r) => r.municipio).filter(Boolean)),
-      redes: unique(data.map((r) => r.rede).filter(Boolean)),
+      redes: unique(
+        data
+          .map((r) => r.rede)
+          .filter((r) => Boolean(r) && !EXCLUDED_REDES.includes(r))
+      ),
       etapas: unique(data.map((r) => r.etapa).filter(Boolean)),
     };
   }, [data]);
