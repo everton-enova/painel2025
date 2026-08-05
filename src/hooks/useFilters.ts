@@ -70,7 +70,10 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
   const EXCLUDED_REDES = ["Federal", "Privada"];
 
   const filterOptions = useMemo((): FilterOptions => {
-    const unique = <T>(arr: T[]) => [...new Set(arr)].sort();
+    const unique = (arr: string[]) =>
+      [...new Set(arr)].sort((a, b) =>
+        a.localeCompare(b, "pt-BR", { sensitivity: "base" })
+      );
     return {
       municipios: unique(data.map((r) => r.municipio).filter(Boolean)),
       redes: unique(
