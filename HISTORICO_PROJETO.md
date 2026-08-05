@@ -126,42 +126,46 @@ Solicitações implementadas:
    - Proficiência Língua Portuguesa (rosa)
 6. **Dados históricos expandidos:** Adicionados registros de 2019 e 2021 para todos os municípios mock
 
-### Fase 6 — Ajustes de escala, nomenclatura e layout (atual)
+### Fase 6 — Ajustes de escala, nomenclatura e layout
 Solicitações implementadas:
 1. **Escalas fixas nos gráficos:** Ideb 0-10, Nota Padronizada 0-10, Ind. Rendimento 0.5-1.0, Proficiências 100-500
 2. **Tabela única (2025):** Removida tabela de 2023, tabela 2025 renomeada para "Resultado 2025"
 3. **Nota de variação:** Removido "vs 2023" de cada card, adicionada nota única acima dos cards: "Variação em relação à edição anterior (2023)"
 4. **Padronização "Ideb":** Alterado de "IDEB" para "Ideb" em todos os componentes (header, cards, tabelas, ranking, layout)
 
+### Fase 7 — Integração com dados reais da planilha (atual)
+Solicitações implementadas:
+1. **Parser INEP formato wide:** Novo parser (`parseInep.ts`) que lê o formato real do INEP — dados organizados em colunas por ano, não em linhas
+2. **4 abas da planilha:** NTE (gid=155176357), Anos Iniciais (gid=472115507), Anos Finais (gid=767980037), Ensino Médio (gid=1188885958)
+3. **417 municípios, 13.360+ registros** carregados da planilha real
+4. **Redes:** Municipal, Estadual, Federal (filtra "Pública" que é agregação)
+5. **Anos:** 2005-2025 (AI e AF), 2017-2025 (EM)
+6. **Gráficos de proficiência:** Alterados para gráfico de barras
+7. **Pontos nos gráficos de linha:** Menores (r=3) com hover maior (r=6)
+8. **Acesso via gviz:** Usa endpoint `gviz/tq?tqx=out:csv` que funciona sem publicar a planilha
+
 ---
 
 ## 5. Situação dos Dados
 
-### Status atual: DADOS MOCK (demonstração)
+### Status atual: DADOS REAIS (planilha Google Sheets)
 
-A planilha Google Sheets configurada retorna **401 (não autorizada)** porque está privada. O dashboard funciona com dados de demonstração cobrindo:
-- **9 municípios:** Salvador, Feira de Santana, Vitória da Conquista, Juazeiro, Itabuna, Ilhéus, Barreiras, Lauro de Freitas, Camaçari, Teixeira de Freitas
-- **Anos:** 2017, 2019, 2021, 2023, 2025 (série histórica variável por município)
+A planilha é acessada via endpoint `gviz/tq` que funciona com planilhas compartilhadas por link:
+- **Planilha:** `1KY-_pTaFDJ41q9_eLaHLcZwmwx_TkS92TFe2TB-HnOY`
+- **417 municípios** da Bahia
+- **13.360+ registros** (todos os anos, etapas e redes)
+- **Anos:** 2005, 2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021, 2023, 2025
 - **Etapas:** Anos Iniciais, Anos Finais, Ensino Médio
-- **Redes:** Municipal, Estadual
+- **Redes:** Municipal, Estadual, Federal
+- **Fallback:** Se a planilha ficar inacessível, dados mock são usados automaticamente
 
-### Para conectar dados reais:
-**Opção 1 — Publicar a planilha:**
-1. Google Sheets → Arquivo → Compartilhar → Publicar na Web
-2. Selecionar a aba correta → Publicar como CSV
-3. Atualizar a URL em `src/lib/constants.ts`
-
-**Opção 2 — API do Google Sheets:**
-1. Criar projeto no Google Cloud Console
-2. Habilitar Google Sheets API
-3. Criar credenciais (API Key ou Service Account)
-4. Configurar variáveis de ambiente no Vercel
-
-### Campos esperados na planilha:
+### Estrutura da planilha (formato INEP wide):
 ```
-ano, codigo_municipio, municipio, rede, etapa, ideb (ou ideb_observado),
-nota_padronizada, proficiencia_mat, proficiencia_lp,
-indicador_rendimento (ou fluxo)
+Cada aba (AI, AF, EM) tem colunas:
+- Col 0: UF, Col 1: Código Município, Col 2: Nome, Col 3: Rede
+- Taxa de Aprovação por ano (sub-colunas por série + indicador rendimento)
+- Nota SAEB por ano (Matemática, Língua Portuguesa, Nota Padronizada)
+- Ideb por ano
 ```
 
 ### Aba NTE (mapeamento):
