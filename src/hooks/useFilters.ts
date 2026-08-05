@@ -16,6 +16,7 @@ interface UseFiltersReturn {
   filteredData: IdebRecord[];
   filterOptions: FilterOptions;
   hasActiveFilter: boolean;
+  allFiltersSet: boolean;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
 }
@@ -45,6 +46,11 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
   const hasActiveFilter =
     Object.values(filters).some((v) => v !== null) || searchTerm.length > 0;
 
+  const allFiltersSet =
+    filters.municipio !== null &&
+    filters.rede !== null &&
+    filters.etapa !== null;
+
   const filteredData = useMemo(() => {
     return data.filter((record) => {
       if (filters.municipio && record.municipio !== filters.municipio)
@@ -53,6 +59,7 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
       if (filters.etapa && record.etapa !== filters.etapa) return false;
       if (
         searchTerm &&
+        !filters.municipio &&
         !record.municipio.toLowerCase().includes(searchTerm.toLowerCase())
       )
         return false;
@@ -76,6 +83,7 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
     filteredData,
     filterOptions,
     hasActiveFilter,
+    allFiltersSet,
     searchTerm,
     setSearchTerm,
   };

@@ -23,6 +23,7 @@ export default function Home() {
     filteredData,
     filterOptions,
     hasActiveFilter,
+    allFiltersSet,
     searchTerm,
     setSearchTerm,
   } = useFilters(data);
@@ -58,6 +59,14 @@ export default function Home() {
   const kpis2023 = computeKPIs(data2023);
   const kpis2025 = computeKPIs(data2025);
 
+  const selectedLabel = [
+    filters.municipio,
+    filters.rede,
+    filters.etapa,
+  ]
+    .filter(Boolean)
+    .join(" — ");
+
   return (
     <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
       <Header updatedAt={updatedAt} source={source} onLogout={logout} />
@@ -73,6 +82,12 @@ export default function Home() {
 
       {hasActiveFilter && (
         <>
+          {selectedLabel && (
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+              {selectedLabel}
+            </h2>
+          )}
+
           <div>
             <p className="text-xs text-gray-500 mb-3 italic">
               Variação em relação à edição anterior (2023)
@@ -115,9 +130,12 @@ export default function Home() {
         </>
       )}
 
-      <DataTable data={activeData} ano={2025} title="Resultado 2025" />
-
-      {hasActiveFilter && <RankingTable data={filteredData} />}
+      {allFiltersSet && (
+        <>
+          <DataTable data={activeData} ano={2025} title="Resultado 2025" />
+          <RankingTable data={filteredData} />
+        </>
+      )}
     </main>
   );
 }
