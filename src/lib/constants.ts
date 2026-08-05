@@ -4,7 +4,13 @@ export const SHEET_ID =
 
 export const SHEET_GID = process.env.GOOGLE_SHEET_GID || "472115507";
 
+export const NTE_SHEET_GID = process.env.GOOGLE_NTE_SHEET_GID || "";
+
 export const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
+
+export const NTE_CSV_URL = NTE_SHEET_GID
+  ? `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${NTE_SHEET_GID}`
+  : "";
 
 export const EXPECTED_HEADERS = [
   "ano",

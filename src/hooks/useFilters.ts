@@ -5,6 +5,7 @@ import { IdebRecord, FilterState } from "@/types/ideb";
 
 interface FilterOptions {
   anos: string[];
+  ntes: string[];
   municipios: string[];
   redes: string[];
   etapas: string[];
@@ -16,10 +17,12 @@ interface UseFiltersReturn {
   clearFilters: () => void;
   filteredData: IdebRecord[];
   filterOptions: FilterOptions;
+  hasActiveFilter: boolean;
 }
 
 const INITIAL_FILTERS: FilterState = {
   ano: null,
+  nte: null,
   municipio: null,
   rede: null,
   etapa: null,
@@ -39,9 +42,12 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
     setFilters(INITIAL_FILTERS);
   }, []);
 
+  const hasActiveFilter = Object.values(filters).some((v) => v !== null);
+
   const filteredData = useMemo(() => {
     return data.filter((record) => {
       if (filters.ano && record.ano !== parseInt(filters.ano, 10)) return false;
+      if (filters.nte && record.nte !== filters.nte) return false;
       if (filters.municipio && record.municipio !== filters.municipio)
         return false;
       if (filters.rede && record.rede !== filters.rede) return false;
@@ -54,11 +60,12 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
     const unique = <T>(arr: T[]) => [...new Set(arr)].sort();
     return {
       anos: unique(data.map((r) => String(r.ano))),
+      ntes: unique(data.map((r) => r.nte).filter(Boolean)),
       municipios: unique(data.map((r) => r.municipio).filter(Boolean)),
       redes: unique(data.map((r) => r.rede).filter(Boolean)),
       etapas: unique(data.map((r) => r.etapa).filter(Boolean)),
     };
   }, [data]);
 
-  return { filters, setFilter, clearFilters, filteredData, filterOptions };
+  return { filters, setFilter, clearFilters, filteredData, filterOptions, hasActiveFilter };
 }

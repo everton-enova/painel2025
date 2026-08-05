@@ -1,7 +1,7 @@
 import { IdebRecord } from "@/types/ideb";
-import { SHEET_CSV_URL, CACHE_TTL_MS } from "./constants";
+import { SHEET_CSV_URL, NTE_CSV_URL, CACHE_TTL_MS } from "./constants";
 import { parseCSV } from "./parseCSV";
-import { normalizeRecords } from "./normalize";
+import { normalizeRecords, parseNteMappings, buildNteMap } from "./normalize";
 import { mockData, MOCK_UPDATED_AT } from "@/data/mock-data";
 
 interface CachedData {
@@ -11,6 +11,21 @@ interface CachedData {
 }
 
 let cache: CachedData | null = null;
+
+async function fetchNteMap(): Promise<Map<string, string>> {
+  if (!NTE_CSV_URL) return new Map();
+
+  try {
+    const response = await fetch(NTE_CSV_URL, { next: { revalidate: 300 } });
+    if (!response.ok) return new Map();
+    const csv = await response.text();
+    const rawRecords = parseCSV(csv);
+    const mappings = parseNteMappings(rawRecords);
+    return buildNteMap(mappings);
+  } catch {
+    return new Map();
+  }
+}
 
 export async function fetchSheetData(): Promise<{
   data: IdebRecord[];
@@ -22,9 +37,10 @@ export async function fetchSheetData(): Promise<{
   }
 
   try {
-    const response = await fetch(SHEET_CSV_URL, {
-      next: { revalidate: 300 },
-    });
+    const [response, nteMap] = await Promise.all([
+      fetch(SHEET_CSV_URL, { next: { revalidate: 300 } }),
+      fetchNteMap(),
+    ]);
 
     if (!response.ok) {
       throw new Error(`Google Sheets returned ${response.status}`);
@@ -32,7 +48,7 @@ export async function fetchSheetData(): Promise<{
 
     const csv = await response.text();
     const rawRecords = parseCSV(csv);
-    const data = normalizeRecords(rawRecords);
+    const data = normalizeRecords(rawRecords, nteMap);
 
     const updatedAt = new Date().toISOString();
     cache = { data, updatedAt, fetchedAt: Date.now() };

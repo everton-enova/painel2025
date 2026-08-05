@@ -6,6 +6,7 @@ function makeRecord(overrides: Partial<IdebRecord> = {}): IdebRecord {
     ano: 2023,
     codigo_municipio: "1",
     municipio: "Test",
+    nte: "NTE 01",
     rede: "Municipal",
     etapa: "Anos Iniciais",
     ideb_observado: 5.0,

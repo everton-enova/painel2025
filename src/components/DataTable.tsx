@@ -52,6 +52,7 @@ export function DataTable({ data }: DataTableProps) {
 
   const columns: { key: SortKey; label: string; format?: (r: IdebRecord) => string }[] = [
     { key: "ano", label: "Ano" },
+    { key: "nte", label: "NTE" },
     { key: "municipio", label: "Município" },
     { key: "rede", label: "Rede" },
     { key: "etapa", label: "Etapa" },

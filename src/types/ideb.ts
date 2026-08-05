@@ -2,6 +2,7 @@ export interface IdebRecord {
   ano: number;
   codigo_municipio: string;
   municipio: string;
+  nte: string;
   rede: string;
   etapa: string;
   ideb_observado: number | null;
@@ -11,8 +12,15 @@ export interface IdebRecord {
   status_meta: "Atingiu" | "Não atingiu" | "Sem informação";
 }
 
+export interface NteMapping {
+  codigo_municipio: string;
+  municipio: string;
+  nte: string;
+}
+
 export interface FilterState {
   ano: string | null;
+  nte: string | null;
   municipio: string | null;
   rede: string | null;
   etapa: string | null;

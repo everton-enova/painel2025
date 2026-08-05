@@ -2,10 +2,8 @@
 
 import { useIdebData } from "@/hooks/useIdebData";
 import { useFilters } from "@/hooks/useFilters";
-import { computeKPIs } from "@/lib/aggregations";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
-import { SummaryCards } from "@/components/SummaryCards";
 import { DataTable } from "@/components/DataTable";
 import { ChartEvolucao } from "@/components/ChartEvolucao";
 import { ChartComparativo } from "@/components/ChartComparativo";
@@ -14,7 +12,7 @@ import { EmptyState } from "@/components/EmptyState";
 
 export default function Home() {
   const { data, updatedAt, source, isLoading, error } = useIdebData();
-  const { filters, setFilter, clearFilters, filteredData, filterOptions } =
+  const { filters, setFilter, clearFilters, filteredData, filterOptions, hasActiveFilter } =
     useFilters(data);
 
   if (isLoading) {
@@ -38,8 +36,6 @@ export default function Home() {
     );
   }
 
-  const kpis = computeKPIs(filteredData);
-
   return (
     <main className="mx-auto max-w-7xl px-4 py-6 space-y-6">
       <Header updatedAt={updatedAt} source={source} />
@@ -51,12 +47,12 @@ export default function Home() {
         onClear={clearFilters}
       />
 
-      {filteredData.length === 0 ? (
+      {!hasActiveFilter ? (
+        <EmptyState message="Selecione ao menos um filtro para visualizar os dados" />
+      ) : filteredData.length === 0 ? (
         <EmptyState />
       ) : (
         <>
-          <SummaryCards kpis={kpis} />
-
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ChartEvolucao data={filteredData} />
             <ChartComparativo data={filteredData} />

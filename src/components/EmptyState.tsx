@@ -1,6 +1,10 @@
 "use client";
 
-export function EmptyState() {
+interface EmptyStateProps {
+  message?: string;
+}
+
+export function EmptyState({ message }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 py-16">
       <svg
@@ -17,11 +21,13 @@ export function EmptyState() {
         />
       </svg>
       <p className="mt-3 text-sm font-medium text-gray-600">
-        Nenhum dado encontrado
+        {message ?? "Nenhum dado encontrado"}
       </p>
-      <p className="mt-1 text-xs text-gray-400">
-        Tente ajustar os filtros selecionados
-      </p>
+      {!message && (
+        <p className="mt-1 text-xs text-gray-400">
+          Tente ajustar os filtros selecionados
+        </p>
+      )}
     </div>
   );
 }

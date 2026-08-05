@@ -1,4 +1,4 @@
-import { IdebRecord } from "@/types/ideb";
+import { IdebRecord, NteMapping } from "@/types/ideb";
 
 export function parseDecimal(value: string | undefined | null): number | null {
   if (value == null) return null;
@@ -17,14 +17,19 @@ export function computeStatusMeta(
   return ideb >= meta ? "Atingiu" : "Não atingiu";
 }
 
-export function normalizeRecord(raw: Record<string, string>): IdebRecord {
+export function normalizeRecord(
+  raw: Record<string, string>,
+  nteMap?: Map<string, string>
+): IdebRecord {
   const ideb = parseDecimal(raw.ideb_observado);
   const meta = parseDecimal(raw.meta_ideb);
+  const codigoMunicipio = raw.codigo_municipio?.trim() ?? "";
 
   return {
     ano: parseInt(raw.ano, 10) || 0,
-    codigo_municipio: raw.codigo_municipio?.trim() ?? "",
+    codigo_municipio: codigoMunicipio,
     municipio: raw.municipio?.trim() ?? "",
+    nte: raw.nte?.trim() || nteMap?.get(codigoMunicipio) || "",
     rede: raw.rede?.trim() ?? "",
     etapa: raw.etapa?.trim() ?? "",
     ideb_observado: ideb,
@@ -36,9 +41,30 @@ export function normalizeRecord(raw: Record<string, string>): IdebRecord {
 }
 
 export function normalizeRecords(
-  rawRecords: Record<string, string>[]
+  rawRecords: Record<string, string>[],
+  nteMap?: Map<string, string>
 ): IdebRecord[] {
   return rawRecords
-    .map(normalizeRecord)
+    .map((r) => normalizeRecord(r, nteMap))
     .filter((r) => r.ano > 0 && r.municipio !== "");
+}
+
+export function parseNteMappings(
+  rawRecords: Record<string, string>[]
+): NteMapping[] {
+  return rawRecords
+    .filter((r) => r.nte?.trim() && r.codigo_municipio?.trim())
+    .map((r) => ({
+      codigo_municipio: r.codigo_municipio.trim(),
+      municipio: r.municipio?.trim() ?? "",
+      nte: r.nte.trim(),
+    }));
+}
+
+export function buildNteMap(mappings: NteMapping[]): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const m of mappings) {
+    map.set(m.codigo_municipio, m.nte);
+  }
+  return map;
 }
