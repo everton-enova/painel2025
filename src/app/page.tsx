@@ -14,7 +14,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { LoginScreen } from "@/components/LoginScreen";
 
 export default function Home() {
-  const { isAuthenticated, login, error: authError } = useAuth();
+  const { isAuthenticated, login } = useAuth();
   const { data, updatedAt, source, isLoading, error } = useIdebData();
   const {
     filters,
@@ -28,7 +28,7 @@ export default function Home() {
   } = useFilters(data);
 
   if (!isAuthenticated) {
-    return <LoginScreen onLogin={login} error={authError} />;
+    return <LoginScreen onLogin={login} />;
   }
 
   if (isLoading) {

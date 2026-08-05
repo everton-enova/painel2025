@@ -3,27 +3,28 @@
 import { useState } from "react";
 
 interface LoginScreenProps {
-  onLogin: (password: string) => boolean;
-  error: string | null;
+  onLogin: (password: string) => Promise<{ success: boolean; error?: string }>;
 }
 
-export function LoginScreen({ onLogin, error }: LoginScreenProps) {
+export function LoginScreen({ onLogin }: LoginScreenProps) {
   const [password, setPassword] = useState("");
-  const [localError, setLocalError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!password.trim()) {
-      setLocalError("Digite a senha de acesso");
+      setError("Digite a senha de acesso");
       return;
     }
-    const success = onLogin(password);
-    if (!success) {
-      setLocalError("Senha incorreta");
+    setLoading(true);
+    setError(null);
+    const result = await onLogin(password);
+    if (!result.success) {
+      setError(result.error || "Senha incorreta");
     }
+    setLoading(false);
   };
-
-  const displayError = localError || error;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-50 px-4">
@@ -57,25 +58,27 @@ export function LoginScreen({ onLogin, error }: LoginScreenProps) {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                setLocalError(null);
+                setError(null);
               }}
               placeholder="Digite a senha"
               autoFocus
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              disabled={loading}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
             />
           </div>
 
-          {displayError && (
+          {error && (
             <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
-              {displayError}
+              {error}
             </p>
           )}
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            disabled={loading}
+            className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
           >
-            Entrar
+            {loading ? "Verificando..." : "Entrar"}
           </button>
         </form>
 

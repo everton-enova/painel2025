@@ -3,6 +3,7 @@ export const SHEET_ID =
   "1KY-_pTaFDJ41q9_eLaHLcZwmwx_TkS92TFe2TB-HnOY";
 
 export const GIDS = {
+  ACESSO: "0",
   NTE: "155176357",
   ANOS_INICIAIS: "472115507",
   ANOS_FINAIS: "767980037",
