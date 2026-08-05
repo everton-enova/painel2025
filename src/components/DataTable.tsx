@@ -53,7 +53,7 @@ export function DataTable({ data, ano, title }: DataTableProps) {
     { key: "municipio", label: "Município" },
     { key: "rede", label: "Rede" },
     { key: "etapa", label: "Etapa" },
-    { key: "ideb", label: "IDEB", format: (r) => formatDecimal(r.ideb) },
+    { key: "ideb", label: "Ideb", format: (r) => formatDecimal(r.ideb) },
     { key: "nota_padronizada", label: "Nota Pad.", format: (r) => formatDecimal(r.nota_padronizada) },
     { key: "proficiencia_mat", label: "Prof. MAT", format: (r) => formatDecimal(r.proficiencia_mat) },
     { key: "proficiencia_lp", label: "Prof. LP", format: (r) => formatDecimal(r.proficiencia_lp) },

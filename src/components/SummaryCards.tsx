@@ -72,7 +72,6 @@ function Card({
         </p>
         <VariationBadge v2023={value2023} v2025={value2025} />
       </div>
-      <p className="text-xs text-gray-400">vs 2023</p>
     </div>
   );
 }
@@ -81,7 +80,7 @@ export function SummaryCards({ kpis2023, kpis2025 }: SummaryCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
       <Card
-        label="IDEB"
+        label="Ideb"
         value2025={kpis2025.mediaIdeb}
         value2023={kpis2023.mediaIdeb}
         icon="📊"

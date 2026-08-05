@@ -18,6 +18,14 @@ type FieldKey =
   | "proficiencia_lp"
   | "indicador_rendimento";
 
+const DOMAIN_MAP: Record<FieldKey, [number, number]> = {
+  ideb: [0, 10],
+  nota_padronizada: [0, 10],
+  indicador_rendimento: [0.5, 1.0],
+  proficiencia_mat: [100, 500],
+  proficiencia_lp: [100, 500],
+};
+
 interface ChartIndicadorProps {
   data: IdebRecord[];
   field: FieldKey;
@@ -57,7 +65,7 @@ export function ChartIndicador({
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
           <XAxis dataKey="ano" tick={{ fontSize: 12 }} />
           <YAxis
-            domain={["auto", "auto"]}
+            domain={DOMAIN_MAP[field]}
             tick={{ fontSize: 12 }}
             tickFormatter={(v: number) => v.toFixed(1)}
           />

@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Painel IDEB Bahia",
+  title: "Painel Ideb Bahia",
   description:
-    "Painel de acompanhamento de indicadores do IDEB na Bahia",
+    "Painel de acompanhamento de indicadores do Ideb na Bahia",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

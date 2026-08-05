@@ -66,13 +66,18 @@ export default function Home() {
 
       {hasActiveFilter && (
         <>
-          <SummaryCards kpis2023={kpis2023} kpis2025={kpis2025} />
+          <div>
+            <p className="text-xs text-gray-500 mb-3 italic">
+              Variação em relação à edição anterior (2023)
+            </p>
+            <SummaryCards kpis2023={kpis2023} kpis2025={kpis2025} />
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <ChartIndicador
               data={filteredData}
               field="ideb"
-              title="IDEB"
+              title="Ideb"
               color="#2563eb"
             />
             <ChartIndicador
@@ -106,12 +111,7 @@ export default function Home() {
       <DataTable
         data={activeData}
         ano={2025}
-        title="Dados IDEB 2025"
-      />
-      <DataTable
-        data={activeData}
-        ano={2023}
-        title="Dados IDEB 2023"
+        title="Resultado 2025"
       />
 
       {hasActiveFilter && <RankingTable data={filteredData} />}

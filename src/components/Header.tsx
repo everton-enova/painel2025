@@ -21,7 +21,7 @@ export function Header({ updatedAt, source }: HeaderProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Painel IDEB Bahia
+            Painel Ideb Bahia
           </h1>
           <p className="text-blue-100 text-sm mt-1">
             Acompanhamento de indicadores educacionais

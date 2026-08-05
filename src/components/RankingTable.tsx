@@ -11,7 +11,7 @@ interface RankingTableProps {
 type FieldKey = "ideb" | "nota_padronizada" | "proficiencia_mat" | "proficiencia_lp" | "indicador_rendimento";
 
 const FIELDS: { key: FieldKey; label: string }[] = [
-  { key: "ideb", label: "IDEB" },
+  { key: "ideb", label: "Ideb" },
   { key: "nota_padronizada", label: "Nota Padronizada" },
   { key: "proficiencia_mat", label: "Proficiência MAT" },
   { key: "proficiencia_lp", label: "Proficiência LP" },
