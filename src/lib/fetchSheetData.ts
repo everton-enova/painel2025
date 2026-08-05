@@ -1,19 +1,11 @@
 import { IdebRecord } from "@/types/ideb";
-import { GIDS, sheetCsvUrl, CACHE_TTL_MS } from "./constants";
+import { GIDS, sheetCsvUrl } from "./constants";
 import { parseAllTabs } from "./parseInep";
 import { mockData, MOCK_UPDATED_AT } from "@/data/mock-data";
 
-interface CachedData {
-  data: IdebRecord[];
-  updatedAt: string;
-  fetchedAt: number;
-}
-
-let cache: CachedData | null = null;
-
 async function fetchCsv(gid: string): Promise<string> {
   const url = sheetCsvUrl(gid);
-  const response = await fetch(url, { next: { revalidate: 300 } });
+  const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) {
     throw new Error(`Sheet gid=${gid} returned ${response.status}`);
   }
@@ -25,10 +17,6 @@ export async function fetchSheetData(): Promise<{
   updatedAt: string;
   source: "sheet" | "mock";
 }> {
-  if (cache && Date.now() - cache.fetchedAt < CACHE_TTL_MS) {
-    return { data: cache.data, updatedAt: cache.updatedAt, source: "sheet" };
-  }
-
   try {
     const [nteCsv, aiCsv, afCsv, emCsv] = await Promise.all([
       fetchCsv(GIDS.NTE),
@@ -43,10 +31,7 @@ export async function fetchSheetData(): Promise<{
       throw new Error("No records parsed from spreadsheet");
     }
 
-    const updatedAt = new Date().toISOString();
-    cache = { data, updatedAt, fetchedAt: Date.now() };
-
-    return { data, updatedAt, source: "sheet" };
+    return { data, updatedAt: new Date().toISOString(), source: "sheet" };
   } catch {
     return { data: mockData, updatedAt: MOCK_UPDATED_AT, source: "mock" };
   }

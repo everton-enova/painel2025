@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { fetchSheetData } from "@/lib/fetchSheetData";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const { data, updatedAt, source } = await fetchSheetData();
 
@@ -8,7 +10,7 @@ export async function GET() {
     { data, updatedAt, source },
     {
       headers: {
-        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "Cache-Control": "no-store",
       },
     }
   );

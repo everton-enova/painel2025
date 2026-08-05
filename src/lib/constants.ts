@@ -13,5 +13,3 @@ export const GIDS = {
 export function sheetCsvUrl(gid: string): string {
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
 }
-
-export const CACHE_TTL_MS = 5 * 60 * 1000;
