@@ -112,19 +112,26 @@ Solicitações:
 - Tabelas: NTE, Município, Rede, Etapa, IDEB, Nota Pad., Prof. MAT, Prof. LP, Ind. Rendimento
 - Ranking por variação: IDEB, Proficiência, Nota Padronizada, Indicador de Rendimento
 
-### Fase 5 — Refinamento visual e funcional (atual)
+### Fase 5 — Refinamento visual e funcional
 Solicitações implementadas:
 1. **Filtro NTE removido** — NTE mantido nas tabelas mas não como filtro
 2. **Comportamento inicial:** Sem filtro → tabelas preenchidas com todos os municípios, cards e gráficos em branco
-3. **Cards KPI redesenhados:** Layout mais limpo — valor 2025 em destaque + badge de variação (▲/▼) colorido + "vs 2023"
+3. **Cards KPI redesenhados:** Layout mais limpo — valor 2025 em destaque + badge de variação (▲/▼) colorido
 4. **Barra de pesquisa:** Campo de texto para buscar município por nome
 5. **5 gráficos individuais por indicador:** Série histórica desde 2019
-   - IDEB (azul)
+   - Ideb (azul)
    - Indicador de Rendimento (âmbar)
    - Nota Padronizada (roxo)
    - Proficiência Matemática (teal)
    - Proficiência Língua Portuguesa (rosa)
 6. **Dados históricos expandidos:** Adicionados registros de 2019 e 2021 para todos os municípios mock
+
+### Fase 6 — Ajustes de escala, nomenclatura e layout (atual)
+Solicitações implementadas:
+1. **Escalas fixas nos gráficos:** Ideb 0-10, Nota Padronizada 0-10, Ind. Rendimento 0.5-1.0, Proficiências 100-500
+2. **Tabela única (2025):** Removida tabela de 2023, tabela 2025 renomeada para "Resultado 2025"
+3. **Nota de variação:** Removido "vs 2023" de cada card, adicionada nota única acima dos cards: "Variação em relação à edição anterior (2023)"
+4. **Padronização "Ideb":** Alterado de "IDEB" para "Ideb" em todos os componentes (header, cards, tabelas, ranking, layout)
 
 ---
 
