@@ -84,7 +84,7 @@ function MunicipioSearch({
       ? municipios.filter((m) =>
           m.toLowerCase().includes(searchTerm.toLowerCase())
         )
-      : [];
+      : municipios;
 
   const handleSelect = (municipio: string) => {
     onSelectMunicipio(municipio);
@@ -97,7 +97,7 @@ function MunicipioSearch({
     if (!value) {
       onSelectMunicipio(null);
     }
-    setOpen(value.length > 0);
+    setOpen(true);
   };
 
   return (
@@ -110,13 +110,13 @@ function MunicipioSearch({
         value={searchTerm}
         onChange={(e) => handleInputChange(e.target.value)}
         onFocus={() => {
-          if (searchTerm.length > 0 && !selectedMunicipio) setOpen(true);
+          if (!selectedMunicipio) setOpen(true);
         }}
         placeholder="Digite o nome do município..."
         className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
       />
       {open && suggestions.length > 0 && (
-        <ul className="absolute top-full left-0 right-0 z-50 mt-1 max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+        <ul className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
           {suggestions.slice(0, 20).map((m) => (
             <li
               key={m}
