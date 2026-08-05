@@ -17,22 +17,27 @@ interface ChartEvolucaoProps {
 }
 
 export function ChartEvolucao({ data }: ChartEvolucaoProps) {
-  const withValues = data.filter(
-    (r) => r.ideb_observado !== null && r.meta_ideb !== null
-  );
-
+  const withValues = data.filter((r) => r.ideb !== null);
   const anos = [...new Set(withValues.map((r) => r.ano))].sort();
 
   const chartData = anos.map((ano) => {
     const records = withValues.filter((r) => r.ano === ano);
     const avgIdeb =
-      records.reduce((s, r) => s + r.ideb_observado!, 0) / records.length;
-    const avgMeta =
-      records.reduce((s, r) => s + r.meta_ideb!, 0) / records.length;
+      records.reduce((s, r) => s + r.ideb!, 0) / records.length;
+    const withNp = records.filter((r) => r.nota_padronizada !== null);
+    const avgNp = withNp.length > 0
+      ? withNp.reduce((s, r) => s + r.nota_padronizada!, 0) / withNp.length
+      : null;
+    const withIr = records.filter((r) => r.indicador_rendimento !== null);
+    const avgIr = withIr.length > 0
+      ? withIr.reduce((s, r) => s + r.indicador_rendimento!, 0) / withIr.length
+      : null;
+
     return {
       ano: String(ano),
-      "IDEB Observado": Math.round(avgIdeb * 100) / 100,
-      "Meta IDEB": Math.round(avgMeta * 100) / 100,
+      IDEB: Math.round(avgIdeb * 100) / 100,
+      "Nota Padronizada": avgNp !== null ? Math.round(avgNp * 100) / 100 : null,
+      "Ind. Rendimento": avgIr !== null ? Math.round(avgIr * 100) / 100 : null,
     };
   });
 
@@ -41,7 +46,7 @@ export function ChartEvolucao({ data }: ChartEvolucaoProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
       <h3 className="text-sm font-semibold text-gray-700 mb-4">
-        Evolução do IDEB ao Longo do Tempo
+        Evolução dos Indicadores
       </h3>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>
@@ -58,7 +63,7 @@ export function ChartEvolucao({ data }: ChartEvolucaoProps) {
           <Legend />
           <Line
             type="monotone"
-            dataKey="IDEB Observado"
+            dataKey="IDEB"
             stroke="#2563eb"
             strokeWidth={2}
             dot={{ r: 4 }}
@@ -66,10 +71,16 @@ export function ChartEvolucao({ data }: ChartEvolucaoProps) {
           />
           <Line
             type="monotone"
-            dataKey="Meta IDEB"
+            dataKey="Nota Padronizada"
+            stroke="#7c3aed"
+            strokeWidth={2}
+            dot={{ r: 4 }}
+          />
+          <Line
+            type="monotone"
+            dataKey="Ind. Rendimento"
             stroke="#f59e0b"
             strokeWidth={2}
-            strokeDasharray="5 5"
             dot={{ r: 4 }}
           />
         </LineChart>

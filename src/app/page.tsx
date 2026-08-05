@@ -2,9 +2,12 @@
 
 import { useIdebData } from "@/hooks/useIdebData";
 import { useFilters } from "@/hooks/useFilters";
+import { computeKPIs } from "@/lib/aggregations";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
+import { SummaryCards } from "@/components/SummaryCards";
 import { DataTable } from "@/components/DataTable";
+import { RankingTable } from "@/components/RankingTable";
 import { ChartEvolucao } from "@/components/ChartEvolucao";
 import { ChartComparativo } from "@/components/ChartComparativo";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -36,6 +39,11 @@ export default function Home() {
     );
   }
 
+  const data2023 = filteredData.filter((r) => r.ano === 2023);
+  const data2025 = filteredData.filter((r) => r.ano === 2025);
+  const kpis2023 = computeKPIs(data2023);
+  const kpis2025 = computeKPIs(data2025);
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-6 space-y-6">
       <Header updatedAt={updatedAt} source={source} />
@@ -53,12 +61,17 @@ export default function Home() {
         <EmptyState />
       ) : (
         <>
+          <SummaryCards kpis2023={kpis2023} kpis2025={kpis2025} />
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ChartEvolucao data={filteredData} />
             <ChartComparativo data={filteredData} />
           </div>
 
-          <DataTable data={filteredData} />
+          <DataTable data={filteredData} ano={2025} title="Dados IDEB 2025" />
+          <DataTable data={filteredData} ano={2023} title="Dados IDEB 2023" />
+
+          <RankingTable data={filteredData} />
         </>
       )}
     </main>

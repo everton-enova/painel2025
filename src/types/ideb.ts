@@ -5,11 +5,11 @@ export interface IdebRecord {
   nte: string;
   rede: string;
   etapa: string;
-  ideb_observado: number | null;
-  meta_ideb: number | null;
-  aprendizado: number | null;
-  fluxo: number | null;
-  status_meta: "Atingiu" | "Não atingiu" | "Sem informação";
+  ideb: number | null;
+  nota_padronizada: number | null;
+  proficiencia_mat: number | null;
+  proficiencia_lp: number | null;
+  indicador_rendimento: number | null;
 }
 
 export interface NteMapping {
@@ -19,7 +19,6 @@ export interface NteMapping {
 }
 
 export interface FilterState {
-  ano: string | null;
   nte: string | null;
   municipio: string | null;
   rede: string | null;
@@ -27,10 +26,20 @@ export interface FilterState {
 }
 
 export interface KPIData {
+  mediaNotaPadronizada: number | null;
+  mediaProficienciaMat: number | null;
+  mediaProficienciaLp: number | null;
   mediaIdeb: number | null;
-  mediaMeta: number | null;
+  mediaIndicadorRendimento: number | null;
   totalRegistros: number;
-  percentualAtingiu: number | null;
-  mediaAprendizado: number | null;
-  mediaFluxo: number | null;
+}
+
+export interface VariacaoRecord {
+  municipio: string;
+  nte: string;
+  rede: string;
+  etapa: string;
+  valor2023: number | null;
+  valor2025: number | null;
+  variacao: number | null;
 }

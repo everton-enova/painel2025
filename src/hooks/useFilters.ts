@@ -4,7 +4,6 @@ import { useState, useMemo, useCallback } from "react";
 import { IdebRecord, FilterState } from "@/types/ideb";
 
 interface FilterOptions {
-  anos: string[];
   ntes: string[];
   municipios: string[];
   redes: string[];
@@ -21,7 +20,6 @@ interface UseFiltersReturn {
 }
 
 const INITIAL_FILTERS: FilterState = {
-  ano: null,
   nte: null,
   municipio: null,
   rede: null,
@@ -46,7 +44,6 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
 
   const filteredData = useMemo(() => {
     return data.filter((record) => {
-      if (filters.ano && record.ano !== parseInt(filters.ano, 10)) return false;
       if (filters.nte && record.nte !== filters.nte) return false;
       if (filters.municipio && record.municipio !== filters.municipio)
         return false;
@@ -59,7 +56,6 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
   const filterOptions = useMemo((): FilterOptions => {
     const unique = <T>(arr: T[]) => [...new Set(arr)].sort();
     return {
-      anos: unique(data.map((r) => String(r.ano))),
       ntes: unique(data.map((r) => r.nte).filter(Boolean)),
       municipios: unique(data.map((r) => r.municipio).filter(Boolean)),
       redes: unique(data.map((r) => r.rede).filter(Boolean)),

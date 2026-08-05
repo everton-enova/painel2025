@@ -5,6 +5,8 @@ import { IdebRecord } from "@/types/ideb";
 
 interface DataTableProps {
   data: IdebRecord[];
+  ano: number;
+  title: string;
 }
 
 type SortKey = keyof IdebRecord;
@@ -15,15 +17,11 @@ function formatDecimal(n: number | null): string {
   return n.toFixed(2).replace(".", ",");
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  Atingiu: "bg-green-100 text-green-800",
-  "Não atingiu": "bg-red-100 text-red-800",
-  "Sem informação": "bg-gray-100 text-gray-600",
-};
+export function DataTable({ data, ano, title }: DataTableProps) {
+  const [sortKey, setSortKey] = useState<SortKey>("municipio");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-export function DataTable({ data }: DataTableProps) {
-  const [sortKey, setSortKey] = useState<SortKey>("ano");
-  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const filtered = data.filter((r) => r.ano === ano);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -34,7 +32,7 @@ export function DataTable({ data }: DataTableProps) {
     }
   };
 
-  const sorted = [...data].sort((a, b) => {
+  const sorted = [...filtered].sort((a, b) => {
     const va = a[sortKey];
     const vb = b[sortKey];
     if (va === null && vb === null) return 0;
@@ -51,20 +49,23 @@ export function DataTable({ data }: DataTableProps) {
   });
 
   const columns: { key: SortKey; label: string; format?: (r: IdebRecord) => string }[] = [
-    { key: "ano", label: "Ano" },
     { key: "nte", label: "NTE" },
     { key: "municipio", label: "Município" },
     { key: "rede", label: "Rede" },
     { key: "etapa", label: "Etapa" },
-    { key: "ideb_observado", label: "IDEB", format: (r) => formatDecimal(r.ideb_observado) },
-    { key: "meta_ideb", label: "Meta", format: (r) => formatDecimal(r.meta_ideb) },
-    { key: "aprendizado", label: "Aprendizado", format: (r) => formatDecimal(r.aprendizado) },
-    { key: "fluxo", label: "Fluxo", format: (r) => formatDecimal(r.fluxo) },
-    { key: "status_meta", label: "Status" },
+    { key: "ideb", label: "IDEB", format: (r) => formatDecimal(r.ideb) },
+    { key: "nota_padronizada", label: "Nota Pad.", format: (r) => formatDecimal(r.nota_padronizada) },
+    { key: "proficiencia_mat", label: "Prof. MAT", format: (r) => formatDecimal(r.proficiencia_mat) },
+    { key: "proficiencia_lp", label: "Prof. LP", format: (r) => formatDecimal(r.proficiencia_lp) },
+    { key: "indicador_rendimento", label: "Ind. Rend.", format: (r) => formatDecimal(r.indicador_rendimento) },
   ];
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+        <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
+        <p className="text-xs text-gray-500">{sorted.length} registros</p>
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
@@ -88,21 +89,18 @@ export function DataTable({ data }: DataTableProps) {
               <tr key={i} className="hover:bg-gray-50 transition-colors">
                 {columns.map((col) => (
                   <td key={col.key} className="px-4 py-2.5 whitespace-nowrap">
-                    {col.key === "status_meta" ? (
-                      <span
-                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[record.status_meta]}`}
-                      >
-                        {record.status_meta}
-                      </span>
-                    ) : col.format ? (
-                      col.format(record)
-                    ) : (
-                      String(record[col.key] ?? "—")
-                    )}
+                    {col.format ? col.format(record) : String(record[col.key] ?? "—")}
                   </td>
                 ))}
               </tr>
             ))}
+            {sorted.length === 0 && (
+              <tr>
+                <td colSpan={columns.length} className="px-4 py-8 text-center text-sm text-gray-400">
+                  Sem dados para {ano}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

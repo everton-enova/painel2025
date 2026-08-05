@@ -1,4 +1,4 @@
-import { IdebRecord, KPIData } from "@/types/ideb";
+import { IdebRecord, KPIData, VariacaoRecord } from "@/types/ideb";
 
 function safeAverage(values: number[]): number | null {
   if (values.length === 0) return null;
@@ -7,26 +7,75 @@ function safeAverage(values: number[]): number | null {
 }
 
 export function computeKPIs(records: IdebRecord[]): KPIData {
-  const withIdeb = records.filter((r) => r.ideb_observado !== null);
-  const withMeta = records.filter((r) => r.meta_ideb !== null);
-  const withBoth = records.filter(
-    (r) => r.ideb_observado !== null && r.meta_ideb !== null
-  );
-  const atingiu = withBoth.filter((r) => r.status_meta === "Atingiu");
-
   return {
-    mediaIdeb: safeAverage(withIdeb.map((r) => r.ideb_observado!)),
-    mediaMeta: safeAverage(withMeta.map((r) => r.meta_ideb!)),
+    mediaNotaPadronizada: safeAverage(
+      records.filter((r) => r.nota_padronizada !== null).map((r) => r.nota_padronizada!)
+    ),
+    mediaProficienciaMat: safeAverage(
+      records.filter((r) => r.proficiencia_mat !== null).map((r) => r.proficiencia_mat!)
+    ),
+    mediaProficienciaLp: safeAverage(
+      records.filter((r) => r.proficiencia_lp !== null).map((r) => r.proficiencia_lp!)
+    ),
+    mediaIdeb: safeAverage(
+      records.filter((r) => r.ideb !== null).map((r) => r.ideb!)
+    ),
+    mediaIndicadorRendimento: safeAverage(
+      records.filter((r) => r.indicador_rendimento !== null).map((r) => r.indicador_rendimento!)
+    ),
     totalRegistros: records.length,
-    percentualAtingiu:
-      withBoth.length > 0
-        ? Math.round((atingiu.length / withBoth.length) * 10000) / 100
-        : null,
-    mediaAprendizado: safeAverage(
-      records.filter((r) => r.aprendizado !== null).map((r) => r.aprendizado!)
-    ),
-    mediaFluxo: safeAverage(
-      records.filter((r) => r.fluxo !== null).map((r) => r.fluxo!)
-    ),
   };
+}
+
+type NumericField = "ideb" | "nota_padronizada" | "proficiencia_mat" | "proficiencia_lp" | "indicador_rendimento";
+
+function recordKey(r: IdebRecord): string {
+  return `${r.codigo_municipio}|${r.rede}|${r.etapa}`;
+}
+
+export function computeVariacao(
+  allRecords: IdebRecord[],
+  field: NumericField
+): VariacaoRecord[] {
+  const records2023 = new Map<string, IdebRecord>();
+  const records2025 = new Map<string, IdebRecord>();
+
+  for (const r of allRecords) {
+    const key = recordKey(r);
+    if (r.ano === 2023) records2023.set(key, r);
+    else if (r.ano === 2025) records2025.set(key, r);
+  }
+
+  const allKeys = new Set([...records2023.keys(), ...records2025.keys()]);
+  const result: VariacaoRecord[] = [];
+
+  for (const key of allKeys) {
+    const r23 = records2023.get(key);
+    const r25 = records2025.get(key);
+    const ref = r25 ?? r23;
+    if (!ref) continue;
+
+    const v23 = r23?.[field] ?? null;
+    const v25 = r25?.[field] ?? null;
+    const variacao = v23 !== null && v25 !== null
+      ? Math.round((v25 - v23) * 100) / 100
+      : null;
+
+    result.push({
+      municipio: ref.municipio,
+      nte: ref.nte,
+      rede: ref.rede,
+      etapa: ref.etapa,
+      valor2023: v23,
+      valor2025: v25,
+      variacao,
+    });
+  }
+
+  return result.sort((a, b) => {
+    if (a.variacao === null && b.variacao === null) return 0;
+    if (a.variacao === null) return 1;
+    if (b.variacao === null) return -1;
+    return b.variacao - a.variacao;
+  });
 }

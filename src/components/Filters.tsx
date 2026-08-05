@@ -3,7 +3,6 @@
 import { FilterState } from "@/types/ideb";
 
 interface FilterOptions {
-  anos: string[];
   ntes: string[];
   municipios: string[];
   redes: string[];
@@ -60,12 +59,6 @@ export function Filters({
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
       <div className="flex flex-col sm:flex-row sm:items-end gap-3 flex-wrap">
-        <Select
-          label="Ano"
-          value={filters.ano}
-          options={options.anos}
-          onChange={(v) => onFilterChange("ano", v)}
-        />
         <Select
           label="NTE"
           value={filters.nte}

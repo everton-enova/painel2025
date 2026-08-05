@@ -9,7 +9,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  Cell,
 } from "recharts";
 import { IdebRecord } from "@/types/ideb";
 
@@ -18,23 +17,28 @@ interface ChartComparativoProps {
 }
 
 export function ChartComparativo({ data }: ChartComparativoProps) {
-  const withValues = data.filter(
-    (r) => r.ideb_observado !== null && r.meta_ideb !== null
-  );
+  const data2023 = data.filter((r) => r.ano === 2023 && r.ideb !== null);
+  const data2025 = data.filter((r) => r.ano === 2025 && r.ideb !== null);
 
-  const municipios = [...new Set(withValues.map((r) => r.municipio))].sort();
+  const municipios = [...new Set([
+    ...data2023.map((r) => r.municipio),
+    ...data2025.map((r) => r.municipio),
+  ])].sort();
 
   const chartData = municipios.map((mun) => {
-    const records = withValues.filter((r) => r.municipio === mun);
-    const avgIdeb =
-      records.reduce((s, r) => s + r.ideb_observado!, 0) / records.length;
-    const avgMeta =
-      records.reduce((s, r) => s + r.meta_ideb!, 0) / records.length;
+    const r23 = data2023.filter((r) => r.municipio === mun);
+    const r25 = data2025.filter((r) => r.municipio === mun);
+    const avg23 = r23.length > 0
+      ? Math.round((r23.reduce((s, r) => s + r.ideb!, 0) / r23.length) * 100) / 100
+      : null;
+    const avg25 = r25.length > 0
+      ? Math.round((r25.reduce((s, r) => s + r.ideb!, 0) / r25.length) * 100) / 100
+      : null;
+
     return {
       municipio: mun.length > 15 ? mun.slice(0, 13) + "…" : mun,
-      "IDEB Observado": Math.round(avgIdeb * 100) / 100,
-      "Meta IDEB": Math.round(avgMeta * 100) / 100,
-      atingiu: avgIdeb >= avgMeta,
+      "IDEB 2023": avg23,
+      "IDEB 2025": avg25,
     };
   });
 
@@ -43,7 +47,7 @@ export function ChartComparativo({ data }: ChartComparativoProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
       <h3 className="text-sm font-semibold text-gray-700 mb-4">
-        IDEB Observado vs Meta por Município
+        IDEB 2023 vs 2025 por Município
       </h3>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData} barGap={2}>
@@ -64,19 +68,15 @@ export function ChartComparativo({ data }: ChartComparativoProps) {
             formatter={(value) => Number(value).toFixed(2).replace(".", ",")}
           />
           <Legend />
-          <Bar dataKey="IDEB Observado" radius={[4, 4, 0, 0]}>
-            {chartData.map((entry, index) => (
-              <Cell
-                key={index}
-                fill={entry.atingiu ? "#22c55e" : "#ef4444"}
-              />
-            ))}
-          </Bar>
           <Bar
-            dataKey="Meta IDEB"
-            fill="#f59e0b"
+            dataKey="IDEB 2023"
+            fill="#93c5fd"
             radius={[4, 4, 0, 0]}
-            opacity={0.7}
+          />
+          <Bar
+            dataKey="IDEB 2025"
+            fill="#2563eb"
+            radius={[4, 4, 0, 0]}
           />
         </BarChart>
       </ResponsiveContainer>

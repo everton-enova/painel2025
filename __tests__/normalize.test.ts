@@ -1,6 +1,5 @@
 import {
   parseDecimal,
-  computeStatusMeta,
   normalizeRecord,
   normalizeRecords,
 } from "@/lib/normalize";
@@ -43,45 +42,20 @@ describe("parseDecimal", () => {
   });
 });
 
-describe("computeStatusMeta", () => {
-  it('returns "Atingiu" when ideb >= meta', () => {
-    expect(computeStatusMeta(5.0, 4.5)).toBe("Atingiu");
-  });
-
-  it('returns "Atingiu" when ideb equals meta', () => {
-    expect(computeStatusMeta(4.5, 4.5)).toBe("Atingiu");
-  });
-
-  it('returns "Não atingiu" when ideb < meta', () => {
-    expect(computeStatusMeta(4.0, 4.5)).toBe("Não atingiu");
-  });
-
-  it('returns "Sem informação" when ideb is null', () => {
-    expect(computeStatusMeta(null, 4.5)).toBe("Sem informação");
-  });
-
-  it('returns "Sem informação" when meta is null', () => {
-    expect(computeStatusMeta(4.5, null)).toBe("Sem informação");
-  });
-
-  it('returns "Sem informação" when both are null', () => {
-    expect(computeStatusMeta(null, null)).toBe("Sem informação");
-  });
-});
-
 describe("normalizeRecord", () => {
   it("normalizes a complete record", () => {
     const raw = {
       ano: "2023",
       codigo_municipio: " 2927408 ",
       municipio: " Salvador ",
+      nte: " NTE 26 ",
       rede: " Municipal ",
       etapa: " Anos Iniciais ",
-      ideb_observado: "5,5",
-      meta_ideb: "5,4",
-      aprendizado: "5,9",
-      fluxo: "0,93",
-      status_meta: "",
+      ideb: "5,5",
+      nota_padronizada: "5,89",
+      proficiencia_mat: "228,5",
+      proficiencia_lp: "215,3",
+      indicador_rendimento: "0,93",
     };
 
     const result = normalizeRecord(raw);
@@ -89,13 +63,32 @@ describe("normalizeRecord", () => {
     expect(result.ano).toBe(2023);
     expect(result.codigo_municipio).toBe("2927408");
     expect(result.municipio).toBe("Salvador");
-    expect(result.rede).toBe("Municipal");
-    expect(result.etapa).toBe("Anos Iniciais");
-    expect(result.ideb_observado).toBe(5.5);
-    expect(result.meta_ideb).toBe(5.4);
-    expect(result.aprendizado).toBe(5.9);
-    expect(result.fluxo).toBe(0.93);
-    expect(result.status_meta).toBe("Atingiu");
+    expect(result.nte).toBe("NTE 26");
+    expect(result.ideb).toBe(5.5);
+    expect(result.nota_padronizada).toBe(5.89);
+    expect(result.proficiencia_mat).toBe(228.5);
+    expect(result.proficiencia_lp).toBe(215.3);
+    expect(result.indicador_rendimento).toBe(0.93);
+  });
+
+  it("uses NTE map when record has no nte field", () => {
+    const raw = {
+      ano: "2023",
+      codigo_municipio: "123",
+      municipio: "Test",
+      rede: "Municipal",
+      etapa: "Anos Finais",
+      ideb: "5",
+      nota_padronizada: "",
+      proficiencia_mat: "",
+      proficiencia_lp: "",
+      indicador_rendimento: "",
+    };
+
+    const nteMap = new Map([["123", "NTE 05"]]);
+    const result = normalizeRecord(raw, nteMap);
+
+    expect(result.nte).toBe("NTE 05");
   });
 
   it("handles missing values", () => {
@@ -105,26 +98,26 @@ describe("normalizeRecord", () => {
       municipio: "Test",
       rede: "Municipal",
       etapa: "Anos Finais",
-      ideb_observado: "",
-      meta_ideb: "",
-      aprendizado: "",
-      fluxo: "",
-      status_meta: "",
+      ideb: "",
+      nota_padronizada: "",
+      proficiencia_mat: "",
+      proficiencia_lp: "",
+      indicador_rendimento: "",
     };
 
     const result = normalizeRecord(raw);
 
-    expect(result.ideb_observado).toBeNull();
-    expect(result.meta_ideb).toBeNull();
-    expect(result.status_meta).toBe("Sem informação");
+    expect(result.ideb).toBeNull();
+    expect(result.nota_padronizada).toBeNull();
+    expect(result.proficiencia_mat).toBeNull();
   });
 });
 
 describe("normalizeRecords", () => {
   it("filters out records with invalid ano", () => {
     const records = [
-      { ano: "2023", codigo_municipio: "1", municipio: "A", rede: "M", etapa: "AI", ideb_observado: "5", meta_ideb: "4", aprendizado: "", fluxo: "", status_meta: "" },
-      { ano: "", codigo_municipio: "2", municipio: "B", rede: "M", etapa: "AI", ideb_observado: "5", meta_ideb: "4", aprendizado: "", fluxo: "", status_meta: "" },
+      { ano: "2023", codigo_municipio: "1", municipio: "A", rede: "M", etapa: "AI", ideb: "5", nota_padronizada: "", proficiencia_mat: "", proficiencia_lp: "", indicador_rendimento: "" },
+      { ano: "", codigo_municipio: "2", municipio: "B", rede: "M", etapa: "AI", ideb: "5", nota_padronizada: "", proficiencia_mat: "", proficiencia_lp: "", indicador_rendimento: "" },
     ];
 
     const result = normalizeRecords(records);
@@ -134,7 +127,7 @@ describe("normalizeRecords", () => {
 
   it("filters out records with empty municipio", () => {
     const records = [
-      { ano: "2023", codigo_municipio: "1", municipio: "", rede: "M", etapa: "AI", ideb_observado: "5", meta_ideb: "4", aprendizado: "", fluxo: "", status_meta: "" },
+      { ano: "2023", codigo_municipio: "1", municipio: "", rede: "M", etapa: "AI", ideb: "5", nota_padronizada: "", proficiencia_mat: "", proficiencia_lp: "", indicador_rendimento: "" },
     ];
 
     const result = normalizeRecords(records);

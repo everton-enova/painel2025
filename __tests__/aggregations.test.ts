@@ -1,4 +1,4 @@
-import { computeKPIs } from "@/lib/aggregations";
+import { computeKPIs, computeVariacao } from "@/lib/aggregations";
 import { IdebRecord } from "@/types/ideb";
 
 function makeRecord(overrides: Partial<IdebRecord> = {}): IdebRecord {
@@ -9,11 +9,11 @@ function makeRecord(overrides: Partial<IdebRecord> = {}): IdebRecord {
     nte: "NTE 01",
     rede: "Municipal",
     etapa: "Anos Iniciais",
-    ideb_observado: 5.0,
-    meta_ideb: 4.5,
-    aprendizado: 5.5,
-    fluxo: 0.9,
-    status_meta: "Atingiu",
+    ideb: 5.0,
+    nota_padronizada: 5.5,
+    proficiencia_mat: 230.0,
+    proficiencia_lp: 220.0,
+    indicador_rendimento: 0.91,
     ...overrides,
   };
 }
@@ -21,21 +21,21 @@ function makeRecord(overrides: Partial<IdebRecord> = {}): IdebRecord {
 describe("computeKPIs", () => {
   it("calculates averages with all values present", () => {
     const records = [
-      makeRecord({ ideb_observado: 4.0, meta_ideb: 3.5 }),
-      makeRecord({ ideb_observado: 6.0, meta_ideb: 5.5 }),
+      makeRecord({ ideb: 4.0, nota_padronizada: 4.5 }),
+      makeRecord({ ideb: 6.0, nota_padronizada: 6.5 }),
     ];
 
     const kpis = computeKPIs(records);
 
     expect(kpis.mediaIdeb).toBe(5.0);
-    expect(kpis.mediaMeta).toBe(4.5);
+    expect(kpis.mediaNotaPadronizada).toBe(5.5);
     expect(kpis.totalRegistros).toBe(2);
   });
 
-  it("skips null values in ideb average", () => {
+  it("skips null values in averages", () => {
     const records = [
-      makeRecord({ ideb_observado: 4.0, meta_ideb: 3.5 }),
-      makeRecord({ ideb_observado: null, meta_ideb: 5.5, status_meta: "Sem informação" }),
+      makeRecord({ ideb: 4.0 }),
+      makeRecord({ ideb: null }),
     ];
 
     const kpis = computeKPIs(records);
@@ -48,31 +48,50 @@ describe("computeKPIs", () => {
     const kpis = computeKPIs([]);
 
     expect(kpis.mediaIdeb).toBeNull();
-    expect(kpis.mediaMeta).toBeNull();
-    expect(kpis.percentualAtingiu).toBeNull();
+    expect(kpis.mediaNotaPadronizada).toBeNull();
+    expect(kpis.mediaProficienciaMat).toBeNull();
+    expect(kpis.mediaProficienciaLp).toBeNull();
     expect(kpis.totalRegistros).toBe(0);
   });
+});
 
-  it("calculates percentualAtingiu correctly", () => {
+describe("computeVariacao", () => {
+  it("calculates variation between 2023 and 2025", () => {
     const records = [
-      makeRecord({ ideb_observado: 5.0, meta_ideb: 4.0, status_meta: "Atingiu" }),
-      makeRecord({ ideb_observado: 3.0, meta_ideb: 4.0, status_meta: "Não atingiu" }),
-      makeRecord({ ideb_observado: 4.0, meta_ideb: 4.0, status_meta: "Atingiu" }),
+      makeRecord({ ano: 2023, ideb: 4.0 }),
+      makeRecord({ ano: 2025, ideb: 5.0 }),
     ];
 
-    const kpis = computeKPIs(records);
+    const result = computeVariacao(records, "ideb");
 
-    expect(kpis.percentualAtingiu).toBeCloseTo(66.67, 1);
+    expect(result).toHaveLength(1);
+    expect(result[0].variacao).toBe(1.0);
+    expect(result[0].valor2023).toBe(4.0);
+    expect(result[0].valor2025).toBe(5.0);
   });
 
-  it("returns null percentualAtingiu when no records have both values", () => {
+  it("sorts by variation descending", () => {
     const records = [
-      makeRecord({ ideb_observado: null, meta_ideb: 4.0, status_meta: "Sem informação" }),
-      makeRecord({ ideb_observado: 5.0, meta_ideb: null, status_meta: "Sem informação" }),
+      makeRecord({ ano: 2023, codigo_municipio: "1", ideb: 4.0 }),
+      makeRecord({ ano: 2025, codigo_municipio: "1", ideb: 4.5 }),
+      makeRecord({ ano: 2023, codigo_municipio: "2", municipio: "B", ideb: 3.0 }),
+      makeRecord({ ano: 2025, codigo_municipio: "2", municipio: "B", ideb: 5.0 }),
     ];
 
-    const kpis = computeKPIs(records);
+    const result = computeVariacao(records, "ideb");
 
-    expect(kpis.percentualAtingiu).toBeNull();
+    expect(result[0].variacao).toBe(2.0);
+    expect(result[1].variacao).toBe(0.5);
+  });
+
+  it("handles records with only one year", () => {
+    const records = [
+      makeRecord({ ano: 2023, ideb: 4.0 }),
+    ];
+
+    const result = computeVariacao(records, "ideb");
+
+    expect(result).toHaveLength(1);
+    expect(result[0].variacao).toBeNull();
   });
 });

@@ -9,20 +9,10 @@ export function parseDecimal(value: string | undefined | null): number | null {
   return isNaN(num) ? null : num;
 }
 
-export function computeStatusMeta(
-  ideb: number | null,
-  meta: number | null
-): "Atingiu" | "Não atingiu" | "Sem informação" {
-  if (ideb === null || meta === null) return "Sem informação";
-  return ideb >= meta ? "Atingiu" : "Não atingiu";
-}
-
 export function normalizeRecord(
   raw: Record<string, string>,
   nteMap?: Map<string, string>
 ): IdebRecord {
-  const ideb = parseDecimal(raw.ideb_observado);
-  const meta = parseDecimal(raw.meta_ideb);
   const codigoMunicipio = raw.codigo_municipio?.trim() ?? "";
 
   return {
@@ -32,11 +22,11 @@ export function normalizeRecord(
     nte: raw.nte?.trim() || nteMap?.get(codigoMunicipio) || "",
     rede: raw.rede?.trim() ?? "",
     etapa: raw.etapa?.trim() ?? "",
-    ideb_observado: ideb,
-    meta_ideb: meta,
-    aprendizado: parseDecimal(raw.aprendizado),
-    fluxo: parseDecimal(raw.fluxo),
-    status_meta: computeStatusMeta(ideb, meta),
+    ideb: parseDecimal(raw.ideb ?? raw.ideb_observado),
+    nota_padronizada: parseDecimal(raw.nota_padronizada),
+    proficiencia_mat: parseDecimal(raw.proficiencia_mat),
+    proficiencia_lp: parseDecimal(raw.proficiencia_lp),
+    indicador_rendimento: parseDecimal(raw.indicador_rendimento ?? raw.fluxo),
   };
 }
 
