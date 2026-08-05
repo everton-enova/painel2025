@@ -17,17 +17,17 @@ export function Header({ updatedAt, source }: HeaderProps) {
     : null;
 
   return (
-    <header className="bg-blue-700 text-white px-6 py-5 rounded-xl shadow-md">
+    <header className="bg-blue-700 text-white px-4 sm:px-6 py-4 sm:py-5 rounded-xl shadow-md">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+          <h1 className="text-xl sm:text-3xl font-bold tracking-tight">
             Painel Ideb Bahia
           </h1>
-          <p className="text-blue-100 text-sm mt-1">
+          <p className="text-blue-100 text-xs sm:text-sm mt-1">
             Acompanhamento de indicadores educacionais
           </p>
         </div>
-        <div className="text-right text-sm text-blue-100">
+        <div className="text-right text-xs sm:text-sm text-blue-100">
           {formattedDate && (
             <p>
               Atualizado em: <span className="font-medium">{formattedDate}</span>

@@ -36,7 +36,7 @@ export function RankingTable({ data }: RankingTableProps) {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+      <div className="px-3 sm:px-4 py-3 border-b border-gray-200 bg-gray-50">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             <h3 className="text-sm font-semibold text-gray-700">
@@ -51,7 +51,7 @@ export function RankingTable({ data }: RankingTableProps) {
               <button
                 key={f.key}
                 onClick={() => setSelectedField(f.key)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-medium rounded-lg transition-colors ${
                   selectedField === f.key
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -63,18 +63,18 @@ export function RankingTable({ data }: RankingTableProps) {
           </div>
         </div>
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
+      <div className="overflow-x-auto -webkit-overflow-scrolling-touch">
+        <table className="min-w-full text-xs sm:text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-4 py-3 text-left font-medium text-gray-600 whitespace-nowrap w-10">#</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600 whitespace-nowrap">NTE</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600 whitespace-nowrap">Município</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600 whitespace-nowrap">Rede</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600 whitespace-nowrap">Etapa</th>
-              <th className="px-4 py-3 text-right font-medium text-gray-600 whitespace-nowrap">2023</th>
-              <th className="px-4 py-3 text-right font-medium text-gray-600 whitespace-nowrap">2025</th>
-              <th className="px-4 py-3 text-right font-medium text-gray-600 whitespace-nowrap">Variação</th>
+              <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-600 whitespace-nowrap w-10">#</th>
+              <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-600 whitespace-nowrap">NTE</th>
+              <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-600 whitespace-nowrap">Município</th>
+              <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-600 whitespace-nowrap">Rede</th>
+              <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-600 whitespace-nowrap">Etapa</th>
+              <th className="px-2 sm:px-4 py-2 sm:py-3 text-right font-medium text-gray-600 whitespace-nowrap">2023</th>
+              <th className="px-2 sm:px-4 py-2 sm:py-3 text-right font-medium text-gray-600 whitespace-nowrap">2025</th>
+              <th className="px-2 sm:px-4 py-2 sm:py-3 text-right font-medium text-gray-600 whitespace-nowrap">Variação</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -90,14 +90,14 @@ export function RankingTable({ data }: RankingTableProps) {
 
               return (
                 <tr key={i} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-2.5 text-gray-400 font-medium">{i + 1}</td>
-                  <td className="px-4 py-2.5 whitespace-nowrap">{record.nte || "—"}</td>
-                  <td className="px-4 py-2.5 whitespace-nowrap">{record.municipio}</td>
-                  <td className="px-4 py-2.5 whitespace-nowrap">{record.rede}</td>
-                  <td className="px-4 py-2.5 whitespace-nowrap">{record.etapa}</td>
-                  <td className="px-4 py-2.5 text-right whitespace-nowrap">{formatDecimal(record.valor2023)}</td>
-                  <td className="px-4 py-2.5 text-right whitespace-nowrap">{formatDecimal(record.valor2025)}</td>
-                  <td className={`px-4 py-2.5 text-right whitespace-nowrap font-medium ${varColor}`}>
+                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 text-gray-400 font-medium">{i + 1}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 whitespace-nowrap">{record.nte || "—"}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 whitespace-nowrap">{record.municipio}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 whitespace-nowrap">{record.rede}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 whitespace-nowrap">{record.etapa}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 text-right whitespace-nowrap">{formatDecimal(record.valor2023)}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 text-right whitespace-nowrap">{formatDecimal(record.valor2025)}</td>
+                  <td className={`px-2 sm:px-4 py-2 sm:py-2.5 text-right whitespace-nowrap font-medium ${varColor}`}>
                     {formatVariacao(record.variacao)}
                   </td>
                 </tr>
@@ -113,6 +113,9 @@ export function RankingTable({ data }: RankingTableProps) {
           </tbody>
         </table>
       </div>
+      <p className="sm:hidden text-[10px] text-gray-400 text-center py-2">
+        Deslize para ver mais colunas →
+      </p>
     </div>
   );
 }

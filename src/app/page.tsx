@@ -59,7 +59,7 @@ export default function Home() {
   const kpis2025 = computeKPIs(data2025);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-6 space-y-6">
+    <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
       <Header updatedAt={updatedAt} source={source} />
 
       <Filters
@@ -80,7 +80,7 @@ export default function Home() {
             <SummaryCards kpis2023={kpis2023} kpis2025={kpis2025} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <ChartIndicador
               data={filteredData}
               field="ideb"

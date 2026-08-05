@@ -55,19 +55,19 @@ function Card({
   accentColor: string;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col gap-3">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-5 flex flex-col gap-2 sm:gap-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+        <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">
           {label}
         </span>
         <span
-          className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${accentColor}`}
+          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-xs sm:text-sm ${accentColor}`}
         >
           {icon}
         </span>
       </div>
-      <div className="flex items-end gap-3">
-        <p className="text-3xl font-bold text-gray-900">
+      <div className="flex items-end gap-2 sm:gap-3">
+        <p className="text-2xl sm:text-3xl font-bold text-gray-900">
           {formatNumber(value2025)}
         </p>
         <VariationBadge v2023={value2023} v2025={value2025} />
@@ -78,7 +78,7 @@ function Card({
 
 export function SummaryCards({ kpis2023, kpis2025 }: SummaryCardsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
       <Card
         label="Ideb"
         value2025={kpis2025.mediaIdeb}

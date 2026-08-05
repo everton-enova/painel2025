@@ -61,6 +61,58 @@ function LineShadowDef({ id, color }: { id: string; color: string }) {
   );
 }
 
+function CustomBarLabel({
+  x,
+  y,
+  width,
+  value,
+}: {
+  x?: number;
+  y?: number;
+  width?: number;
+  value?: number | null;
+}) {
+  if (value === null || value === undefined || x === undefined || y === undefined || width === undefined) return null;
+  return (
+    <text
+      x={x + width / 2}
+      y={y - 6}
+      textAnchor="middle"
+      fontSize={11}
+      fontWeight={600}
+      fill="#374151"
+    >
+      {value.toFixed(1).replace(".", ",")}
+    </text>
+  );
+}
+
+function CustomLineLabel({
+  x,
+  y,
+  value,
+  color,
+}: {
+  x?: number;
+  y?: number;
+  value?: number | null;
+  color: string;
+}) {
+  if (value === null || value === undefined || x === undefined || y === undefined) return null;
+  return (
+    <text
+      x={x}
+      y={y - 10}
+      textAnchor="middle"
+      fontSize={11}
+      fontWeight={600}
+      fill={color}
+    >
+      {value.toFixed(2).replace(".", ",")}
+    </text>
+  );
+}
+
 export function ChartIndicador({
   data,
   field,
@@ -92,17 +144,18 @@ export function ChartIndicador({
   const dotRadius = Math.round(strokeWidth * 1.3 * 10) / 10;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-      <h3 className="text-sm font-semibold text-gray-700 mb-4">{title}</h3>
-      <ResponsiveContainer width="100%" height={220}>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
+      <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-3 sm:mb-4">{title}</h3>
+      <ResponsiveContainer width="100%" height={200} className="sm:!h-[220px]">
         {chartType === "bar" ? (
-          <BarChart data={chartData}>
+          <BarChart data={chartData} margin={{ top: 20, right: 5, left: -10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="ano" tick={{ fontSize: 12 }} />
+            <XAxis dataKey="ano" tick={{ fontSize: 11 }} />
             <YAxis
               domain={DOMAIN_MAP[field]}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 11 }}
               tickFormatter={(v: number) => v.toFixed(0)}
+              width={40}
             />
             <Tooltip
               formatter={(value) => [
@@ -110,23 +163,26 @@ export function ChartIndicador({
                 title,
               ]}
               labelFormatter={(label) => `Ano: ${label}`}
+              contentStyle={{ fontSize: 12 }}
             />
             <Bar
               dataKey="valor"
               fill={color}
               radius={[4, 4, 0, 0]}
               name={title}
+              label={<CustomBarLabel />}
             />
           </BarChart>
         ) : (
-          <LineChart data={chartData}>
+          <LineChart data={chartData} margin={{ top: 20, right: 5, left: -10, bottom: 0 }}>
             <LineShadowDef id={filterId} color={color} />
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="ano" tick={{ fontSize: 12 }} />
+            <XAxis dataKey="ano" tick={{ fontSize: 11 }} />
             <YAxis
               domain={DOMAIN_MAP[field]}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 11 }}
               tickFormatter={(v: number) => v.toFixed(1)}
+              width={40}
             />
             <Tooltip
               formatter={(value) => [
@@ -134,6 +190,7 @@ export function ChartIndicador({
                 title,
               ]}
               labelFormatter={(label) => `Ano: ${label}`}
+              contentStyle={{ fontSize: 12 }}
             />
             <Line
               type="monotone"
@@ -144,6 +201,7 @@ export function ChartIndicador({
               activeDot={{ r: 5, strokeWidth: 2, stroke: "#fff" }}
               name={title}
               style={{ filter: `url(#${filterId})` }}
+              label={<CustomLineLabel color={color} />}
             />
           </LineChart>
         )}

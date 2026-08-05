@@ -61,9 +61,9 @@ export function Filters({
     Object.values(filters).some((v) => v !== null) || searchTerm.length > 0;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col sm:flex-row sm:items-end gap-3 flex-wrap">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
+      <div className="flex flex-col gap-2 sm:gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-3 flex-wrap">
           <div className="flex flex-col gap-1 sm:min-w-[220px]">
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
               Pesquisar Município

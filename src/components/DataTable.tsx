@@ -62,19 +62,19 @@ export function DataTable({ data, ano, title }: DataTableProps) {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+      <div className="px-3 sm:px-4 py-3 border-b border-gray-200 bg-gray-50">
         <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
         <p className="text-xs text-gray-500">{sorted.length} registros</p>
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
+      <div className="overflow-x-auto -webkit-overflow-scrolling-touch">
+        <table className="min-w-full text-xs sm:text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   onClick={() => handleSort(col.key)}
-                  className="px-4 py-3 text-left font-medium text-gray-600 cursor-pointer hover:text-gray-900 select-none whitespace-nowrap"
+                  className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-600 cursor-pointer hover:text-gray-900 select-none whitespace-nowrap"
                 >
                   {col.label}
                   {sortKey === col.key && (
@@ -88,7 +88,7 @@ export function DataTable({ data, ano, title }: DataTableProps) {
             {sorted.map((record, i) => (
               <tr key={i} className="hover:bg-gray-50 transition-colors">
                 {columns.map((col) => (
-                  <td key={col.key} className="px-4 py-2.5 whitespace-nowrap">
+                  <td key={col.key} className="px-2 sm:px-4 py-2 sm:py-2.5 whitespace-nowrap">
                     {col.format ? col.format(record) : String(record[col.key] ?? "—")}
                   </td>
                 ))}
@@ -104,6 +104,9 @@ export function DataTable({ data, ano, title }: DataTableProps) {
           </tbody>
         </table>
       </div>
+      <p className="sm:hidden text-[10px] text-gray-400 text-center py-2">
+        Deslize para ver mais colunas →
+      </p>
     </div>
   );
 }
