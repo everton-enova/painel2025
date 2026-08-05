@@ -1,7 +1,6 @@
 import { IdebRecord } from "@/types/ideb";
-import { SHEET_CSV_URL, NTE_CSV_URL, CACHE_TTL_MS } from "./constants";
-import { parseCSV } from "./parseCSV";
-import { normalizeRecords, parseNteMappings, buildNteMap } from "./normalize";
+import { GIDS, sheetCsvUrl, CACHE_TTL_MS } from "./constants";
+import { parseAllTabs } from "./parseInep";
 import { mockData, MOCK_UPDATED_AT } from "@/data/mock-data";
 
 interface CachedData {
@@ -12,19 +11,13 @@ interface CachedData {
 
 let cache: CachedData | null = null;
 
-async function fetchNteMap(): Promise<Map<string, string>> {
-  if (!NTE_CSV_URL) return new Map();
-
-  try {
-    const response = await fetch(NTE_CSV_URL, { next: { revalidate: 300 } });
-    if (!response.ok) return new Map();
-    const csv = await response.text();
-    const rawRecords = parseCSV(csv);
-    const mappings = parseNteMappings(rawRecords);
-    return buildNteMap(mappings);
-  } catch {
-    return new Map();
+async function fetchCsv(gid: string): Promise<string> {
+  const url = sheetCsvUrl(gid);
+  const response = await fetch(url, { next: { revalidate: 300 } });
+  if (!response.ok) {
+    throw new Error(`Sheet gid=${gid} returned ${response.status}`);
   }
+  return response.text();
 }
 
 export async function fetchSheetData(): Promise<{
@@ -37,18 +30,18 @@ export async function fetchSheetData(): Promise<{
   }
 
   try {
-    const [response, nteMap] = await Promise.all([
-      fetch(SHEET_CSV_URL, { next: { revalidate: 300 } }),
-      fetchNteMap(),
+    const [nteCsv, aiCsv, afCsv, emCsv] = await Promise.all([
+      fetchCsv(GIDS.NTE),
+      fetchCsv(GIDS.ANOS_INICIAIS),
+      fetchCsv(GIDS.ANOS_FINAIS),
+      fetchCsv(GIDS.ENSINO_MEDIO),
     ]);
 
-    if (!response.ok) {
-      throw new Error(`Google Sheets returned ${response.status}`);
-    }
+    const data = parseAllTabs(nteCsv, aiCsv, afCsv, emCsv);
 
-    const csv = await response.text();
-    const rawRecords = parseCSV(csv);
-    const data = normalizeRecords(rawRecords, nteMap);
+    if (data.length === 0) {
+      throw new Error("No records parsed from spreadsheet");
+    }
 
     const updatedAt = new Date().toISOString();
     cache = { data, updatedAt, fetchedAt: Date.now() };
