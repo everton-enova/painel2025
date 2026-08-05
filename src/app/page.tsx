@@ -136,6 +136,8 @@ export default function Home() {
           <RankingTable data={filteredData} />
         </>
       )}
+
+      <DataTable data={data} ano={2025} title="Todos os Municípios — 2025" />
     </main>
   );
 }
