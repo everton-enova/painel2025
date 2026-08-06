@@ -13,3 +13,14 @@ export const GIDS = {
 export function sheetCsvUrl(gid: string): string {
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
 }
+
+// Edições exibidas no painel. Uma combinação município/rede/etapa é
+// considerada vigente se tiver dado em ao menos uma delas — assim quem teve
+// resultado em 2023 mas não em 2025 continua visível.
+export const EDICAO_ATUAL = 2025;
+export const EDICAO_ANTERIOR = 2023;
+export const EDICOES_VIGENTES = [EDICAO_ANTERIOR, EDICAO_ATUAL];
+
+export function temEdicaoVigente(anos: number[]): boolean {
+  return anos.some((a) => EDICOES_VIGENTES.includes(a));
+}

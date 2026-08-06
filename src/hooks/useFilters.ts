@@ -2,9 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { IdebRecord, FilterState } from "@/types/ideb";
-
-// Edição mais recente do Ideb — base para as opções de filtro
-const EDICAO_ATUAL = 2025;
+import { EDICOES_VIGENTES } from "@/lib/constants";
 
 interface FilterOptions {
   municipios: string[];
@@ -70,10 +68,11 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
     });
   }, [data, filters, searchTerm]);
 
-  // As opções refletem apenas a edição atual: um município que deixou de
-  // ofertar uma etapa (dados antigos, sem 2025) não deve aparecer no filtro.
+  // As opções refletem as edições vigentes (2023 e 2025): uma etapa
+  // descontinuada há tempos some do filtro, mas quem teve resultado em 2023
+  // e não em 2025 continua visível — é justamente o caso que se quer enxergar.
   const opcoesBase = useMemo(
-    () => data.filter((r) => r.ano === EDICAO_ATUAL),
+    () => data.filter((r) => EDICOES_VIGENTES.includes(r.ano)),
     [data]
   );
 

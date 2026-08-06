@@ -4,8 +4,7 @@ import { IdebRecord, FilterState } from "@/types/ideb";
 import { ChartIndicador } from "./ChartIndicador";
 import { SummaryCards } from "./SummaryCards";
 import { computeKPIs } from "@/lib/aggregations";
-
-const EDICAO_ATUAL = 2025;
+import { EDICOES_VIGENTES } from "@/lib/constants";
 
 interface ChartSectionsProps {
   data: IdebRecord[];
@@ -53,7 +52,7 @@ export function ChartSections({ data, filters }: ChartSectionsProps) {
   const needsSplit = !filters.rede || !filters.etapa;
 
   if (!needsSplit) {
-    if (!data.some((r) => r.ano === EDICAO_ATUAL)) return null;
+    if (!data.some((r) => EDICOES_VIGENTES.includes(r.ano))) return null;
     return (
       <div className="space-y-4 sm:space-y-6">
         <SectionContent data={data} suffix="single" />
@@ -73,9 +72,9 @@ export function ChartSections({ data, filters }: ChartSectionsProps) {
   for (const rede of redes) {
     for (const etapa of etapas) {
       const records = data.filter((r) => r.rede === rede && r.etapa === etapa);
-      // Só monta a seção se houver dados na edição atual — combinações
+      // Só monta a seção se houver dados numa edição vigente — combinações
       // descontinuadas (só com histórico antigo) ficam de fora.
-      if (records.some((r) => r.ano === EDICAO_ATUAL)) {
+      if (records.some((r) => EDICOES_VIGENTES.includes(r.ano))) {
         groups.push({ label: `${rede} — ${etapa}`, records });
       }
     }
