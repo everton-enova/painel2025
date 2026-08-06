@@ -1,14 +1,15 @@
 "use client";
 
-import { KPIData } from "@/types/ideb";
+import { IdebValue, KPIData } from "@/types/ideb";
 
 interface SummaryCardsProps {
   kpis2023: KPIData;
   kpis2025: KPIData;
 }
 
-function formatNumber(n: number | null, decimals = 2): string {
+function formatNumber(n: IdebValue, decimals = 2): string {
   if (n === null) return "—";
+  if (n === "ND") return "ND";
   return n.toFixed(decimals).replace(".", ",");
 }
 
@@ -16,10 +17,11 @@ function VariationBadge({
   v2023,
   v2025,
 }: {
-  v2023: number | null;
-  v2025: number | null;
+  v2023: IdebValue;
+  v2025: IdebValue;
 }) {
-  if (v2023 === null || v2025 === null) return null;
+  // Sem variação calculável quando algum dos lados é ND ou ausente
+  if (typeof v2023 !== "number" || typeof v2025 !== "number") return null;
   const diff = v2025 - v2023;
   const isPositive = diff > 0;
   const isNeutral = diff === 0;
@@ -49,8 +51,8 @@ function Card({
   accentColor,
 }: {
   label: string;
-  value2025: number | null;
-  value2023: number | null;
+  value2025: IdebValue;
+  value2023: IdebValue;
   icon: string;
   accentColor: string;
 }) {
@@ -67,7 +69,18 @@ function Card({
         </span>
       </div>
       <div className="flex items-end gap-2 sm:gap-3">
-        <p className="text-2xl sm:text-3xl font-bold text-gray-900">
+        <p
+          className={`font-bold ${
+            value2025 === "ND"
+              ? "text-xl sm:text-2xl text-gray-400"
+              : "text-2xl sm:text-3xl text-gray-900"
+          }`}
+          title={
+            value2025 === "ND"
+              ? "Nota Não Divulgada: taxa de participação inferior a 80%"
+              : undefined
+          }
+        >
           {formatNumber(value2025)}
         </p>
         <VariationBadge v2023={value2023} v2025={value2025} />
@@ -77,7 +90,16 @@ function Card({
 }
 
 export function SummaryCards({ kpis2023, kpis2025 }: SummaryCardsProps) {
+  const hasNd = [
+    kpis2025.mediaIdeb,
+    kpis2025.mediaNotaPadronizada,
+    kpis2025.mediaProficienciaMat,
+    kpis2025.mediaProficienciaLp,
+    kpis2025.mediaIndicadorRendimento,
+  ].some((v) => v === "ND");
+
   return (
+    <>
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
       <Card
         label="Ideb"
@@ -115,5 +137,12 @@ export function SummaryCards({ kpis2023, kpis2025 }: SummaryCardsProps) {
         accentColor="bg-amber-100 text-amber-600"
       />
     </div>
+    {hasNd && (
+      <p className="mt-2 text-[11px] sm:text-xs text-gray-500 italic">
+        ND — Nota Não Divulgada: o município não atingiu a taxa mínima de
+        participação de 80% dos estudantes no SAEB.
+      </p>
+    )}
+    </>
   );
 }

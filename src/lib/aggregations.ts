@@ -6,21 +6,23 @@ function safeAverage(values: number[]): number | null {
   return Math.round((sum / values.length) * 100) / 100;
 }
 
-function numericValues(records: IdebRecord[], field: NumericField): number[] {
-  return records
-    .map((r) => r[field])
-    .filter((v): v is number => typeof v === "number");
+// Média dos valores numéricos. Se não houver nenhum número mas existir ao
+// menos um "ND", o indicador é reportado como ND (nota não divulgada) em vez
+// de ausente — é o caso típico de um único município selecionado.
+function averageField(records: IdebRecord[], field: NumericField): IdebValue {
+  const values = records.map((r) => r[field]);
+  const numeric = values.filter((v): v is number => typeof v === "number");
+  if (numeric.length > 0) return safeAverage(numeric);
+  return values.some((v) => v === "ND") ? "ND" : null;
 }
 
 export function computeKPIs(records: IdebRecord[]): KPIData {
   return {
-    mediaNotaPadronizada: safeAverage(numericValues(records, "nota_padronizada")),
-    mediaProficienciaMat: safeAverage(numericValues(records, "proficiencia_mat")),
-    mediaProficienciaLp: safeAverage(numericValues(records, "proficiencia_lp")),
-    mediaIdeb: safeAverage(numericValues(records, "ideb")),
-    mediaIndicadorRendimento: safeAverage(
-      numericValues(records, "indicador_rendimento")
-    ),
+    mediaNotaPadronizada: averageField(records, "nota_padronizada"),
+    mediaProficienciaMat: averageField(records, "proficiencia_mat"),
+    mediaProficienciaLp: averageField(records, "proficiencia_lp"),
+    mediaIdeb: averageField(records, "ideb"),
+    mediaIndicadorRendimento: averageField(records, "indicador_rendimento"),
     totalRegistros: records.length,
   };
 }

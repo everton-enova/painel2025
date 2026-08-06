@@ -28,11 +28,11 @@ export interface FilterState {
 }
 
 export interface KPIData {
-  mediaNotaPadronizada: number | null;
-  mediaProficienciaMat: number | null;
-  mediaProficienciaLp: number | null;
-  mediaIdeb: number | null;
-  mediaIndicadorRendimento: number | null;
+  mediaNotaPadronizada: IdebValue;
+  mediaProficienciaMat: IdebValue;
+  mediaProficienciaLp: IdebValue;
+  mediaIdeb: IdebValue;
+  mediaIndicadorRendimento: IdebValue;
   totalRegistros: number;
 }
 
