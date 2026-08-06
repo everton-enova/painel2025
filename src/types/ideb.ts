@@ -1,3 +1,6 @@
+// "ND" = Não Divulgada: taxa de participação no SAEB inferior a 80%
+export type IdebValue = number | "ND" | null;
+
 export interface IdebRecord {
   ano: number;
   codigo_municipio: string;
@@ -5,11 +8,11 @@ export interface IdebRecord {
   nte: string;
   rede: string;
   etapa: string;
-  ideb: number | null;
-  nota_padronizada: number | null;
-  proficiencia_mat: number | null;
-  proficiencia_lp: number | null;
-  indicador_rendimento: number | null;
+  ideb: IdebValue;
+  nota_padronizada: IdebValue;
+  proficiencia_mat: IdebValue;
+  proficiencia_lp: IdebValue;
+  indicador_rendimento: IdebValue;
 }
 
 export interface NteMapping {
@@ -38,7 +41,7 @@ export interface VariacaoRecord {
   nte: string;
   rede: string;
   etapa: string;
-  valor2023: number | null;
-  valor2025: number | null;
+  valor2023: IdebValue;
+  valor2025: IdebValue;
   variacao: number | null;
 }

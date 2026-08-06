@@ -17,8 +17,12 @@ interface ChartComparativoProps {
 }
 
 export function ChartComparativo({ data }: ChartComparativoProps) {
-  const data2023 = data.filter((r) => r.ano === 2023 && r.ideb !== null);
-  const data2025 = data.filter((r) => r.ano === 2025 && r.ideb !== null);
+  const data2023 = data.filter(
+    (r) => r.ano === 2023 && typeof r.ideb === "number"
+  );
+  const data2025 = data.filter(
+    (r) => r.ano === 2025 && typeof r.ideb === "number"
+  );
 
   const municipios = [...new Set([
     ...data2023.map((r) => r.municipio),
@@ -29,10 +33,10 @@ export function ChartComparativo({ data }: ChartComparativoProps) {
     const r23 = data2023.filter((r) => r.municipio === mun);
     const r25 = data2025.filter((r) => r.municipio === mun);
     const avg23 = r23.length > 0
-      ? Math.round((r23.reduce((s, r) => s + r.ideb!, 0) / r23.length) * 100) / 100
+      ? Math.round((r23.reduce((s, r) => s + (r.ideb as number), 0) / r23.length) * 100) / 100
       : null;
     const avg25 = r25.length > 0
-      ? Math.round((r25.reduce((s, r) => s + r.ideb!, 0) / r25.length) * 100) / 100
+      ? Math.round((r25.reduce((s, r) => s + (r.ideb as number), 0) / r25.length) * 100) / 100
       : null;
 
     return {

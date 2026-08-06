@@ -17,20 +17,24 @@ interface ChartEvolucaoProps {
 }
 
 export function ChartEvolucao({ data }: ChartEvolucaoProps) {
-  const withValues = data.filter((r) => r.ideb !== null);
+  const withValues = data.filter((r) => typeof r.ideb === "number");
   const anos = [...new Set(withValues.map((r) => r.ano))].sort();
 
   const chartData = anos.map((ano) => {
     const records = withValues.filter((r) => r.ano === ano);
     const avgIdeb =
-      records.reduce((s, r) => s + r.ideb!, 0) / records.length;
-    const withNp = records.filter((r) => r.nota_padronizada !== null);
+      records.reduce((s, r) => s + (r.ideb as number), 0) / records.length;
+    const withNp = records.filter(
+      (r) => typeof r.nota_padronizada === "number"
+    );
     const avgNp = withNp.length > 0
-      ? withNp.reduce((s, r) => s + r.nota_padronizada!, 0) / withNp.length
+      ? withNp.reduce((s, r) => s + (r.nota_padronizada as number), 0) / withNp.length
       : null;
-    const withIr = records.filter((r) => r.indicador_rendimento !== null);
+    const withIr = records.filter(
+      (r) => typeof r.indicador_rendimento === "number"
+    );
     const avgIr = withIr.length > 0
-      ? withIr.reduce((s, r) => s + r.indicador_rendimento!, 0) / withIr.length
+      ? withIr.reduce((s, r) => s + (r.indicador_rendimento as number), 0) / withIr.length
       : null;
 
     return {

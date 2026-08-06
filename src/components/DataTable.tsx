@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IdebRecord } from "@/types/ideb";
+import { IdebRecord, IdebValue } from "@/types/ideb";
 
 interface DataTableProps {
   data: IdebRecord[];
@@ -12,8 +12,9 @@ interface DataTableProps {
 type SortKey = keyof IdebRecord;
 type SortDir = "asc" | "desc";
 
-function formatDecimal(n: number | null): string {
+function formatDecimal(n: IdebValue): string {
   if (n === null) return "—";
+  if (n === "ND") return "ND";
   return n.toFixed(2).replace(".", ",");
 }
 
@@ -33,8 +34,10 @@ export function DataTable({ data, ano, title }: DataTableProps) {
   };
 
   const sorted = [...filtered].sort((a, b) => {
-    const va = a[sortKey];
-    const vb = b[sortKey];
+    // ND (não divulgado) ordena junto com ausente, sempre ao final
+    const norm = (v: IdebRecord[SortKey]) => (v === "ND" ? null : v);
+    const va = norm(a[sortKey]);
+    const vb = norm(b[sortKey]);
     if (va === null && vb === null) return 0;
     if (va === null) return 1;
     if (vb === null) return -1;
@@ -47,6 +50,15 @@ export function DataTable({ data, ano, title }: DataTableProps) {
       ? sa.localeCompare(sb, "pt-BR")
       : sb.localeCompare(sa, "pt-BR");
   });
+
+  const hasNd = filtered.some(
+    (r) =>
+      r.ideb === "ND" ||
+      r.nota_padronizada === "ND" ||
+      r.proficiencia_mat === "ND" ||
+      r.proficiencia_lp === "ND" ||
+      r.indicador_rendimento === "ND"
+  );
 
   const columns: { key: SortKey; label: string; format?: (r: IdebRecord) => string }[] = [
     { key: "nte", label: "NTE" },
@@ -107,6 +119,12 @@ export function DataTable({ data, ano, title }: DataTableProps) {
       <p className="sm:hidden text-[10px] text-gray-400 text-center py-2">
         Deslize para ver mais colunas →
       </p>
+      {hasNd && (
+        <p className="px-3 sm:px-4 py-2 border-t border-gray-100 text-[11px] sm:text-xs text-gray-500 italic">
+          ND — Nota Não Divulgada: o município não atingiu a taxa mínima de
+          participação de 80% dos estudantes no SAEB.
+        </p>
+      )}
     </div>
   );
 }

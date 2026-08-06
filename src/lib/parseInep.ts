@@ -1,9 +1,10 @@
-import { IdebRecord } from "@/types/ideb";
+import { IdebRecord, IdebValue } from "@/types/ideb";
 
-function parseDecimal(value: string | undefined): number | null {
+function parseDecimal(value: string | undefined): IdebValue {
   if (!value) return null;
   const trimmed = value.trim();
-  if (trimmed === "" || trimmed === "-" || trimmed === "ND") return null;
+  if (trimmed === "" || trimmed === "-") return null;
+  if (trimmed.toUpperCase() === "ND") return "ND";
   const cleaned = trimmed.replace(",", ".");
   const num = parseFloat(cleaned);
   return isNaN(num) ? null : num;

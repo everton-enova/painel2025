@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IdebRecord } from "@/types/ideb";
+import { IdebRecord, IdebValue } from "@/types/ideb";
 import { computeVariacao } from "@/lib/aggregations";
 
 interface RankingTableProps {
@@ -18,8 +18,9 @@ const FIELDS: { key: FieldKey; label: string }[] = [
   { key: "indicador_rendimento", label: "Ind. Rendimento" },
 ];
 
-function formatDecimal(n: number | null): string {
+function formatDecimal(n: IdebValue): string {
   if (n === null) return "—";
+  if (n === "ND") return "ND";
   return n.toFixed(2).replace(".", ",");
 }
 
@@ -33,6 +34,10 @@ export function RankingTable({ data }: RankingTableProps) {
   const [selectedField, setSelectedField] = useState<FieldKey>("ideb");
 
   const ranking = computeVariacao(data, selectedField);
+
+  const hasNd = ranking.some(
+    (r) => r.valor2023 === "ND" || r.valor2025 === "ND"
+  );
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -116,6 +121,12 @@ export function RankingTable({ data }: RankingTableProps) {
       <p className="sm:hidden text-[10px] text-gray-400 text-center py-2">
         Deslize para ver mais colunas →
       </p>
+      {hasNd && (
+        <p className="px-3 sm:px-4 py-2 border-t border-gray-100 text-[11px] sm:text-xs text-gray-500 italic">
+          ND — Nota Não Divulgada: o município não atingiu a taxa mínima de
+          participação de 80% dos estudantes no SAEB.
+        </p>
+      )}
     </div>
   );
 }

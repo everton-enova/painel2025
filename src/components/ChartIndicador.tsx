@@ -119,7 +119,7 @@ export function ChartIndicador({
   title,
   color,
 }: ChartIndicadorProps) {
-  const withValues = data.filter((r) => r[field] !== null);
+  const withValues = data.filter((r) => typeof r[field] === "number");
   const anos = [...new Set(withValues.map((r) => r.ano))]
     .filter((a) => a >= 2019)
     .sort();

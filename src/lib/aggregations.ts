@@ -1,4 +1,4 @@
-import { IdebRecord, KPIData, VariacaoRecord } from "@/types/ideb";
+import { IdebRecord, IdebValue, KPIData, VariacaoRecord } from "@/types/ideb";
 
 function safeAverage(values: number[]): number | null {
   if (values.length === 0) return null;
@@ -6,22 +6,20 @@ function safeAverage(values: number[]): number | null {
   return Math.round((sum / values.length) * 100) / 100;
 }
 
+function numericValues(records: IdebRecord[], field: NumericField): number[] {
+  return records
+    .map((r) => r[field])
+    .filter((v): v is number => typeof v === "number");
+}
+
 export function computeKPIs(records: IdebRecord[]): KPIData {
   return {
-    mediaNotaPadronizada: safeAverage(
-      records.filter((r) => r.nota_padronizada !== null).map((r) => r.nota_padronizada!)
-    ),
-    mediaProficienciaMat: safeAverage(
-      records.filter((r) => r.proficiencia_mat !== null).map((r) => r.proficiencia_mat!)
-    ),
-    mediaProficienciaLp: safeAverage(
-      records.filter((r) => r.proficiencia_lp !== null).map((r) => r.proficiencia_lp!)
-    ),
-    mediaIdeb: safeAverage(
-      records.filter((r) => r.ideb !== null).map((r) => r.ideb!)
-    ),
+    mediaNotaPadronizada: safeAverage(numericValues(records, "nota_padronizada")),
+    mediaProficienciaMat: safeAverage(numericValues(records, "proficiencia_mat")),
+    mediaProficienciaLp: safeAverage(numericValues(records, "proficiencia_lp")),
+    mediaIdeb: safeAverage(numericValues(records, "ideb")),
     mediaIndicadorRendimento: safeAverage(
-      records.filter((r) => r.indicador_rendimento !== null).map((r) => r.indicador_rendimento!)
+      numericValues(records, "indicador_rendimento")
     ),
     totalRegistros: records.length,
   };
@@ -55,11 +53,12 @@ export function computeVariacao(
     const ref = r25 ?? r23;
     if (!ref) continue;
 
-    const v23 = r23?.[field] ?? null;
-    const v25 = r25?.[field] ?? null;
-    const variacao = v23 !== null && v25 !== null
-      ? Math.round((v25 - v23) * 100) / 100
-      : null;
+    const v23: IdebValue = r23?.[field] ?? null;
+    const v25: IdebValue = r25?.[field] ?? null;
+    const variacao =
+      typeof v23 === "number" && typeof v25 === "number"
+        ? Math.round((v25 - v23) * 100) / 100
+        : null;
 
     result.push({
       municipio: ref.municipio,
