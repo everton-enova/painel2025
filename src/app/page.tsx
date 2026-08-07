@@ -52,6 +52,7 @@ export default function Home() {
   }
 
   const selectedLabel = [
+    filters.nte,
     filters.municipio,
     filters.rede,
     filters.etapa,

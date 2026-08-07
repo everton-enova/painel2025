@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { FilterState } from "@/types/ideb";
 
 interface FilterOptions {
+  ntes: string[];
   municipios: string[];
   redes: string[];
   etapas: string[];
@@ -147,6 +148,12 @@ export function Filters({
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
       <div className="flex flex-col gap-2 sm:gap-3">
         <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-3 flex-wrap">
+          <Select
+            label="NTE"
+            value={filters.nte}
+            options={options.ntes}
+            onChange={(v) => onFilterChange("nte", v)}
+          />
           <MunicipioSearch
             searchTerm={searchTerm}
             onSearchChange={onSearchChange}
