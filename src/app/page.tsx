@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@/hooks/useAuth";
 import { useIdebData } from "@/hooks/useIdebData";
 import { useFilters } from "@/hooks/useFilters";
 import { Header } from "@/components/Header";
@@ -9,11 +8,9 @@ import { ChartSections } from "@/components/ChartSections";
 import { DataTable } from "@/components/DataTable";
 import { RankingTable } from "@/components/RankingTable";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { LoginScreen } from "@/components/LoginScreen";
 import { OnboardingTour } from "@/components/OnboardingTour";
 
 export default function Home() {
-  const { isAuthenticated, login, logout } = useAuth();
   const { data, updatedAt, source, isLoading, error } = useIdebData();
   const {
     filters,
@@ -25,10 +22,6 @@ export default function Home() {
     searchTerm,
     setSearchTerm,
   } = useFilters(data);
-
-  if (!isAuthenticated) {
-    return <LoginScreen onLogin={login} />;
-  }
 
   if (isLoading) {
     return (
@@ -64,7 +57,7 @@ export default function Home() {
     <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
       <OnboardingTour />
 
-      <Header updatedAt={updatedAt} source={source} onLogout={logout} />
+      <Header updatedAt={updatedAt} source={source} />
 
       <Filters
         filters={filters}

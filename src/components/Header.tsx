@@ -3,10 +3,9 @@
 interface HeaderProps {
   updatedAt: string | null;
   source: "sheet" | "mock" | null;
-  onLogout: () => void;
 }
 
-export function Header({ updatedAt, source, onLogout }: HeaderProps) {
+export function Header({ updatedAt, source }: HeaderProps) {
   const formattedDate = updatedAt
     ? new Date(updatedAt).toLocaleDateString("pt-BR", {
         day: "2-digit",
@@ -53,12 +52,6 @@ export function Header({ updatedAt, source, onLogout }: HeaderProps) {
             className="rounded-lg bg-blue-600 hover:bg-blue-500 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-sm font-bold transition-colors border border-blue-400/30"
           >
             ?
-          </button>
-          <button
-            onClick={onLogout}
-            className="rounded-lg bg-blue-600 hover:bg-blue-500 px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors border border-blue-400/30"
-          >
-            Sair
           </button>
         </div>
       </div>
