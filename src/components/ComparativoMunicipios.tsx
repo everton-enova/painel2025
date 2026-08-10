@@ -14,6 +14,7 @@ import { IdebRecord, IdebValue } from "@/types/ideb";
 import {
   EDICAO_ATUAL,
   EDICAO_ANTERIOR,
+  EDICOES_VIGENTES,
   SERIES_COLORS,
 } from "@/lib/constants";
 
@@ -61,17 +62,81 @@ export function ComparativoMunicipios({
   const corDe = (municipio: string) =>
     SERIES_COLORS[municipios.indexOf(municipio) % SERIES_COLORS.length];
 
-  const registros = useMemo(
-    () =>
-      data.filter(
-        (r) =>
-          municipios.includes(r.municipio) &&
-          (!rede || r.rede === rede) &&
-          (!etapa || r.etapa === etapa)
-      ),
-    [data, municipios, rede, etapa]
-  );
+  // Com rede ou etapa em "Todos", divide em uma seção por combinação — só
+  // vale como comparativo onde ao menos dois dos escolhidos têm dado.
+  const blocos = useMemo(() => {
+    const doSelecionado = data.filter((r) => municipios.includes(r.municipio));
+    const redes = rede
+      ? [rede]
+      : [...new Set(doSelecionado.map((r) => r.rede))].sort((a, b) =>
+          a.localeCompare(b, "pt-BR")
+        );
+    const etapas = etapa
+      ? [etapa]
+      : [...new Set(doSelecionado.map((r) => r.etapa))].sort((a, b) =>
+          a.localeCompare(b, "pt-BR")
+        );
 
+    const res: { rede: string; etapa: string; registros: IdebRecord[] }[] = [];
+    for (const rd of redes) {
+      for (const et of etapas) {
+        const registros = doSelecionado.filter(
+          (r) => r.rede === rd && r.etapa === et
+        );
+        const quantos = new Set(
+          registros
+            .filter((r) => EDICOES_VIGENTES.includes(r.ano))
+            .map((r) => r.municipio)
+        ).size;
+        if (quantos >= 2) res.push({ rede: rd, etapa: et, registros });
+      }
+    }
+    return res;
+  }, [data, municipios, rede, etapa]);
+
+  if (blocos.length === 0) {
+    return (
+      <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
+        <p className="text-sm text-gray-600">
+          Os municípios escolhidos não têm uma rede e etapa em comum para
+          comparar.
+        </p>
+      </section>
+    );
+  }
+
+  return (
+    <div className="space-y-4 sm:space-y-6">
+      {blocos.map((b) => (
+        <BlocoComparativo
+          key={`${b.rede}|${b.etapa}`}
+          registros={b.registros}
+          municipios={municipios}
+          rede={b.rede}
+          etapa={b.etapa}
+          corDe={corDe}
+          unico={blocos.length === 1}
+        />
+      ))}
+    </div>
+  );
+}
+
+function BlocoComparativo({
+  registros,
+  municipios,
+  rede,
+  etapa,
+  corDe,
+  unico,
+}: {
+  registros: IdebRecord[];
+  municipios: string[];
+  rede: string;
+  etapa: string;
+  corDe: (m: string) => string;
+  unico: boolean;
+}) {
   const anos = useMemo(
     () =>
       [...new Set(registros.map((r) => r.ano))]
@@ -80,10 +145,16 @@ export function ComparativoMunicipios({
     [registros]
   );
 
+  // Só as linhas dos municípios que têm dado nesta combinação
+  const presentes = useMemo(
+    () => municipios.filter((m) => registros.some((r) => r.municipio === m)),
+    [municipios, registros]
+  );
+
   const dadosGrafico = (field: FieldKey) =>
     anos.map((ano) => {
       const linha: Record<string, string | number | null> = { ano: String(ano) };
-      for (const m of municipios) {
+      for (const m of presentes) {
         const reg = registros.find((r) => r.municipio === m && r.ano === ano);
         linha[m] = reg ? num(reg[field]) : null;
       }
@@ -95,36 +166,19 @@ export function ComparativoMunicipios({
     return reg ? reg[field] : null;
   };
 
-  // Comparar só faz sentido sobre a mesma base
-  if (!rede || !etapa) {
-    return (
-      <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
-        <p className="text-sm text-gray-600">
-          Selecione <strong>Rede</strong> e <strong>Etapa</strong> para comparar
-          os municípios.
-        </p>
-        <p className="text-xs text-gray-400 mt-1">
-          A comparação precisa da mesma base para ser justa.
-        </p>
-      </section>
-    );
-  }
-
-  if (registros.length === 0) return null;
-
   return (
     <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 space-y-4">
       <div>
         <h3 className="text-sm font-semibold text-gray-700">
-          Comparativo entre municípios
+          {unico ? "Comparativo entre municípios" : `${rede} \u2014 ${etapa}`}
         </h3>
         <p className="text-xs text-gray-500">
-          {rede} &mdash; {etapa}
+          {unico ? `${rede} \u2014 ${etapa}` : `${presentes.length} municípios`}
         </p>
       </div>
 
       <TabelaComparativa
-        municipios={municipios}
+        municipios={presentes}
         valorDe={valorDe}
         corDe={corDe}
       />
@@ -156,7 +210,7 @@ export function ComparativoMunicipios({
                   labelFormatter={(l) => `Ano: ${l}`}
                   contentStyle={{ fontSize: 12 }}
                 />
-                {municipios.map((m) => (
+                {presentes.map((m) => (
                   <Line
                     key={m}
                     type="monotone"
