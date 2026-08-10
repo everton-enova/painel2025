@@ -2,8 +2,9 @@
 
 import { useMemo } from "react";
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
+  LabelList,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -27,12 +28,14 @@ type FieldKey =
   | "proficiencia_lp"
   | "indicador_rendimento";
 
+// Em barra o valor é lido pelo comprimento, então a escala precisa partir do
+// zero — cortar a base faria uma diferença pequena parecer enorme.
 const INDICADORES: { field: FieldKey; label: string; curto: string; domain: [number, number]; casas: number }[] = [
-  { field: "ideb", label: "Ideb", curto: "Ideb", domain: [2, 8], casas: 1 },
-  { field: "nota_padronizada", label: "Nota Padronizada", curto: "Nota Pad.", domain: [2, 8], casas: 1 },
-  { field: "proficiencia_mat", label: "Proficiência Matemática", curto: "Prof. MAT", domain: [100, 500], casas: 0 },
-  { field: "proficiencia_lp", label: "Proficiência Língua Portuguesa", curto: "Prof. LP", domain: [100, 500], casas: 0 },
-  { field: "indicador_rendimento", label: "Indicador de Rendimento", curto: "Ind. Rend.", domain: [0.8, 1.0], casas: 2 },
+  { field: "ideb", label: "Ideb", curto: "Ideb", domain: [0, 10], casas: 1 },
+  { field: "nota_padronizada", label: "Nota Padronizada", curto: "Nota Pad.", domain: [0, 10], casas: 1 },
+  { field: "proficiencia_mat", label: "Proficiência Matemática", curto: "Prof. MAT", domain: [0, 500], casas: 0 },
+  { field: "proficiencia_lp", label: "Proficiência Língua Portuguesa", curto: "Prof. LP", domain: [0, 500], casas: 0 },
+  { field: "indicador_rendimento", label: "Indicador de Rendimento", curto: "Ind. Rend.", domain: [0, 1], casas: 2 },
 ];
 
 function fmt(v: IdebValue, casas = 2): string {
@@ -189,12 +192,14 @@ function BlocoComparativo({
             <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-3">
               {ind.label}
             </h4>
-            <ResponsiveContainer width="100%" height={210}>
-              <LineChart
+            <ResponsiveContainer width="100%" height={230}>
+              <BarChart
                 data={dadosGrafico(ind.field)}
-                margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+                margin={{ top: 18, right: 8, left: -12, bottom: 0 }}
+                barGap={2}
+                barCategoryGap="18%"
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e1e0d9" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e1e0d9" vertical={false} />
                 <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#898781" }} />
                 <YAxis
                   domain={ind.domain}
@@ -203,6 +208,7 @@ function BlocoComparativo({
                   width={44}
                 />
                 <Tooltip
+                  cursor={{ fill: "rgba(11,11,11,0.04)" }}
                   formatter={(value, name) => [
                     fmt(value as number, ind.casas === 0 ? 1 : 2),
                     name as string,
@@ -211,19 +217,30 @@ function BlocoComparativo({
                   contentStyle={{ fontSize: 12 }}
                 />
                 {presentes.map((m) => (
-                  <Line
+                  <Bar
                     key={m}
-                    type="monotone"
                     dataKey={m}
                     name={m}
-                    stroke={corDe(m)}
-                    strokeWidth={2}
-                    dot={{ r: 2.6, fill: corDe(m), strokeWidth: 0 }}
-                    activeDot={{ r: 5, strokeWidth: 2, stroke: "#fff" }}
-                    connectNulls
-                  />
+                    fill={corDe(m)}
+                    radius={[4, 4, 0, 0]}
+                  >
+                    <LabelList
+                      dataKey={m}
+                      position="top"
+                      fill={corDe(m)}
+                      // duas casas gera rótulo mais largo ("0,99") e encosta
+                      // no vizinho em tela estreita
+                      fontSize={presentes.length > 3 || ind.casas === 2 ? 8 : 9}
+                      fontWeight={600}
+                      formatter={(v: unknown) =>
+                        typeof v === "number"
+                          ? v.toFixed(ind.casas === 0 ? 0 : ind.casas).replace(".", ",")
+                          : ""
+                      }
+                    />
+                  </Bar>
                 ))}
-              </LineChart>
+              </BarChart>
             </ResponsiveContainer>
           </div>
         ))}
