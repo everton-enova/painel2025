@@ -9,6 +9,7 @@ import { DataTable } from "@/components/DataTable";
 import { RankingTable } from "@/components/RankingTable";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { ComparativoMunicipios } from "@/components/ComparativoMunicipios";
 
 export default function Home() {
   const { data, updatedAt, source, isLoading, error } = useIdebData();
@@ -54,7 +55,7 @@ export default function Home() {
     .join(" — ");
 
   return (
-    <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+    <main className="mx-auto w-full min-w-0 max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
       <OnboardingTour />
 
       <Header updatedAt={updatedAt} source={source} />
@@ -67,6 +68,8 @@ export default function Home() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
       />
+
+      <ComparativoMunicipios data={data} />
 
       {hasActiveFilter && selectedLabel && (
         <h2 className="text-lg sm:text-xl font-bold text-gray-800">
