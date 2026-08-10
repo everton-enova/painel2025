@@ -23,7 +23,8 @@ export interface NteMapping {
 
 export interface FilterState {
   nte: string | null;
-  municipio: string | null;
+  // Multi-seleção: 1 município mostra o painel detalhado, 2+ o comparativo
+  municipios: string[];
   rede: string | null;
   etapa: string | null;
 }

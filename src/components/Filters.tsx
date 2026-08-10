@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { FilterState } from "@/types/ideb";
+import { SERIES_COLORS, MAX_COMPARACAO } from "@/lib/constants";
 
 interface FilterOptions {
   ntes: string[];
@@ -13,7 +14,9 @@ interface FilterOptions {
 interface FiltersProps {
   filters: FilterState;
   options: FilterOptions;
-  onFilterChange: (key: keyof FilterState, value: string | null) => void;
+  onFilterChange: (key: "nte" | "rede" | "etapa", value: string | null) => void;
+  onToggleMunicipio: (municipio: string) => void;
+  onClearMunicipios: () => void;
   onClear: () => void;
   searchTerm: string;
   onSearchChange: (term: string) => void;
@@ -55,78 +58,89 @@ function MunicipioSearch({
   searchTerm,
   onSearchChange,
   municipios,
-  selectedMunicipio,
-  onSelectMunicipio,
+  selecionados,
+  onToggle,
 }: {
   searchTerm: string;
   onSearchChange: (term: string) => void;
   municipios: string[];
-  selectedMunicipio: string | null;
-  onSelectMunicipio: (value: string | null) => void;
+  selecionados: string[];
+  onToggle: (value: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [aberto, setAberto] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false);
+    function onClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setAberto(false);
       }
     }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const suggestions =
-    searchTerm.length > 0
-      ? municipios.filter((m) =>
-          m.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      : municipios;
+  const lista = searchTerm
+    ? municipios.filter((m) =>
+        m.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : municipios;
 
-  const handleSelect = (municipio: string) => {
-    onSelectMunicipio(municipio);
-    onSearchChange(municipio);
-    setOpen(false);
-  };
-
-  const handleInputChange = (value: string) => {
-    onSearchChange(value);
-    if (!value) {
-      onSelectMunicipio(null);
-    }
-    setOpen(true);
-  };
+  const cheio = selecionados.length >= MAX_COMPARACAO;
 
   return (
-    <div className="flex flex-col gap-1 sm:min-w-[220px] relative" ref={wrapperRef}>
+    <div
+      className="flex flex-col gap-1 relative flex-1 sm:min-w-[240px]"
+      ref={ref}
+    >
       <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Pesquisar Município
+        Municípios{selecionados.length > 0 && ` (${selecionados.length}/${MAX_COMPARACAO})`}
       </label>
       <input
         type="text"
         value={searchTerm}
-        onChange={(e) => handleInputChange(e.target.value)}
-        onFocus={() => {
-          if (!selectedMunicipio) setOpen(true);
+        onChange={(e) => {
+          onSearchChange(e.target.value);
+          setAberto(true);
         }}
-        placeholder="Digite o nome do município..."
+        onFocus={() => setAberto(true)}
+        placeholder={
+          selecionados.length === 0
+            ? "Digite o nome do município..."
+            : "Adicionar outro município..."
+        }
         className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
       />
-      {open && suggestions.length > 0 && (
+      {aberto && lista.length > 0 && (
         <ul className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
-          {suggestions.map((m) => (
-            <li
-              key={m}
-              onClick={() => handleSelect(m)}
-              className="cursor-pointer px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-            >
-              {m}
-            </li>
-          ))}
+          {lista.map((m) => {
+            const ativo = selecionados.includes(m);
+            const bloqueado = cheio && !ativo;
+            return (
+              <li key={m}>
+                <button
+                  type="button"
+                  disabled={bloqueado}
+                  onClick={() => {
+                    onToggle(m);
+                    onSearchChange("");
+                    // fecha para não cobrir o resultado; o campo reabre num clique
+                    setAberto(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center gap-2 ${
+                    bloqueado
+                      ? "text-gray-300 cursor-not-allowed"
+                      : ativo
+                        ? "bg-blue-50 text-blue-700 font-medium"
+                        : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <span className="w-4 shrink-0">{ativo ? "✓" : ""}</span>
+                  {m}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
@@ -137,12 +151,18 @@ export function Filters({
   filters,
   options,
   onFilterChange,
+  onToggleMunicipio,
+  onClearMunicipios,
   onClear,
   searchTerm,
   onSearchChange,
 }: FiltersProps) {
   const hasActiveFilter =
-    Object.values(filters).some((v) => v !== null) || searchTerm.length > 0;
+    filters.nte !== null ||
+    filters.rede !== null ||
+    filters.etapa !== null ||
+    filters.municipios.length > 0 ||
+    searchTerm.length > 0;
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
@@ -158,8 +178,8 @@ export function Filters({
             searchTerm={searchTerm}
             onSearchChange={onSearchChange}
             municipios={options.municipios}
-            selectedMunicipio={filters.municipio}
-            onSelectMunicipio={(v) => onFilterChange("municipio", v)}
+            selecionados={filters.municipios}
+            onToggle={onToggleMunicipio}
           />
           <Select
             label="Rede"
@@ -182,6 +202,41 @@ export function Filters({
             </button>
           )}
         </div>
+
+        {filters.municipios.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            {filters.municipios.map((m, i) => (
+              <span
+                key={m}
+                className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 pl-2 pr-1 py-1 text-xs font-medium text-gray-700"
+              >
+                <span
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ backgroundColor: SERIES_COLORS[i % SERIES_COLORS.length] }}
+                />
+                {m}
+                <button
+                  onClick={() => onToggleMunicipio(m)}
+                  className="ml-0.5 w-4 h-4 rounded-full text-gray-400 hover:bg-gray-300 hover:text-gray-700 transition-colors"
+                  aria-label={`Remover ${m}`}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+            <button
+              onClick={onClearMunicipios}
+              className="text-xs text-gray-500 hover:text-gray-700 underline px-1"
+            >
+              limpar municípios
+            </button>
+            {filters.municipios.length === 1 && (
+              <span className="text-xs text-gray-400 italic">
+                adicione outro município para comparar
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

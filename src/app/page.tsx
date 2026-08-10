@@ -16,6 +16,8 @@ export default function Home() {
   const {
     filters,
     setFilter,
+    toggleMunicipio,
+    clearMunicipios,
     clearFilters,
     filteredData,
     filterOptions,
@@ -47,12 +49,14 @@ export default function Home() {
 
   const selectedLabel = [
     filters.nte,
-    filters.municipio,
+    filters.municipios.length === 1 ? filters.municipios[0] : null,
     filters.rede,
     filters.etapa,
   ]
     .filter(Boolean)
-    .join(" — ");
+    .join(" \u2014 ");
+
+  const comparando = filters.municipios.length >= 2;
 
   return (
     <main className="mx-auto w-full min-w-0 max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
@@ -64,21 +68,30 @@ export default function Home() {
         filters={filters}
         options={filterOptions}
         onFilterChange={setFilter}
+        onToggleMunicipio={toggleMunicipio}
+        onClearMunicipios={clearMunicipios}
         onClear={clearFilters}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
       />
 
-      <ComparativoMunicipios data={data} />
-
-      {hasActiveFilter && selectedLabel && (
+      {!comparando && hasActiveFilter && selectedLabel && (
         <h2 className="text-lg sm:text-xl font-bold text-gray-800">
           {selectedLabel}
         </h2>
       )}
 
-      {filters.municipio && (
-        <ChartSections data={filteredData} filters={filters} />
+      {comparando ? (
+        <ComparativoMunicipios
+          data={data}
+          municipios={filters.municipios}
+          rede={filters.rede}
+          etapa={filters.etapa}
+        />
+      ) : (
+        filters.municipios.length === 1 && (
+          <ChartSections data={filteredData} filters={filters} />
+        )
       )}
 
       {hasActiveFilter && (

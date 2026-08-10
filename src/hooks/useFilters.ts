@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { IdebRecord, FilterState } from "@/types/ideb";
-import { EDICOES_VIGENTES } from "@/lib/constants";
+import { EDICOES_VIGENTES, MAX_COMPARACAO } from "@/lib/constants";
 
 interface FilterOptions {
   ntes: string[];
@@ -13,19 +13,20 @@ interface FilterOptions {
 
 interface UseFiltersReturn {
   filters: FilterState;
-  setFilter: (key: keyof FilterState, value: string | null) => void;
+  setFilter: (key: "nte" | "rede" | "etapa", value: string | null) => void;
+  toggleMunicipio: (municipio: string) => void;
+  clearMunicipios: () => void;
   clearFilters: () => void;
   filteredData: IdebRecord[];
   filterOptions: FilterOptions;
   hasActiveFilter: boolean;
-  allFiltersSet: boolean;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
 }
 
 const INITIAL_FILTERS: FilterState = {
   nte: null,
-  municipio: null,
+  municipios: [],
   rede: null,
   etapa: null,
 };
@@ -41,11 +42,29 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
   const [searchTerm, setSearchTerm] = useState("");
 
   const setFilter = useCallback(
-    (key: keyof FilterState, value: string | null) => {
+    (key: "nte" | "rede" | "etapa", value: string | null) => {
       setFilters((prev) => ({ ...prev, [key]: value }));
     },
     []
   );
+
+  const toggleMunicipio = useCallback((municipio: string) => {
+    setFilters((prev) => {
+      const jaTem = prev.municipios.includes(municipio);
+      if (jaTem) {
+        return {
+          ...prev,
+          municipios: prev.municipios.filter((m) => m !== municipio),
+        };
+      }
+      if (prev.municipios.length >= MAX_COMPARACAO) return prev;
+      return { ...prev, municipios: [...prev.municipios, municipio] };
+    });
+  }, []);
+
+  const clearMunicipios = useCallback(() => {
+    setFilters((prev) => ({ ...prev, municipios: [] }));
+  }, []);
 
   const clearFilters = useCallback(() => {
     setFilters(INITIAL_FILTERS);
@@ -53,23 +72,26 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
   }, []);
 
   const hasActiveFilter =
-    Object.values(filters).some((v) => v !== null) || searchTerm.length > 0;
-
-  const allFiltersSet =
-    filters.municipio !== null &&
-    filters.rede !== null &&
-    filters.etapa !== null;
+    filters.nte !== null ||
+    filters.rede !== null ||
+    filters.etapa !== null ||
+    filters.municipios.length > 0 ||
+    searchTerm.length > 0;
 
   const filteredData = useMemo(() => {
     return data.filter((record) => {
       if (filters.nte && record.nte !== filters.nte) return false;
-      if (filters.municipio && record.municipio !== filters.municipio)
+      if (
+        filters.municipios.length > 0 &&
+        !filters.municipios.includes(record.municipio)
+      )
         return false;
       if (filters.rede && record.rede !== filters.rede) return false;
       if (filters.etapa && record.etapa !== filters.etapa) return false;
+      // A busca livre só filtra a tabela enquanto nada foi selecionado
       if (
         searchTerm &&
-        !filters.municipio &&
+        filters.municipios.length === 0 &&
         !record.municipio.toLowerCase().includes(searchTerm.toLowerCase())
       )
         return false;
@@ -85,8 +107,8 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
     [data]
   );
 
-  // Cascata: NTE restringe os municípios, o município restringe as redes e a
-  // rede restringe as etapas. Cada nível parte do recorte do nível anterior.
+  // Cascata: NTE restringe os municípios, os municípios restringem as redes e
+  // a rede restringe as etapas. Cada nível parte do recorte do nível anterior.
   const filterOptions = useMemo((): FilterOptions => {
     const unique = (arr: string[]) =>
       [...new Set(arr)].sort((a, b) =>
@@ -97,9 +119,10 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
       ? opcoesBase.filter((r) => r.nte === filters.nte)
       : opcoesBase;
 
-    const paraRedes = filters.municipio
-      ? paraMunicipios.filter((r) => r.municipio === filters.municipio)
-      : paraMunicipios;
+    const paraRedes =
+      filters.municipios.length > 0
+        ? paraMunicipios.filter((r) => filters.municipios.includes(r.municipio))
+        : paraMunicipios;
 
     const paraEtapas = filters.rede
       ? paraRedes.filter((r) => r.rede === filters.rede)
@@ -113,24 +136,26 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
       redes: unique(paraRedes.map((r) => r.rede).filter(Boolean)),
       etapas: unique(paraEtapas.map((r) => r.etapa).filter(Boolean)),
     };
-  }, [opcoesBase, filters.nte, filters.municipio, filters.rede]);
+  }, [opcoesBase, filters.nte, filters.municipios, filters.rede]);
 
   // Uma seleção pode ficar inválida ao mudar um filtro acima na cascata (ex.:
-  // trocar de NTE com um município de outro núcleo selecionado, ou "Estadual —
+  // trocar de NTE com municípios de outro núcleo escolhidos, ou "Estadual —
   // Anos Finais", que não existe em Cipó). Limpa o que deixou de se aplicar.
   useEffect(() => {
     setFilters((prev) => {
-      const municipioInvalido =
-        prev.municipio !== null &&
-        !filterOptions.municipios.includes(prev.municipio);
+      const municipiosValidos = prev.municipios.filter((m) =>
+        filterOptions.municipios.includes(m)
+      );
+      const municipioMudou =
+        municipiosValidos.length !== prev.municipios.length;
       const redeInvalida =
         prev.rede !== null && !filterOptions.redes.includes(prev.rede);
       const etapaInvalida =
         prev.etapa !== null && !filterOptions.etapas.includes(prev.etapa);
-      if (!municipioInvalido && !redeInvalida && !etapaInvalida) return prev;
+      if (!municipioMudou && !redeInvalida && !etapaInvalida) return prev;
       return {
         ...prev,
-        municipio: municipioInvalido ? null : prev.municipio,
+        municipios: municipiosValidos,
         rede: redeInvalida ? null : prev.rede,
         etapa: etapaInvalida ? null : prev.etapa,
       };
@@ -140,11 +165,12 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
   return {
     filters,
     setFilter,
+    toggleMunicipio,
+    clearMunicipios,
     clearFilters,
     filteredData,
     filterOptions,
     hasActiveFilter,
-    allFiltersSet,
     searchTerm,
     setSearchTerm,
   };
