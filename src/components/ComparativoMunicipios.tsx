@@ -17,6 +17,8 @@ import {
   EDICOES_VIGENTES,
   SERIES_COLORS,
 } from "@/lib/constants";
+import { dominioDinamico, marcasDoDominio } from "@/lib/escala";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const ANO_INICIAL_GRAFICO = 2019;
 
@@ -27,12 +29,14 @@ type FieldKey =
   | "proficiencia_lp"
   | "indicador_rendimento";
 
-const INDICADORES: { field: FieldKey; label: string; curto: string; domain: [number, number]; casas: number }[] = [
-  { field: "ideb", label: "Ideb", curto: "Ideb", domain: [2, 8], casas: 1 },
-  { field: "nota_padronizada", label: "Nota Padronizada", curto: "Nota Pad.", domain: [2, 8], casas: 1 },
-  { field: "proficiencia_mat", label: "Proficiência Matemática", curto: "Prof. MAT", domain: [100, 500], casas: 0 },
-  { field: "proficiencia_lp", label: "Proficiência Língua Portuguesa", curto: "Prof. LP", domain: [100, 500], casas: 0 },
-  { field: "indicador_rendimento", label: "Indicador de Rendimento", curto: "Ind. Rend.", domain: [0.8, 1.0], casas: 2 },
+// `limite` é o território possível do indicador — a escala se ajusta aos
+// dados, mas nunca inventa rendimento acima de 1 ou nota negativa.
+const INDICADORES: { field: FieldKey; label: string; curto: string; limite: [number, number]; casas: number }[] = [
+  { field: "ideb", label: "Ideb", curto: "Ideb", limite: [0, 10], casas: 1 },
+  { field: "nota_padronizada", label: "Nota Padronizada", curto: "Nota Pad.", limite: [0, 10], casas: 1 },
+  { field: "proficiencia_mat", label: "Proficiência Matemática", curto: "Prof. MAT", limite: [0, 500], casas: 0 },
+  { field: "proficiencia_lp", label: "Proficiência Língua Portuguesa", curto: "Prof. LP", limite: [0, 500], casas: 0 },
+  { field: "indicador_rendimento", label: "Indicador de Rendimento", curto: "Ind. Rend.", limite: [0, 1], casas: 2 },
 ];
 
 function fmt(v: IdebValue, casas = 2): string {
@@ -137,6 +141,9 @@ function BlocoComparativo({
   corDe: (m: string) => string;
   unico: boolean;
 }) {
+  const mobile = useIsMobile();
+  const espessura = mobile ? 1.25 : 2;
+
   const anos = useMemo(
     () =>
       [...new Set(registros.map((r) => r.ano))]
@@ -166,6 +173,17 @@ function BlocoComparativo({
     return reg ? reg[field] : null;
   };
 
+  // A escala se ajusta ao que está no gráfico — só os anos e municípios
+  // realmente desenhados entram na conta.
+  const dominioDe = (field: FieldKey, limite: [number, number]) =>
+    dominioDinamico(
+      registros
+        .filter((r) => anos.includes(r.ano) && presentes.includes(r.municipio))
+        .map((r) => r[field])
+        .filter((v): v is number => typeof v === "number"),
+      limite
+    );
+
   return (
     <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 space-y-4">
       <div>
@@ -184,7 +202,9 @@ function BlocoComparativo({
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-        {INDICADORES.map((ind) => (
+        {INDICADORES.map((ind) => {
+          const dominio = dominioDe(ind.field, ind.limite);
+          return (
           <div key={ind.field} className="border border-gray-200 rounded-xl p-3">
             <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-3">
               {ind.label}
@@ -197,10 +217,14 @@ function BlocoComparativo({
                 <CartesianGrid strokeDasharray="3 3" stroke="#e1e0d9" />
                 <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#898781" }} />
                 <YAxis
-                  domain={ind.domain}
+                  domain={dominio}
+                  ticks={marcasDoDominio(dominio)}
                   tick={{ fontSize: 11, fill: "#898781" }}
-                  tickFormatter={(v: number) => v.toFixed(ind.casas)}
+                  tickFormatter={(v: number) =>
+                    v.toFixed(ind.casas).replace(".", ",")
+                  }
                   width={44}
+                  allowDecimals
                 />
                 <Tooltip
                   formatter={(value, name) => [
@@ -217,16 +241,25 @@ function BlocoComparativo({
                     dataKey={m}
                     name={m}
                     stroke={corDe(m)}
-                    strokeWidth={2}
-                    dot={{ r: 2.6, fill: corDe(m), strokeWidth: 0 }}
-                    activeDot={{ r: 5, strokeWidth: 2, stroke: "#fff" }}
+                    strokeWidth={espessura}
+                    dot={{
+                      r: Math.round(espessura * 1.3 * 10) / 10,
+                      fill: corDe(m),
+                      strokeWidth: 0,
+                    }}
+                    activeDot={{
+                      r: mobile ? 4 : 5,
+                      strokeWidth: 2,
+                      stroke: "#fff",
+                    }}
                     connectNulls
                   />
                 ))}
               </LineChart>
             </ResponsiveContainer>
           </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
