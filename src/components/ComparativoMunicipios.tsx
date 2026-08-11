@@ -52,15 +52,15 @@ function num(v: IdebValue): number | null {
 interface ComparativoProps {
   data: IdebRecord[];
   municipios: string[];
-  rede: string | null;
-  etapa: string | null;
+  redes: string[];
+  etapas: string[];
 }
 
 export function ComparativoMunicipios({
   data,
   municipios,
-  rede,
-  etapa,
+  redes: redesSel,
+  etapas: etapasSel,
 }: ComparativoProps) {
   // A cor acompanha a ordem de seleção, iguais às etiquetas do filtro
   const corDe = (municipio: string) =>
@@ -70,16 +70,19 @@ export function ComparativoMunicipios({
   // vale como comparativo onde ao menos dois dos escolhidos têm dado.
   const blocos = useMemo(() => {
     const doSelecionado = data.filter((r) => municipios.includes(r.municipio));
-    const redes = rede
-      ? [rede]
-      : [...new Set(doSelecionado.map((r) => r.rede))].sort((a, b) =>
-          a.localeCompare(b, "pt-BR")
-        );
-    const etapas = etapa
-      ? [etapa]
-      : [...new Set(doSelecionado.map((r) => r.etapa))].sort((a, b) =>
-          a.localeCompare(b, "pt-BR")
-        );
+    // Lista vazia significa "todas", então cai no que existe nos dados
+    const redes =
+      redesSel.length > 0
+        ? [...redesSel].sort((a, b) => a.localeCompare(b, "pt-BR"))
+        : [...new Set(doSelecionado.map((r) => r.rede))].sort((a, b) =>
+            a.localeCompare(b, "pt-BR")
+          );
+    const etapas =
+      etapasSel.length > 0
+        ? [...etapasSel].sort((a, b) => a.localeCompare(b, "pt-BR"))
+        : [...new Set(doSelecionado.map((r) => r.etapa))].sort((a, b) =>
+            a.localeCompare(b, "pt-BR")
+          );
 
     const res: { rede: string; etapa: string; registros: IdebRecord[] }[] = [];
     for (const rd of redes) {
@@ -96,7 +99,7 @@ export function ComparativoMunicipios({
       }
     }
     return res;
-  }, [data, municipios, rede, etapa]);
+  }, [data, municipios, redesSel, etapasSel]);
 
   if (blocos.length === 0) {
     return (

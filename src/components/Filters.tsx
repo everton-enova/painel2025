@@ -11,45 +11,70 @@ interface FilterOptions {
   etapas: string[];
 }
 
+type ChaveMulti = "municipios" | "redes" | "etapas";
+
 interface FiltersProps {
   filters: FilterState;
   options: FilterOptions;
-  onFilterChange: (key: "nte" | "rede" | "etapa", value: string | null) => void;
-  onToggleMunicipio: (municipio: string) => void;
-  onClearMunicipios: () => void;
+  onNteChange: (value: string | null) => void;
+  onToggle: (key: ChaveMulti, valor: string) => void;
+  onClearKey: (key: ChaveMulti) => void;
   onClear: () => void;
   searchTerm: string;
   onSearchChange: (term: string) => void;
 }
 
-function Select({
+/**
+ * Rede e etapa têm poucas opções, então botões alternáveis pedem um clique
+ * só — um menu suspenso com caixas de seleção exigiria abrir, marcar e
+ * fechar. Nenhum marcado significa "todos".
+ */
+function GrupoAlternavel({
   label,
-  value,
-  options,
-  onChange,
+  opcoes,
+  selecionados,
+  onToggle,
+  onClear,
 }: {
   label: string;
-  value: string | null;
-  options: string[];
-  onChange: (value: string | null) => void;
+  opcoes: string[];
+  selecionados: string[];
+  onToggle: (valor: string) => void;
+  onClear: () => void;
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+      <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
         {label}
-      </label>
-      <select
-        value={value ?? ""}
-        onChange={(e) => onChange(e.target.value || null)}
-        className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-      >
-        <option value="">Todos</option>
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
+        {selecionados.length > 0 && (
+          <button
+            onClick={onClear}
+            className="ml-2 normal-case tracking-normal text-gray-400 hover:text-gray-600 underline"
+          >
+            todos
+          </button>
+        )}
+      </span>
+      <div className="flex flex-wrap gap-1.5">
+        {opcoes.map((opt) => {
+          const ativo = selecionados.includes(opt);
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => onToggle(opt)}
+              aria-pressed={ativo}
+              className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
+                ativo
+                  ? "border-blue-600 bg-blue-600 text-white font-medium"
+                  : "border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -94,7 +119,8 @@ function MunicipioSearch({
       ref={ref}
     >
       <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Municípios{selecionados.length > 0 && ` (${selecionados.length}/${MAX_COMPARACAO})`}
+        Municípios
+        {selecionados.length > 0 && ` (${selecionados.length}/${MAX_COMPARACAO})`}
       </label>
       <input
         type="text"
@@ -124,7 +150,7 @@ function MunicipioSearch({
                   onClick={() => {
                     onToggle(m);
                     onSearchChange("");
-                    // fecha para não cobrir o resultado; o campo reabre num clique
+                    // fecha para não cobrir o resultado; reabre num clique
                     setAberto(false);
                   }}
                   className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center gap-2 ${
@@ -150,49 +176,66 @@ function MunicipioSearch({
 export function Filters({
   filters,
   options,
-  onFilterChange,
-  onToggleMunicipio,
-  onClearMunicipios,
+  onNteChange,
+  onToggle,
+  onClearKey,
   onClear,
   searchTerm,
   onSearchChange,
 }: FiltersProps) {
   const hasActiveFilter =
     filters.nte !== null ||
-    filters.rede !== null ||
-    filters.etapa !== null ||
     filters.municipios.length > 0 ||
+    filters.redes.length > 0 ||
+    filters.etapas.length > 0 ||
     searchTerm.length > 0;
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
-      <div className="flex flex-col gap-2 sm:gap-3">
-        <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-3 flex-wrap">
-          <Select
-            label="NTE"
-            value={filters.nte}
-            options={options.ntes}
-            onChange={(v) => onFilterChange("nte", v)}
-          />
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-3 flex-wrap">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+              NTE
+            </label>
+            <select
+              value={filters.nte ?? ""}
+              onChange={(e) => onNteChange(e.target.value || null)}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">Todos</option>
+              {options.ntes.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <MunicipioSearch
             searchTerm={searchTerm}
             onSearchChange={onSearchChange}
             municipios={options.municipios}
             selecionados={filters.municipios}
-            onToggle={onToggleMunicipio}
+            onToggle={(m) => onToggle("municipios", m)}
           />
-          <Select
+
+          <GrupoAlternavel
             label="Rede"
-            value={filters.rede}
-            options={options.redes}
-            onChange={(v) => onFilterChange("rede", v)}
+            opcoes={options.redes}
+            selecionados={filters.redes}
+            onToggle={(v) => onToggle("redes", v)}
+            onClear={() => onClearKey("redes")}
           />
-          <Select
+
+          <GrupoAlternavel
             label="Etapa"
-            value={filters.etapa}
-            options={options.etapas}
-            onChange={(v) => onFilterChange("etapa", v)}
+            opcoes={options.etapas}
+            selecionados={filters.etapas}
+            onToggle={(v) => onToggle("etapas", v)}
+            onClear={() => onClearKey("etapas")}
           />
+
           {hasActiveFilter && (
             <button
               onClick={onClear}
@@ -212,11 +255,13 @@ export function Filters({
               >
                 <span
                   className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: SERIES_COLORS[i % SERIES_COLORS.length] }}
+                  style={{
+                    backgroundColor: SERIES_COLORS[i % SERIES_COLORS.length],
+                  }}
                 />
                 {m}
                 <button
-                  onClick={() => onToggleMunicipio(m)}
+                  onClick={() => onToggle("municipios", m)}
                   className="ml-0.5 w-4 h-4 rounded-full text-gray-400 hover:bg-gray-300 hover:text-gray-700 transition-colors"
                   aria-label={`Remover ${m}`}
                 >
@@ -225,7 +270,7 @@ export function Filters({
               </span>
             ))}
             <button
-              onClick={onClearMunicipios}
+              onClick={() => onClearKey("municipios")}
               className="text-xs text-gray-500 hover:text-gray-700 underline px-1"
             >
               limpar municípios

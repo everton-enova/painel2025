@@ -11,11 +11,14 @@ interface FilterOptions {
   etapas: string[];
 }
 
+/** Campos de múltipla escolha; lista vazia equivale a "todos". */
+type ChaveMulti = "municipios" | "redes" | "etapas";
+
 interface UseFiltersReturn {
   filters: FilterState;
-  setFilter: (key: "nte" | "rede" | "etapa", value: string | null) => void;
-  toggleMunicipio: (municipio: string) => void;
-  clearMunicipios: () => void;
+  setNte: (value: string | null) => void;
+  toggle: (key: ChaveMulti, valor: string) => void;
+  clearKey: (key: ChaveMulti) => void;
   clearFilters: () => void;
   filteredData: IdebRecord[];
   filterOptions: FilterOptions;
@@ -27,8 +30,8 @@ interface UseFiltersReturn {
 const INITIAL_FILTERS: FilterState = {
   nte: null,
   municipios: [],
-  rede: null,
-  etapa: null,
+  redes: [],
+  etapas: [],
 };
 
 // "NTE 3" e "NTE 12" precisam sair em ordem numérica, não alfabética
@@ -37,33 +40,33 @@ function ordenaNte(a: string, b: string): number {
   return n(a) - n(b);
 }
 
+/** Lista vazia significa "todos", então não filtra nada. */
+function aceita(selecionados: string[], valor: string): boolean {
+  return selecionados.length === 0 || selecionados.includes(valor);
+}
+
 export function useFilters(data: IdebRecord[]): UseFiltersReturn {
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const setFilter = useCallback(
-    (key: "nte" | "rede" | "etapa", value: string | null) => {
-      setFilters((prev) => ({ ...prev, [key]: value }));
-    },
-    []
-  );
+  const setNte = useCallback((value: string | null) => {
+    setFilters((prev) => ({ ...prev, nte: value }));
+  }, []);
 
-  const toggleMunicipio = useCallback((municipio: string) => {
+  const toggle = useCallback((key: ChaveMulti, valor: string) => {
     setFilters((prev) => {
-      const jaTem = prev.municipios.includes(municipio);
-      if (jaTem) {
-        return {
-          ...prev,
-          municipios: prev.municipios.filter((m) => m !== municipio),
-        };
+      const atual = prev[key];
+      if (atual.includes(valor)) {
+        return { ...prev, [key]: atual.filter((v) => v !== valor) };
       }
-      if (prev.municipios.length >= MAX_COMPARACAO) return prev;
-      return { ...prev, municipios: [...prev.municipios, municipio] };
+      // Só a lista de municípios tem teto — é ela que alimenta o comparativo
+      if (key === "municipios" && atual.length >= MAX_COMPARACAO) return prev;
+      return { ...prev, [key]: [...atual, valor] };
     });
   }, []);
 
-  const clearMunicipios = useCallback(() => {
-    setFilters((prev) => ({ ...prev, municipios: [] }));
+  const clearKey = useCallback((key: ChaveMulti) => {
+    setFilters((prev) => ({ ...prev, [key]: [] }));
   }, []);
 
   const clearFilters = useCallback(() => {
@@ -73,21 +76,17 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
 
   const hasActiveFilter =
     filters.nte !== null ||
-    filters.rede !== null ||
-    filters.etapa !== null ||
     filters.municipios.length > 0 ||
+    filters.redes.length > 0 ||
+    filters.etapas.length > 0 ||
     searchTerm.length > 0;
 
   const filteredData = useMemo(() => {
     return data.filter((record) => {
       if (filters.nte && record.nte !== filters.nte) return false;
-      if (
-        filters.municipios.length > 0 &&
-        !filters.municipios.includes(record.municipio)
-      )
-        return false;
-      if (filters.rede && record.rede !== filters.rede) return false;
-      if (filters.etapa && record.etapa !== filters.etapa) return false;
+      if (!aceita(filters.municipios, record.municipio)) return false;
+      if (!aceita(filters.redes, record.rede)) return false;
+      if (!aceita(filters.etapas, record.etapa)) return false;
       // A busca livre só filtra a tabela enquanto nada foi selecionado
       if (
         searchTerm &&
@@ -108,7 +107,7 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
   );
 
   // Cascata: NTE restringe os municípios, os municípios restringem as redes e
-  // a rede restringe as etapas. Cada nível parte do recorte do nível anterior.
+  // as redes restringem as etapas. Cada nível parte do recorte do anterior.
   const filterOptions = useMemo((): FilterOptions => {
     const unique = (arr: string[]) =>
       [...new Set(arr)].sort((a, b) =>
@@ -119,14 +118,11 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
       ? opcoesBase.filter((r) => r.nte === filters.nte)
       : opcoesBase;
 
-    const paraRedes =
-      filters.municipios.length > 0
-        ? paraMunicipios.filter((r) => filters.municipios.includes(r.municipio))
-        : paraMunicipios;
+    const paraRedes = paraMunicipios.filter((r) =>
+      aceita(filters.municipios, r.municipio)
+    );
 
-    const paraEtapas = filters.rede
-      ? paraRedes.filter((r) => r.rede === filters.rede)
-      : paraRedes;
+    const paraEtapas = paraRedes.filter((r) => aceita(filters.redes, r.rede));
 
     return {
       ntes: [...new Set(opcoesBase.map((r) => r.nte).filter(Boolean))].sort(
@@ -136,37 +132,37 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
       redes: unique(paraRedes.map((r) => r.rede).filter(Boolean)),
       etapas: unique(paraEtapas.map((r) => r.etapa).filter(Boolean)),
     };
-  }, [opcoesBase, filters.nte, filters.municipios, filters.rede]);
+  }, [opcoesBase, filters.nte, filters.municipios, filters.redes]);
 
   // Uma seleção pode ficar inválida ao mudar um filtro acima na cascata (ex.:
-  // trocar de NTE com municípios de outro núcleo escolhidos, ou "Estadual —
-  // Anos Finais", que não existe em Cipó). Limpa o que deixou de se aplicar.
+  // trocar de NTE com municípios de outro núcleo escolhidos, ou manter
+  // "Anos Finais" numa rede que não oferta essa etapa). Descarta o que
+  // deixou de existir, preservando o resto da escolha.
   useEffect(() => {
     setFilters((prev) => {
-      const municipiosValidos = prev.municipios.filter((m) =>
+      const municipios = prev.municipios.filter((m) =>
         filterOptions.municipios.includes(m)
       );
-      const municipioMudou =
-        municipiosValidos.length !== prev.municipios.length;
-      const redeInvalida =
-        prev.rede !== null && !filterOptions.redes.includes(prev.rede);
-      const etapaInvalida =
-        prev.etapa !== null && !filterOptions.etapas.includes(prev.etapa);
-      if (!municipioMudou && !redeInvalida && !etapaInvalida) return prev;
-      return {
-        ...prev,
-        municipios: municipiosValidos,
-        rede: redeInvalida ? null : prev.rede,
-        etapa: etapaInvalida ? null : prev.etapa,
-      };
+      const redes = prev.redes.filter((r) => filterOptions.redes.includes(r));
+      const etapas = prev.etapas.filter((e) =>
+        filterOptions.etapas.includes(e)
+      );
+      if (
+        municipios.length === prev.municipios.length &&
+        redes.length === prev.redes.length &&
+        etapas.length === prev.etapas.length
+      ) {
+        return prev;
+      }
+      return { ...prev, municipios, redes, etapas };
     });
   }, [filterOptions.municipios, filterOptions.redes, filterOptions.etapas]);
 
   return {
     filters,
-    setFilter,
-    toggleMunicipio,
-    clearMunicipios,
+    setNte,
+    toggle,
+    clearKey,
     clearFilters,
     filteredData,
     filterOptions,

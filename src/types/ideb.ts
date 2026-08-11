@@ -25,8 +25,10 @@ export interface FilterState {
   nte: string | null;
   // Multi-seleção: 1 município mostra o painel detalhado, 2+ o comparativo
   municipios: string[];
-  rede: string | null;
-  etapa: string | null;
+  // Lista vazia significa "todos" — não há distinção entre nada marcado e
+  // tudo marcado, e o vazio evita ter de repovoar a seleção a cada cascata
+  redes: string[];
+  etapas: string[];
 }
 
 export interface KPIData {

@@ -15,9 +15,9 @@ export default function Home() {
   const { data, updatedAt, source, isLoading, error } = useIdebData();
   const {
     filters,
-    setFilter,
-    toggleMunicipio,
-    clearMunicipios,
+    setNte,
+    toggle,
+    clearKey,
     clearFilters,
     filteredData,
     filterOptions,
@@ -50,8 +50,8 @@ export default function Home() {
   const selectedLabel = [
     filters.nte,
     filters.municipios.length === 1 ? filters.municipios[0] : null,
-    filters.rede,
-    filters.etapa,
+    filters.redes.length === 1 ? filters.redes[0] : null,
+    filters.etapas.length === 1 ? filters.etapas[0] : null,
   ]
     .filter(Boolean)
     .join(" \u2014 ");
@@ -67,9 +67,9 @@ export default function Home() {
       <Filters
         filters={filters}
         options={filterOptions}
-        onFilterChange={setFilter}
-        onToggleMunicipio={toggleMunicipio}
-        onClearMunicipios={clearMunicipios}
+        onNteChange={setNte}
+        onToggle={toggle}
+        onClearKey={clearKey}
         onClear={clearFilters}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -85,8 +85,8 @@ export default function Home() {
         <ComparativoMunicipios
           data={data}
           municipios={filters.municipios}
-          rede={filters.rede}
-          etapa={filters.etapa}
+          redes={filters.redes}
+          etapas={filters.etapas}
         />
       ) : (
         filters.municipios.length === 1 && (

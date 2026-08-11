@@ -49,9 +49,11 @@ function SectionContent({ data, suffix }: { data: IdebRecord[]; suffix: string }
 }
 
 export function ChartSections({ data, filters }: ChartSectionsProps) {
-  const needsSplit = !filters.rede || !filters.etapa;
+  // Uma única rede e uma única etapa formam um bloco só; qualquer coisa
+  // além disso vira uma seção por combinação.
+  const umaSo = filters.redes.length === 1 && filters.etapas.length === 1;
 
-  if (!needsSplit) {
+  if (umaSo) {
     if (!data.some((r) => EDICOES_VIGENTES.includes(r.ano))) return null;
     return (
       <div className="space-y-4 sm:space-y-6">
@@ -60,12 +62,15 @@ export function ChartSections({ data, filters }: ChartSectionsProps) {
     );
   }
 
-  const redes = filters.rede
-    ? [filters.rede]
-    : [...new Set(data.map((r) => r.rede))].sort();
-  const etapas = filters.etapa
-    ? [filters.etapa]
-    : [...new Set(data.map((r) => r.etapa))].sort();
+  // Lista vazia significa "todas", então cai no que existe nos dados
+  const redes =
+    filters.redes.length > 0
+      ? [...filters.redes].sort()
+      : [...new Set(data.map((r) => r.rede))].sort();
+  const etapas =
+    filters.etapas.length > 0
+      ? [...filters.etapas].sort()
+      : [...new Set(data.map((r) => r.etapa))].sort();
 
   const groups: { label: string; records: IdebRecord[] }[] = [];
 
@@ -75,7 +80,7 @@ export function ChartSections({ data, filters }: ChartSectionsProps) {
       // Só monta a seção se houver dados numa edição vigente — combinações
       // descontinuadas (só com histórico antigo) ficam de fora.
       if (records.some((r) => EDICOES_VIGENTES.includes(r.ano))) {
-        groups.push({ label: `${rede} — ${etapa}`, records });
+        groups.push({ label: `${rede} \u2014 ${etapa}`, records });
       }
     }
   }
