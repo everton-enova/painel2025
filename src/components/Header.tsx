@@ -22,26 +22,27 @@ export function Header({ updatedAt, source }: HeaderProps) {
   };
 
   return (
-    <header className="bg-blue-700 text-white px-4 sm:px-6 py-4 sm:py-5 rounded-xl shadow-md">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <header className="relative overflow-hidden rounded-[var(--radius-card)] bg-gradient-to-r from-[#1d1d1f] to-[#2c2c2e] px-5 sm:px-8 py-5 sm:py-7">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(0,122,255,0.15),transparent_70%)]" />
+      <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-3xl font-bold tracking-tight">
+          <h1 className="text-xl sm:text-3xl font-semibold tracking-tight text-white">
             Painel Ideb Bahia
           </h1>
-          <p className="text-blue-100 text-xs sm:text-sm mt-1">
+          <p className="text-[13px] sm:text-sm text-white/50 mt-1 font-light">
             Acompanhamento de indicadores educacionais
           </p>
         </div>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="text-right text-xs sm:text-sm text-blue-100">
+        <div className="flex items-center gap-3">
+          <div className="text-right text-[12px] sm:text-[13px] text-white/40">
             {formattedDate && (
               <p>
-                Atualizado em:{" "}
-                <span className="font-medium">{formattedDate}</span>
+                Atualizado em{" "}
+                <span className="text-white/60">{formattedDate}</span>
               </p>
             )}
             {source === "mock" && (
-              <p className="text-yellow-200 text-xs mt-1">
+              <p className="text-amber-400/70 text-xs mt-0.5">
                 Dados de demonstração
               </p>
             )}
@@ -49,7 +50,7 @@ export function Header({ updatedAt, source }: HeaderProps) {
           <button
             onClick={showHelp}
             title="Como usar o painel"
-            className="rounded-lg bg-blue-600 hover:bg-blue-500 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-sm font-bold transition-colors border border-blue-400/30"
+            className="rounded-full bg-white/10 hover:bg-white/20 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-sm font-medium text-white/70 hover:text-white transition-all duration-200 backdrop-blur-sm"
           >
             ?
           </button>

@@ -12,11 +12,11 @@ interface ChartSectionsProps {
 }
 
 const CHART_CONFIG = [
-  { field: "ideb" as const, title: "Ideb", color: "#2563eb" },
-  { field: "indicador_rendimento" as const, title: "Indicador de Rendimento", color: "#f59e0b" },
-  { field: "nota_padronizada" as const, title: "Nota Padronizada", color: "#7c3aed" },
-  { field: "proficiencia_mat" as const, title: "Proficiência Matemática", color: "#0d9488" },
-  { field: "proficiencia_lp" as const, title: "Proficiência Língua Portuguesa", color: "#e11d48" },
+  { field: "ideb" as const, title: "Ideb", color: "#007aff" },
+  { field: "indicador_rendimento" as const, title: "Indicador de Rendimento", color: "#ff9500" },
+  { field: "nota_padronizada" as const, title: "Nota Padronizada", color: "#5856d6" },
+  { field: "proficiencia_mat" as const, title: "Proficiência Matemática", color: "#30b0c7" },
+  { field: "proficiencia_lp" as const, title: "Proficiência Língua Portuguesa", color: "#af52de" },
 ];
 
 function SectionContent({ data, suffix }: { data: IdebRecord[]; suffix: string }) {
@@ -28,7 +28,7 @@ function SectionContent({ data, suffix }: { data: IdebRecord[]; suffix: string }
   return (
     <>
       <div>
-        <p className="text-xs text-gray-500 mb-3 italic">
+        <p className="text-[11px] text-[var(--text-tertiary)] mb-3">
           Variação em relação à edição anterior (2023)
         </p>
         <SummaryCards kpis2023={kpis2023} kpis2025={kpis2025} />
@@ -49,20 +49,17 @@ function SectionContent({ data, suffix }: { data: IdebRecord[]; suffix: string }
 }
 
 export function ChartSections({ data, filters }: ChartSectionsProps) {
-  // Uma única rede e uma única etapa formam um bloco só; qualquer coisa
-  // além disso vira uma seção por combinação.
   const umaSo = filters.redes.length === 1 && filters.etapas.length === 1;
 
   if (umaSo) {
     if (!data.some((r) => EDICOES_VIGENTES.includes(r.ano))) return null;
     return (
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-5 sm:space-y-6">
         <SectionContent data={data} suffix="single" />
       </div>
     );
   }
 
-  // Lista vazia significa "todas", então cai no que existe nos dados
   const redes =
     filters.redes.length > 0
       ? [...filters.redes].sort()
@@ -77,10 +74,8 @@ export function ChartSections({ data, filters }: ChartSectionsProps) {
   for (const rede of redes) {
     for (const etapa of etapas) {
       const records = data.filter((r) => r.rede === rede && r.etapa === etapa);
-      // Só monta a seção se houver dados numa edição vigente — combinações
-      // descontinuadas (só com histórico antigo) ficam de fora.
       if (records.some((r) => EDICOES_VIGENTES.includes(r.ano))) {
-        groups.push({ label: `${rede} \u2014 ${etapa}`, records });
+        groups.push({ label: `${rede} — ${etapa}`, records });
       }
     }
   }
@@ -88,10 +83,10 @@ export function ChartSections({ data, filters }: ChartSectionsProps) {
   if (groups.length === 0) return null;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {groups.map((group) => (
-        <div key={group.label} className="space-y-4 sm:space-y-6">
-          <h3 className="text-sm sm:text-base font-semibold text-gray-600 border-l-4 border-blue-500 pl-3">
+        <div key={group.label} className="space-y-5 sm:space-y-6">
+          <h3 className="text-[15px] font-semibold text-[var(--foreground)] border-l-[3px] border-[var(--accent)] pl-3">
             {group.label}
           </h3>
           <SectionContent data={group.records} suffix={group.label} />

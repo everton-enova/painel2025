@@ -51,10 +51,10 @@ function LineShadowDef({ id, color }: { id: string; color: string }) {
       <filter id={id} x="-20%" y="-20%" width="140%" height="140%">
         <feDropShadow
           dx="0"
-          dy="3"
-          stdDeviation="3"
+          dy="2"
+          stdDeviation="2.5"
           floodColor={color}
-          floodOpacity="0.3"
+          floodOpacity="0.2"
         />
       </filter>
     </defs>
@@ -79,8 +79,8 @@ function CustomBarLabel({
       y={y - 6}
       textAnchor="middle"
       fontSize={11}
-      fontWeight={600}
-      fill="#374151"
+      fontWeight={500}
+      fill="#86868b"
     >
       {value.toFixed(1).replace(".", ",")}
     </text>
@@ -105,7 +105,7 @@ function CustomLineLabel({
       y={y - 10}
       textAnchor="middle"
       fontSize={11}
-      fontWeight={600}
+      fontWeight={500}
       fill={color}
     >
       {value.toFixed(2).replace(".", ",")}
@@ -144,18 +144,20 @@ export function ChartIndicador({
   const dotRadius = Math.round(strokeWidth * 1.3 * 10) / 10;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
-      <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-3 sm:mb-4">{title}</h3>
+    <div className="bg-white rounded-2xl p-4 sm:p-5 transition-shadow duration-300 hover:shadow-[var(--card-shadow-hover)]" style={{ boxShadow: "var(--card-shadow)" }}>
+      <h3 className="text-[13px] font-semibold text-[var(--foreground)] mb-4">{title}</h3>
       <ResponsiveContainer width="100%" height={200} className="sm:!h-[220px]">
         {chartType === "bar" ? (
           <BarChart data={chartData} margin={{ top: 20, right: 5, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="ano" tick={{ fontSize: 11 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" />
+            <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#aeaeb2" }} axisLine={{ stroke: "var(--separator)" }} tickLine={false} />
             <YAxis
               domain={DOMAIN_MAP[field]}
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fill: "#aeaeb2" }}
               tickFormatter={(v: number) => v.toFixed(0)}
               width={40}
+              axisLine={false}
+              tickLine={false}
             />
             <Tooltip
               formatter={(value) => [
@@ -163,12 +165,12 @@ export function ChartIndicador({
                 title,
               ]}
               labelFormatter={(label) => `Ano: ${label}`}
-              contentStyle={{ fontSize: 12 }}
+              contentStyle={{ fontSize: 12, borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
             />
             <Bar
               dataKey="valor"
               fill={color}
-              radius={[4, 4, 0, 0]}
+              radius={[6, 6, 0, 0]}
               name={title}
               label={<CustomBarLabel />}
             />
@@ -176,13 +178,15 @@ export function ChartIndicador({
         ) : (
           <LineChart data={chartData} margin={{ top: 20, right: 5, left: -10, bottom: 0 }}>
             <LineShadowDef id={filterId} color={color} />
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="ano" tick={{ fontSize: 11 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" />
+            <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#aeaeb2" }} axisLine={{ stroke: "var(--separator)" }} tickLine={false} />
             <YAxis
               domain={DOMAIN_MAP[field]}
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fill: "#aeaeb2" }}
               tickFormatter={(v: number) => v.toFixed(1)}
               width={40}
+              axisLine={false}
+              tickLine={false}
             />
             <Tooltip
               formatter={(value) => [
@@ -190,7 +194,7 @@ export function ChartIndicador({
                 title,
               ]}
               labelFormatter={(label) => `Ano: ${label}`}
-              contentStyle={{ fontSize: 12 }}
+              contentStyle={{ fontSize: 12, borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
             />
             <Line
               type="monotone"

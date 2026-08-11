@@ -29,8 +29,6 @@ type FieldKey =
   | "proficiencia_lp"
   | "indicador_rendimento";
 
-// `limite` é o território possível do indicador — a escala se ajusta aos
-// dados, mas nunca inventa rendimento acima de 1 ou nota negativa.
 const INDICADORES: { field: FieldKey; label: string; curto: string; limite: [number, number]; casas: number }[] = [
   { field: "ideb", label: "Ideb", curto: "Ideb", limite: [0, 10], casas: 1 },
   { field: "nota_padronizada", label: "Nota Padronizada", curto: "Nota Pad.", limite: [0, 10], casas: 1 },
@@ -40,7 +38,7 @@ const INDICADORES: { field: FieldKey; label: string; curto: string; limite: [num
 ];
 
 function fmt(v: IdebValue, casas = 2): string {
-  if (v === null) return "\u2014";
+  if (v === null) return "—";
   if (v === "ND") return "ND";
   return v.toFixed(casas).replace(".", ",");
 }
@@ -62,15 +60,11 @@ export function ComparativoMunicipios({
   redes: redesSel,
   etapas: etapasSel,
 }: ComparativoProps) {
-  // A cor acompanha a ordem de seleção, iguais às etiquetas do filtro
   const corDe = (municipio: string) =>
     SERIES_COLORS[municipios.indexOf(municipio) % SERIES_COLORS.length];
 
-  // Com rede ou etapa em "Todos", divide em uma seção por combinação — só
-  // vale como comparativo onde ao menos dois dos escolhidos têm dado.
   const blocos = useMemo(() => {
     const doSelecionado = data.filter((r) => municipios.includes(r.municipio));
-    // Lista vazia significa "todas", então cai no que existe nos dados
     const redes =
       redesSel.length > 0
         ? [...redesSel].sort((a, b) => a.localeCompare(b, "pt-BR"))
@@ -103,8 +97,8 @@ export function ComparativoMunicipios({
 
   if (blocos.length === 0) {
     return (
-      <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
-        <p className="text-sm text-gray-600">
+      <section className="bg-white rounded-2xl p-8 text-center" style={{ boxShadow: "var(--card-shadow)" }}>
+        <p className="text-[13px] text-[var(--text-secondary)]">
           Os municípios escolhidos não têm uma rede e etapa em comum para
           comparar.
         </p>
@@ -113,7 +107,7 @@ export function ComparativoMunicipios({
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {blocos.map((b) => (
         <BlocoComparativo
           key={`${b.rede}|${b.etapa}`}
@@ -155,7 +149,6 @@ function BlocoComparativo({
     [registros]
   );
 
-  // Só as linhas dos municípios que têm dado nesta combinação
   const presentes = useMemo(
     () => municipios.filter((m) => registros.some((r) => r.municipio === m)),
     [municipios, registros]
@@ -176,8 +169,6 @@ function BlocoComparativo({
     return reg ? reg[field] : null;
   };
 
-  // A escala se ajusta ao que está no gráfico — só os anos e municípios
-  // realmente desenhados entram na conta.
   const dominioDe = (field: FieldKey, limite: [number, number]) =>
     dominioDinamico(
       registros
@@ -188,13 +179,13 @@ function BlocoComparativo({
     );
 
   return (
-    <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 space-y-4">
+    <section className="bg-white rounded-2xl p-4 sm:p-6 space-y-5" style={{ boxShadow: "var(--card-shadow)" }}>
       <div>
-        <h3 className="text-sm font-semibold text-gray-700">
-          {unico ? "Comparativo entre municípios" : `${rede} \u2014 ${etapa}`}
+        <h3 className="text-[15px] font-semibold text-[var(--foreground)]">
+          {unico ? "Comparativo entre municípios" : `${rede} — ${etapa}`}
         </h3>
-        <p className="text-xs text-gray-500">
-          {unico ? `${rede} \u2014 ${etapa}` : `${presentes.length} municípios`}
+        <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
+          {unico ? `${rede} — ${etapa}` : `${presentes.length} municípios`}
         </p>
       </div>
 
@@ -204,12 +195,12 @@ function BlocoComparativo({
         corDe={corDe}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {INDICADORES.map((ind) => {
           const dominio = dominioDe(ind.field, ind.limite);
           return (
-          <div key={ind.field} className="border border-gray-200 rounded-xl p-3">
-            <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-3">
+          <div key={ind.field} className="rounded-2xl bg-[#fafafa] p-4">
+            <h4 className="text-[13px] font-semibold text-[var(--foreground)] mb-3">
               {ind.label}
             </h4>
             <ResponsiveContainer width="100%" height={210}>
@@ -217,17 +208,19 @@ function BlocoComparativo({
                 data={dadosGrafico(ind.field)}
                 margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e1e0d9" />
-                <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#898781" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" />
+                <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#aeaeb2" }} axisLine={{ stroke: "var(--separator)" }} tickLine={false} />
                 <YAxis
                   domain={dominio}
                   ticks={marcasDoDominio(dominio)}
-                  tick={{ fontSize: 11, fill: "#898781" }}
+                  tick={{ fontSize: 11, fill: "#aeaeb2" }}
                   tickFormatter={(v: number) =>
                     v.toFixed(ind.casas).replace(".", ",")
                   }
                   width={44}
                   allowDecimals
+                  axisLine={false}
+                  tickLine={false}
                 />
                 <Tooltip
                   formatter={(value, name) => [
@@ -235,7 +228,7 @@ function BlocoComparativo({
                     name as string,
                   ]}
                   labelFormatter={(l) => `Ano: ${l}`}
-                  contentStyle={{ fontSize: 12 }}
+                  contentStyle={{ fontSize: 12, borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
                 />
                 {presentes.map((m) => (
                   <Line
@@ -287,33 +280,33 @@ function TabelaComparativa({
 
   return (
     <div>
-      <div className="overflow-x-auto">
-      <table className="min-w-full text-xs sm:text-sm">
+      <div className="overflow-x-auto rounded-xl">
+      <table className="min-w-full text-[12px] sm:text-[13px]">
         <thead>
-          <tr className="border-b border-gray-200">
-            <th className="px-2 sm:px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">
+          <tr className="border-b border-[var(--separator)]">
+            <th className="px-3 py-2.5 text-left font-medium text-[var(--text-tertiary)] whitespace-nowrap">
               Município
             </th>
             {INDICADORES.map((i) => (
               <th
                 key={i.field}
-                className="px-2 sm:px-3 py-2 text-right font-medium text-gray-600 whitespace-nowrap"
+                className="px-3 py-2.5 text-right font-medium text-[var(--text-tertiary)] whitespace-nowrap"
               >
                 {i.curto}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-[var(--separator)]">
           {municipios.map((m) => (
-            <tr key={m} className="hover:bg-gray-50 transition-colors">
-              <td className="px-2 sm:px-3 py-2 whitespace-nowrap">
+            <tr key={m} className="hover:bg-[#fafafa] transition-colors">
+              <td className="px-3 py-2.5 whitespace-nowrap">
                 <span className="inline-flex items-center gap-2">
                   <span
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    className="w-2 h-2 rounded-full shrink-0"
                     style={{ backgroundColor: corDe(m) }}
                   />
-                  <span className="font-medium text-gray-800">{m}</span>
+                  <span className="font-medium text-[var(--foreground)]">{m}</span>
                 </span>
               </td>
               {INDICADORES.map((i) => {
@@ -327,28 +320,28 @@ function TabelaComparativa({
                 return (
                   <td
                     key={i.field}
-                    className="px-2 sm:px-3 py-2 text-right whitespace-nowrap tabular-nums"
+                    className="px-3 py-2.5 text-right whitespace-nowrap tabular-nums"
                   >
                     <span
                       className={
                         v25 === "ND"
-                          ? "text-gray-400"
-                          : "font-semibold text-gray-900"
+                          ? "text-[var(--text-tertiary)]"
+                          : "font-semibold text-[var(--foreground)]"
                       }
                     >
                       {fmt(v25, casas)}
                     </span>
                     {delta !== null && (
                       <span
-                        className={`ml-1.5 text-[10px] sm:text-xs ${
+                        className={`ml-1.5 text-[10px] sm:text-[11px] ${
                           delta > 0
-                            ? "text-[#006300]"
+                            ? "text-[#1a7f37]"
                             : delta < 0
                               ? "text-[#d03b3b]"
-                              : "text-gray-400"
+                              : "text-[var(--text-tertiary)]"
                         }`}
                       >
-                        {delta > 0 ? "▲" : delta < 0 ? "▼" : "—"}
+                        {delta > 0 ? "↑" : delta < 0 ? "↓" : "–"}
                         {Math.abs(delta).toFixed(casas).replace(".", ",")}
                       </span>
                     )}
@@ -360,10 +353,10 @@ function TabelaComparativa({
         </tbody>
       </table>
       </div>
-      <p className="sm:hidden text-[10px] text-gray-400 text-center py-1">
+      <p className="sm:hidden text-[10px] text-[var(--text-tertiary)] text-center py-1">
         Deslize a tabela para ver mais colunas →
       </p>
-      <p className="mt-2 text-[11px] sm:text-xs text-gray-500 italic">
+      <p className="mt-2 text-[11px] text-[var(--text-tertiary)]">
         Valores de {EDICAO_ATUAL}; a seta indica a variação em relação a{" "}
         {EDICAO_ANTERIOR}.
         {temNd && (

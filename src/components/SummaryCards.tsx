@@ -20,23 +20,22 @@ function VariationBadge({
   v2023: IdebValue;
   v2025: IdebValue;
 }) {
-  // Sem variação calculável quando algum dos lados é ND ou ausente
   if (typeof v2023 !== "number" || typeof v2025 !== "number") return null;
   const diff = v2025 - v2023;
   const isPositive = diff > 0;
   const isNeutral = diff === 0;
 
-  const bgColor = isPositive
-    ? "bg-green-100 text-green-700"
+  const style = isPositive
+    ? "bg-[#e8f8ee] text-[#1a7f37]"
     : isNeutral
-      ? "bg-gray-100 text-gray-600"
-      : "bg-red-100 text-red-700";
+      ? "bg-[#f0f0f0] text-[#86868b]"
+      : "bg-[#fce8e8] text-[#d03b3b]";
 
-  const arrow = isPositive ? "▲" : isNeutral ? "—" : "▼";
+  const arrow = isPositive ? "↑" : isNeutral ? "–" : "↓";
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${bgColor}`}
+      className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${style}`}
     >
       {arrow} {Math.abs(diff).toFixed(2).replace(".", ",")}
     </span>
@@ -47,33 +46,30 @@ function Card({
   label,
   value2025,
   value2023,
-  icon,
   accentColor,
 }: {
   label: string;
   value2025: IdebValue;
   value2023: IdebValue;
-  icon: string;
   accentColor: string;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-5 flex flex-col gap-2 sm:gap-3">
+    <div className="bg-white rounded-2xl p-4 sm:p-5 flex flex-col gap-2 sm:gap-3 transition-shadow duration-300 hover:shadow-[var(--card-shadow-hover)]" style={{ boxShadow: "var(--card-shadow)" }}>
       <div className="flex items-center justify-between">
-        <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">
+        <span className="text-[11px] sm:text-xs font-medium text-[var(--text-secondary)] tracking-wide">
           {label}
         </span>
         <span
-          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-xs sm:text-sm ${accentColor}`}
-        >
-          {icon}
-        </span>
+          className="w-2 h-2 rounded-full"
+          style={{ backgroundColor: accentColor }}
+        />
       </div>
       <div className="flex items-end gap-2 sm:gap-3">
         <p
-          className={`font-bold ${
+          className={`font-semibold tracking-tight ${
             value2025 === "ND"
-              ? "text-xl sm:text-2xl text-gray-400"
-              : "text-2xl sm:text-3xl text-gray-900"
+              ? "text-xl sm:text-2xl text-[var(--text-tertiary)]"
+              : "text-2xl sm:text-[2rem] text-[var(--foreground)]"
           }`}
           title={
             value2025 === "ND"
@@ -100,45 +96,40 @@ export function SummaryCards({ kpis2023, kpis2025 }: SummaryCardsProps) {
 
   return (
     <>
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
       <Card
         label="Ideb"
         value2025={kpis2025.mediaIdeb}
         value2023={kpis2023.mediaIdeb}
-        icon="📊"
-        accentColor="bg-blue-100 text-blue-600"
+        accentColor="#007aff"
       />
       <Card
         label="Nota Padronizada"
         value2025={kpis2025.mediaNotaPadronizada}
         value2023={kpis2023.mediaNotaPadronizada}
-        icon="📝"
-        accentColor="bg-indigo-100 text-indigo-600"
+        accentColor="#5856d6"
       />
       <Card
         label="Prof. MAT"
         value2025={kpis2025.mediaProficienciaMat}
         value2023={kpis2023.mediaProficienciaMat}
-        icon="📐"
-        accentColor="bg-teal-100 text-teal-600"
+        accentColor="#30b0c7"
       />
       <Card
         label="Prof. LP"
         value2025={kpis2025.mediaProficienciaLp}
         value2023={kpis2023.mediaProficienciaLp}
-        icon="📖"
-        accentColor="bg-purple-100 text-purple-600"
+        accentColor="#af52de"
       />
       <Card
         label="Ind. Rendimento"
         value2025={kpis2025.mediaIndicadorRendimento}
         value2023={kpis2023.mediaIndicadorRendimento}
-        icon="📈"
-        accentColor="bg-amber-100 text-amber-600"
+        accentColor="#ff9500"
       />
     </div>
     {hasNd && (
-      <p className="mt-2 text-[11px] sm:text-xs text-gray-500 italic">
+      <p className="mt-2 text-[11px] sm:text-xs text-[var(--text-tertiary)]">
         ND — Nota Não Divulgada: o município não atingiu a taxa mínima de
         participação de 80% dos estudantes no SAEB.
       </p>

@@ -40,26 +40,26 @@ export function RankingTable({ data }: RankingTableProps) {
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="px-3 sm:px-4 py-3 border-b border-gray-200 bg-gray-50">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "var(--card-shadow)" }}>
+      <div className="px-5 py-4 border-b border-[var(--separator)]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h3 className="text-sm font-semibold text-gray-700">
+            <h3 className="text-[15px] font-semibold text-[var(--foreground)]">
               Ranking por Variação (2023 → 2025)
             </h3>
-            <p className="text-xs text-gray-500">
+            <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
               Ordenado da maior para a menor variação
             </p>
           </div>
-          <div className="flex gap-1 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
             {FIELDS.map((f) => (
               <button
                 key={f.key}
                 onClick={() => setSelectedField(f.key)}
-                className={`px-2 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-medium rounded-lg transition-colors ${
+                className={`px-3 py-1.5 text-[11px] sm:text-[12px] font-medium rounded-full transition-all duration-200 ${
                   selectedField === f.key
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    ? "bg-[var(--accent)] text-white shadow-sm"
+                    : "bg-[#f0f0f0] text-[var(--text-secondary)] hover:bg-[#e5e5e5]"
                 }`}
               >
                 {f.label}
@@ -68,41 +68,41 @@ export function RankingTable({ data }: RankingTableProps) {
           </div>
         </div>
       </div>
-      <div className="overflow-x-auto -webkit-overflow-scrolling-touch">
-        <table className="min-w-full text-xs sm:text-sm">
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-[12px] sm:text-[13px]">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-600 whitespace-nowrap w-10">#</th>
-              <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-600 whitespace-nowrap">NTE</th>
-              <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-600 whitespace-nowrap">Município</th>
-              <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-600 whitespace-nowrap">Rede</th>
-              <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-600 whitespace-nowrap">Etapa</th>
-              <th className="px-2 sm:px-4 py-2 sm:py-3 text-right font-medium text-gray-600 whitespace-nowrap">2023</th>
-              <th className="px-2 sm:px-4 py-2 sm:py-3 text-right font-medium text-gray-600 whitespace-nowrap">2025</th>
-              <th className="px-2 sm:px-4 py-2 sm:py-3 text-right font-medium text-gray-600 whitespace-nowrap">Variação</th>
+            <tr className="border-b border-[var(--separator)]">
+              <th className="px-3 sm:px-4 py-2.5 text-left font-medium text-[var(--text-tertiary)] whitespace-nowrap w-10">#</th>
+              <th className="px-3 sm:px-4 py-2.5 text-left font-medium text-[var(--text-tertiary)] whitespace-nowrap">NTE</th>
+              <th className="px-3 sm:px-4 py-2.5 text-left font-medium text-[var(--text-tertiary)] whitespace-nowrap">Município</th>
+              <th className="px-3 sm:px-4 py-2.5 text-left font-medium text-[var(--text-tertiary)] whitespace-nowrap">Rede</th>
+              <th className="px-3 sm:px-4 py-2.5 text-left font-medium text-[var(--text-tertiary)] whitespace-nowrap">Etapa</th>
+              <th className="px-3 sm:px-4 py-2.5 text-right font-medium text-[var(--text-tertiary)] whitespace-nowrap">2023</th>
+              <th className="px-3 sm:px-4 py-2.5 text-right font-medium text-[var(--text-tertiary)] whitespace-nowrap">2025</th>
+              <th className="px-3 sm:px-4 py-2.5 text-right font-medium text-[var(--text-tertiary)] whitespace-nowrap">Variação</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-[var(--separator)]">
             {ranking.map((record, i) => {
               const varColor =
                 record.variacao === null
-                  ? "text-gray-400"
+                  ? "text-[var(--text-tertiary)]"
                   : record.variacao > 0
-                    ? "text-green-600"
+                    ? "text-[#1a7f37]"
                     : record.variacao < 0
-                      ? "text-red-600"
-                      : "text-gray-500";
+                      ? "text-[#d03b3b]"
+                      : "text-[var(--text-tertiary)]";
 
               return (
-                <tr key={i} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 text-gray-400 font-medium">{i + 1}</td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 whitespace-nowrap">{record.nte || "—"}</td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 whitespace-nowrap">{record.municipio}</td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 whitespace-nowrap">{record.rede}</td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 whitespace-nowrap">{record.etapa}</td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 text-right whitespace-nowrap">{formatDecimal(record.valor2023)}</td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-2.5 text-right whitespace-nowrap">{formatDecimal(record.valor2025)}</td>
-                  <td className={`px-2 sm:px-4 py-2 sm:py-2.5 text-right whitespace-nowrap font-medium ${varColor}`}>
+                <tr key={i} className="hover:bg-[#fafafa] transition-colors">
+                  <td className="px-3 sm:px-4 py-2.5 text-[var(--text-tertiary)] font-medium tabular-nums">{i + 1}</td>
+                  <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">{record.nte || "—"}</td>
+                  <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap font-medium">{record.municipio}</td>
+                  <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">{record.rede}</td>
+                  <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">{record.etapa}</td>
+                  <td className="px-3 sm:px-4 py-2.5 text-right whitespace-nowrap tabular-nums">{formatDecimal(record.valor2023)}</td>
+                  <td className="px-3 sm:px-4 py-2.5 text-right whitespace-nowrap tabular-nums">{formatDecimal(record.valor2025)}</td>
+                  <td className={`px-3 sm:px-4 py-2.5 text-right whitespace-nowrap font-medium tabular-nums ${varColor}`}>
                     {formatVariacao(record.variacao)}
                   </td>
                 </tr>
@@ -110,7 +110,7 @@ export function RankingTable({ data }: RankingTableProps) {
             })}
             {ranking.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-sm text-gray-400">
+                <td colSpan={8} className="px-4 py-12 text-center text-[13px] text-[var(--text-tertiary)]">
                   Sem dados para calcular variação
                 </td>
               </tr>
@@ -118,11 +118,11 @@ export function RankingTable({ data }: RankingTableProps) {
           </tbody>
         </table>
       </div>
-      <p className="sm:hidden text-[10px] text-gray-400 text-center py-2">
+      <p className="sm:hidden text-[10px] text-[var(--text-tertiary)] text-center py-2">
         Deslize para ver mais colunas →
       </p>
       {hasNd && (
-        <p className="px-3 sm:px-4 py-2 border-t border-gray-100 text-[11px] sm:text-xs text-gray-500 italic">
+        <p className="px-5 py-3 border-t border-[var(--separator)] text-[11px] text-[var(--text-tertiary)]">
           ND — Nota Não Divulgada: o município não atingiu a taxa mínima de
           participação de 80% dos estudantes no SAEB.
         </p>

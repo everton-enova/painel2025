@@ -77,53 +77,53 @@ export function OnboardingTour({ onComplete }: { onComplete?: () => void }) {
   const current = STEPS[step];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-        <div className="bg-blue-600 px-6 py-4 text-white">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-xl px-4">
+      <div className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
+        <div className="px-7 pt-6 pb-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium opacity-80">
+            <span className="text-[12px] font-medium text-[var(--text-tertiary)]">
               {step + 1} de {STEPS.length}
             </span>
             <button
               onClick={finish}
-              className="text-white/70 hover:text-white text-sm transition-colors"
+              className="text-[var(--text-tertiary)] hover:text-[var(--foreground)] text-[13px] transition-colors"
             >
               Pular
             </button>
           </div>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-1.5 mt-3">
             {STEPS.map((_, i) => (
               <div
                 key={i}
-                className={`h-1 flex-1 rounded-full transition-colors ${
-                  i <= step ? "bg-white" : "bg-white/30"
+                className={`h-[3px] flex-1 rounded-full transition-all duration-300 ${
+                  i <= step ? "bg-[var(--accent)]" : "bg-[#f0f0f0]"
                 }`}
               />
             ))}
           </div>
         </div>
 
-        <div className="px-6 py-6 text-center">
-          <div className="text-4xl mb-4">{current.icon}</div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">
+        <div className="px-7 py-6 text-center">
+          <div className="text-4xl mb-5">{current.icon}</div>
+          <h3 className="text-[20px] font-semibold text-[var(--foreground)] mb-2 tracking-tight">
             {current.title}
           </h3>
-          <p className="text-sm text-gray-600 leading-relaxed">
+          <p className="text-[14px] text-[var(--text-secondary)] leading-relaxed font-light">
             {current.description}
           </p>
         </div>
 
-        <div className="px-6 pb-6 flex items-center justify-between gap-3">
+        <div className="px-7 pb-7 flex items-center justify-between gap-3">
           <button
             onClick={prev}
             disabled={step === 0}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-0"
+            className="rounded-full px-5 py-2.5 text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[#f0f0f0] transition-all duration-200 disabled:opacity-0"
           >
             Anterior
           </button>
           <button
             onClick={next}
-            className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+            className="rounded-full bg-[var(--accent)] px-7 py-2.5 text-[13px] font-semibold text-white hover:brightness-110 transition-all duration-200 shadow-sm"
           >
             {step === STEPS.length - 1 ? "Começar" : "Próximo"}
           </button>

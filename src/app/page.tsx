@@ -28,7 +28,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <main className="mx-auto max-w-7xl px-4 py-8">
+      <main className="mx-auto max-w-7xl px-6 py-8">
         <LoadingSpinner />
       </main>
     );
@@ -36,12 +36,12 @@ export default function Home() {
 
   if (error) {
     return (
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
-          <p className="text-sm font-medium text-red-800">
+      <main className="mx-auto max-w-7xl px-6 py-8">
+        <div className="rounded-2xl bg-[#fce8e8] p-8 text-center">
+          <p className="text-[15px] font-medium text-[#d03b3b]">
             Erro ao carregar dados
           </p>
-          <p className="mt-1 text-xs text-red-600">{error}</p>
+          <p className="mt-1 text-[13px] text-[#d03b3b]/70">{error}</p>
         </div>
       </main>
     );
@@ -54,12 +54,12 @@ export default function Home() {
     filters.etapas.length === 1 ? filters.etapas[0] : null,
   ]
     .filter(Boolean)
-    .join(" \u2014 ");
+    .join(" — ");
 
   const comparando = filters.municipios.length >= 2;
 
   return (
-    <main className="mx-auto w-full min-w-0 max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+    <main className="mx-auto w-full min-w-0 max-w-7xl px-4 sm:px-6 py-5 sm:py-8 space-y-5 sm:space-y-7">
       <OnboardingTour />
 
       <Header updatedAt={updatedAt} source={source} />
@@ -76,7 +76,7 @@ export default function Home() {
       />
 
       {!comparando && hasActiveFilter && selectedLabel && (
-        <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+        <h2 className="text-[18px] sm:text-[22px] font-semibold text-[var(--foreground)] tracking-tight">
           {selectedLabel}
         </h2>
       )}
