@@ -50,6 +50,36 @@ const ENSINO_MEDIO: TabConfig = {
   dataStartRow: 3,
 };
 
+const BAHIA_AI: TabConfig = {
+  etapa: "Anos Iniciais",
+  years: [2005, 2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021, 2023, 2025],
+  taxaCols: [2, 9, 16, 23, 30, 37, 44, 51, 58, 65, 72],
+  taxaColsPerYear: 7,
+  saebBaseCols: [79, 82, 85, 88, 91, 94, 97, 100, 103, 106, 109],
+  idebStartCol: 112,
+  dataStartRow: 3,
+};
+
+const BAHIA_AF: TabConfig = {
+  etapa: "Anos Finais",
+  years: [2005, 2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021, 2023, 2025],
+  taxaCols: [2, 8, 14, 20, 26, 32, 38, 44, 50, 56, 62],
+  taxaColsPerYear: 6,
+  saebBaseCols: [68, 71, 74, 77, 80, 83, 86, 89, 92, 95, 98],
+  idebStartCol: 101,
+  dataStartRow: 2,
+};
+
+const BAHIA_EM: TabConfig = {
+  etapa: "Ensino Médio",
+  years: [2005, 2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021, 2023, 2025],
+  taxaCols: [2, 8, 14, 20, 26, 32, 38, 44, 50, 56, 62],
+  taxaColsPerYear: 6,
+  saebBaseCols: [68, 71, 74, 77, 80, 83, 86, 89, 92, 95, 98],
+  idebStartCol: 101,
+  dataStartRow: 2,
+};
+
 export function parseAllTabs(
   nteCsv: string,
   aiCsv: string,
@@ -61,6 +91,18 @@ export function parseAllTabs(
   const afRecords = parseTab(afCsv, ANOS_FINAIS, nteMap);
   const emRecords = parseTab(emCsv, ENSINO_MEDIO, nteMap);
   return [...aiRecords, ...afRecords, ...emRecords];
+}
+
+export function parseBahiaTabs(
+  aiCsv: string,
+  afCsv: string,
+  emCsv: string
+): IdebRecord[] {
+  return [
+    ...parseBahiaTab(aiCsv, BAHIA_AI),
+    ...parseBahiaTab(afCsv, BAHIA_AF),
+    ...parseBahiaTab(emCsv, BAHIA_EM),
+  ];
 }
 
 function parseNteMap(csv: string): Map<string, string> {
@@ -125,6 +167,61 @@ function parseTab(
         codigo_municipio: codigoMunicipio,
         municipio,
         nte,
+        rede,
+        etapa: config.etapa,
+        ideb,
+        nota_padronizada: notaPad,
+        proficiencia_mat: profMat,
+        proficiencia_lp: profLp,
+        indicador_rendimento: indRend,
+      });
+    }
+  }
+
+  return records;
+}
+
+function parseBahiaTab(csv: string, config: TabConfig): IdebRecord[] {
+  const lines = csvToArrays(csv);
+  const records: IdebRecord[] = [];
+
+  for (let i = config.dataStartRow; i < lines.length; i++) {
+    const row = lines[i];
+    const uf = (row[0] || "").trim();
+    const redeRaw = (row[1] || "").trim().replace(/\s*\(\d+\)$/, "");
+
+    if (uf !== "Bahia" && uf !== "BA") continue;
+    if (!redeRaw || redeRaw === "Pública") continue;
+    const rede = redeRaw;
+
+    for (let yi = 0; yi < config.years.length; yi++) {
+      const ano = config.years[yi];
+      const taxaBase = config.taxaCols[yi];
+      const indRendCol = taxaBase + config.taxaColsPerYear - 1;
+      const saebBase = config.saebBaseCols[yi];
+      const idebCol = config.idebStartCol + yi;
+
+      const ideb = parseDecimal(row[idebCol]);
+      const notaPad = parseDecimal(row[saebBase + 2]);
+      const profMat = parseDecimal(row[saebBase]);
+      const profLp = parseDecimal(row[saebBase + 1]);
+      const indRend = parseDecimal(row[indRendCol]);
+
+      if (
+        ideb === null &&
+        notaPad === null &&
+        profMat === null &&
+        profLp === null &&
+        indRend === null
+      ) {
+        continue;
+      }
+
+      records.push({
+        ano,
+        codigo_municipio: "29",
+        municipio: "Bahia",
+        nte: "",
         rede,
         etapa: config.etapa,
         ideb,

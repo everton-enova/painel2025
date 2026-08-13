@@ -9,8 +9,18 @@ export const GIDS = {
   ENSINO_MEDIO: "1188885958",
 };
 
+export const BAHIA_SHEETS = {
+  AI: "AI_Bahia",
+  AF: "AF_Bahia",
+  EM: "EM_Bahia",
+};
+
 export function sheetCsvUrl(gid: string): string {
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
+}
+
+export function sheetCsvUrlByName(sheetName: string): string {
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
 }
 
 // Edições exibidas no painel. Uma combinação município/rede/etapa é
