@@ -22,6 +22,9 @@ interface FiltersProps {
   onClear: () => void;
   searchTerm: string;
   onSearchChange: (term: string) => void;
+  bahiaDisponivel: boolean;
+  bahiaSelecionada: boolean;
+  onToggleBahia: () => void;
 }
 
 function GrupoAlternavel({
@@ -178,6 +181,9 @@ export function Filters({
   onClear,
   searchTerm,
   onSearchChange,
+  bahiaDisponivel,
+  bahiaSelecionada,
+  onToggleBahia,
 }: FiltersProps) {
   const hasActiveFilter =
     filters.nte !== null ||
@@ -212,9 +218,29 @@ export function Filters({
             searchTerm={searchTerm}
             onSearchChange={onSearchChange}
             municipios={options.municipios}
-            selecionados={filters.municipios}
+            selecionados={filters.municipios.filter((m) => m !== "Bahia")}
             onToggle={(m) => onToggle("municipios", m)}
           />
+
+          {bahiaDisponivel && (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[11px] font-medium text-[var(--text-secondary)] tracking-wide">
+                Estado
+              </span>
+              <button
+                type="button"
+                onClick={onToggleBahia}
+                aria-pressed={bahiaSelecionada}
+                className={`rounded-full px-4 py-2.5 text-[13px] font-medium transition-all duration-200 flex items-center gap-2 ${
+                  bahiaSelecionada
+                    ? "bg-[var(--accent)] text-white shadow-sm"
+                    : "bg-[#f0f0f0] text-[var(--text-secondary)] hover:bg-[#e5e5e5]"
+                }`}
+              >
+                Bahia
+              </button>
+            </div>
+          )}
 
           <GrupoAlternavel
             label="Rede"
@@ -247,7 +273,11 @@ export function Filters({
             {filters.municipios.map((m, i) => (
               <span
                 key={m}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[#f5f5f7] pl-2.5 pr-1.5 py-1 text-[12px] font-medium text-[var(--foreground)]"
+                className={`inline-flex items-center gap-1.5 rounded-full pl-2.5 pr-1.5 py-1 text-[12px] font-medium ${
+                  m === "Bahia"
+                    ? "bg-[var(--accent-light)] text-[var(--accent)]"
+                    : "bg-[#f5f5f7] text-[var(--foreground)]"
+                }`}
               >
                 <span
                   className="w-2 h-2 rounded-full"
@@ -255,9 +285,9 @@ export function Filters({
                     backgroundColor: SERIES_COLORS[i % SERIES_COLORS.length],
                   }}
                 />
-                {m}
+                {m === "Bahia" ? "Bahia (Estado)" : m}
                 <button
-                  onClick={() => onToggle("municipios", m)}
+                  onClick={() => m === "Bahia" ? onToggleBahia() : onToggle("municipios", m)}
                   className="ml-0.5 w-4 h-4 rounded-full text-[var(--text-tertiary)] hover:bg-black/10 hover:text-[var(--foreground)] flex items-center justify-center transition-all duration-200"
                   aria-label={`Remover ${m}`}
                 >
@@ -269,9 +299,9 @@ export function Filters({
               onClick={() => onClearKey("municipios")}
               className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] underline underline-offset-2 px-1 transition-colors"
             >
-              limpar municípios
+              limpar seleção
             </button>
-            {filters.municipios.length === 1 && (
+            {filters.municipios.filter((m) => m !== "Bahia").length === 1 && !bahiaSelecionada && (
               <span className="text-[11px] text-[var(--text-tertiary)]">
                 adicione outro município para comparar
               </span>

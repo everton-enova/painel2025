@@ -1,7 +1,9 @@
 "use client";
 
+import { useMemo } from "react";
 import { useIdebData } from "@/hooks/useIdebData";
 import { useFilters } from "@/hooks/useFilters";
+import { useEscolas } from "@/hooks/useEscolas";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
 import { ChartSections } from "@/components/ChartSections";
@@ -10,6 +12,7 @@ import { RankingTable } from "@/components/RankingTable";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { ComparativoMunicipios } from "@/components/ComparativoMunicipios";
+import { EscolaPanel } from "@/components/EscolaPanel";
 
 export default function Home() {
   const { data, updatedAt, source, isLoading, error } = useIdebData();
@@ -24,7 +27,26 @@ export default function Home() {
     hasActiveFilter,
     searchTerm,
     setSearchTerm,
+    bahiaDisponivel,
+    bahiaSelecionada,
+    toggleBahia,
   } = useFilters(data);
+
+  const municipioSelecionado =
+    filters.municipios.length === 1 && filters.municipios[0] !== "Bahia"
+      ? filters.municipios[0]
+      : filters.municipios.length === 2 && bahiaSelecionada
+        ? filters.municipios.find((m) => m !== "Bahia") ?? null
+        : null;
+
+  const codigoMunicipio = useMemo(() => {
+    if (!municipioSelecionado) return null;
+    const rec = data.find((r) => r.municipio === municipioSelecionado);
+    return rec?.codigo_municipio ?? null;
+  }, [data, municipioSelecionado]);
+
+  const { escolas, isLoading: escolasLoading, escolasUnicas } =
+    useEscolas(codigoMunicipio);
 
   if (isLoading) {
     return (
@@ -56,6 +78,7 @@ export default function Home() {
     .filter(Boolean)
     .join(" — ");
 
+  const municipiosSemBahia = filters.municipios.filter((m) => m !== "Bahia");
   const comparando = filters.municipios.length >= 2;
 
   return (
@@ -73,6 +96,9 @@ export default function Home() {
         onClear={clearFilters}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
+        bahiaDisponivel={bahiaDisponivel}
+        bahiaSelecionada={bahiaSelecionada}
+        onToggleBahia={toggleBahia}
       />
 
       {!comparando && hasActiveFilter && selectedLabel && (
@@ -89,9 +115,18 @@ export default function Home() {
           etapas={filters.etapas}
         />
       ) : (
-        filters.municipios.length === 1 && (
+        municipiosSemBahia.length === 1 && (
           <ChartSections data={filteredData} filters={filters} />
         )
+      )}
+
+      {municipioSelecionado && (
+        <EscolaPanel
+          escolas={escolas}
+          escolasUnicas={escolasUnicas}
+          isLoading={escolasLoading}
+          municipio={municipioSelecionado}
+        />
       )}
 
       {hasActiveFilter && (

@@ -40,6 +40,21 @@ export interface KPIData {
   totalRegistros: number;
 }
 
+export interface EscolaRecord {
+  ano: number;
+  codigo_municipio: string;
+  municipio: string;
+  codigo_escola: string;
+  escola: string;
+  rede: string;
+  etapa: string;
+  ideb: IdebValue;
+  nota_padronizada: IdebValue;
+  proficiencia_mat: IdebValue;
+  proficiencia_lp: IdebValue;
+  indicador_rendimento: IdebValue;
+}
+
 export interface VariacaoRecord {
   municipio: string;
   nte: string;

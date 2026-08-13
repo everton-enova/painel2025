@@ -25,6 +25,9 @@ interface UseFiltersReturn {
   hasActiveFilter: boolean;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
+  bahiaDisponivel: boolean;
+  bahiaSelecionada: boolean;
+  toggleBahia: () => void;
 }
 
 const INITIAL_FILTERS: FilterState = {
@@ -128,7 +131,7 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
       ntes: [...new Set(opcoesBase.map((r) => r.nte).filter(Boolean))].sort(
         ordenaNte
       ),
-      municipios: unique(paraMunicipios.map((r) => r.municipio).filter(Boolean)),
+      municipios: unique(paraMunicipios.map((r) => r.municipio).filter((m) => m && m !== "Bahia")),
       redes: unique(paraRedes.map((r) => r.rede).filter(Boolean)),
       etapas: unique(paraEtapas.map((r) => r.etapa).filter(Boolean)),
     };
@@ -158,6 +161,12 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
     });
   }, [filterOptions.municipios, filterOptions.redes, filterOptions.etapas]);
 
+  const bahiaDisponivel = opcoesBase.some((r) => r.municipio === "Bahia");
+  const bahiaSelecionada = filters.municipios.includes("Bahia");
+  const toggleBahia = useCallback(() => {
+    toggle("municipios", "Bahia");
+  }, [toggle]);
+
   return {
     filters,
     setNte,
@@ -169,5 +178,8 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
     hasActiveFilter,
     searchTerm,
     setSearchTerm,
+    bahiaDisponivel,
+    bahiaSelecionada,
+    toggleBahia,
   };
 }

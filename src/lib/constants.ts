@@ -15,6 +15,12 @@ export const BAHIA_SHEETS = {
   EM: "EM_Bahia",
 };
 
+export const ESCOLA_SHEETS = {
+  AI: "AI_ESCOLA",
+  AF: "AF_ESCOLA",
+  EM: "EM_ESCOLA",
+};
+
 export function sheetCsvUrl(gid: string): string {
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
 }
