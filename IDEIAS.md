@@ -22,8 +22,10 @@
 - Campos: `SG_UF`, `CO_MUNICIPIO`, `NO_MUNICIPIO`, `ID_ESCOLA`, `NO_ESCOLA`, `REDE` + indicadores por ano
 - Fluxo: município selecionado → lista de escolas → clica na escola → cards + gráficos dela
 - Dado agregado da Bahia: subido manualmente numa aba separada (sem cálculo no painel)
+- Bahia aparece como parâmetro selecionável no nível município (como se fosse um município)
+- Permite comparar: Bahia × Salvador × Feira de Santana no comparativo
 - Carregamento sob demanda (fetch por município) para não pesar o carregamento inicial
-- **Status:** abas prontas, aguardando aba da Bahia e sinal para implementar
+- **Status:** abas de escola prontas, aguardando aba da Bahia e sinal para implementar
 
 ## 4. Mapa da Bahia pintado
 
