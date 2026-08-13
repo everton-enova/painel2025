@@ -1,6 +1,6 @@
 # Bloco de Ideias — Painel IDEB Bahia
 
-> Última atualização: 2026-08-11
+> Última atualização: 2026-08-13
 
 ---
 
@@ -18,11 +18,12 @@
 
 ## 3. Dados das escolas
 
-- Subir os dados das escolas para o painel
-- Ao clicar no município, gerar a lista de escolas
-- Ao clicar na escola, carregar os dados dela
-- Criar parâmetro com município e Bahia (estado)
-- **Status:** aguardando dados
+- Abas já subidas no Google Sheets: `AI_ESCOLA` (6.515), `AF_ESCOLA` (3.938), `EM_ESCOLA` (1.366) — total ~11.800 escolas
+- Campos: `SG_UF`, `CO_MUNICIPIO`, `NO_MUNICIPIO`, `ID_ESCOLA`, `NO_ESCOLA`, `REDE` + indicadores por ano
+- Fluxo: município selecionado → lista de escolas → clica na escola → cards + gráficos dela
+- Dado agregado da Bahia: subido manualmente numa aba separada (sem cálculo no painel)
+- Carregamento sob demanda (fetch por município) para não pesar o carregamento inicial
+- **Status:** abas prontas, aguardando aba da Bahia e sinal para implementar
 
 ## 4. Mapa da Bahia pintado
 
@@ -35,7 +36,7 @@
 
 - Repensar a interface com linguagem visual inspirada na Apple
 - Foco em minimalismo, tipografia, espaçamento e micro-interações
-- **Status:** a definir
+- **Status:** implementado
 
 ---
 
