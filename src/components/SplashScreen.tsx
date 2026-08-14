@@ -7,77 +7,88 @@ interface SplashScreenProps {
   onFinish: () => void;
 }
 
+const BAR_COLORS = ["#00923F", "#F8C300", "#1D5D88", "#F8C300"];
+
 export function SplashScreen({ onFinish }: SplashScreenProps) {
   const [phase, setPhase] = useState<"bars" | "logo" | "text" | "exit">("bars");
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase("logo"), 400);
-    const t2 = setTimeout(() => setPhase("text"), 1000);
-    const t3 = setTimeout(() => setPhase("exit"), 2200);
-    const t4 = setTimeout(onFinish, 2800);
+    const t2 = setTimeout(() => setPhase("text"), 1200);
+    const t3 = setTimeout(() => setPhase("exit"), 2400);
+    const t4 = setTimeout(onFinish, 3000);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [onFinish]);
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-white transition-opacity duration-500 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-white transition-opacity duration-600 ${
         phase === "exit" ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
-      <div className="flex flex-col items-center gap-6">
-        {/* Animated IDEB bars */}
-        <div className="flex items-end gap-[5px] h-16">
-          {[0.4, 0.6, 0.85, 1.0].map((h, i) => (
+      <div className="flex flex-col items-center gap-5">
+        {/* Animated IDEB bars — matches official logo proportions */}
+        <div className="flex items-end gap-[6px] h-[72px]">
+          {[0.35, 0.55, 0.8, 1.0].map((h, i) => (
             <div
               key={i}
-              className="w-[10px] sm:w-[14px] rounded-t-[3px] transition-all ease-out"
+              className="w-[12px] sm:w-[16px] rounded-t-[3px] transition-all ease-out"
               style={{
-                backgroundColor: ["#2563eb", "#16a34a", "#9333ea", "#0891b2"][i],
-                height: phase === "bars" ? "4px" : `${h * 64}px`,
+                backgroundColor: BAR_COLORS[i],
+                height: phase === "bars" ? "4px" : `${h * 72}px`,
                 transitionDuration: `${400 + i * 120}ms`,
-                transitionDelay: `${i * 80}ms`,
+                transitionDelay: `${i * 100}ms`,
               }}
             />
           ))}
         </div>
 
-        {/* Brasão + Title */}
+        {/* IDEB logo + Brasão */}
         <div
-          className={`flex flex-col items-center gap-4 transition-all duration-700 ${
-            phase === "bars" ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
+          className={`flex flex-col items-center gap-5 transition-all duration-700 ${
+            phase === "bars" ? "opacity-0 translate-y-4 scale-95" : "opacity-100 translate-y-0 scale-100"
           }`}
         >
-          <div className="w-16 h-16 sm:w-20 sm:h-20">
+          <div className="flex items-center gap-5 sm:gap-7">
+            <Image
+              src="/ideb-logo.svg"
+              alt="IDEB - Índice de Desenvolvimento da Educação Básica"
+              width={280}
+              height={64}
+              className="h-12 sm:h-16 w-auto object-contain"
+              priority
+            />
+            <div className="w-px h-10 sm:h-14 bg-[#ddd]" />
             <Image
               src="/brasao-bahia.svg"
-              alt="Brasão"
-              width={80}
-              height={80}
-              className="w-full h-full object-contain"
+              alt="Brasão do Estado da Bahia"
+              width={56}
+              height={66}
+              className="h-12 sm:h-16 w-auto object-contain"
               priority
             />
           </div>
         </div>
 
-        {/* Text */}
+        {/* Title + subtitle */}
         <div
-          className={`flex flex-col items-center gap-1 transition-all duration-700 ${
+          className={`flex flex-col items-center gap-1.5 transition-all duration-700 ${
             phase === "bars" || phase === "logo"
               ? "opacity-0 translate-y-3"
               : "opacity-100 translate-y-0"
           }`}
         >
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1a1a1a]">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#1D5D88]">
             Painel Ideb Bahia
           </h1>
-          <p className="text-[13px] text-[#86868b] font-light">
+          <p className="text-[12px] sm:text-[13px] text-[#86868b] font-light">
             Secretaria da Educação do Estado da Bahia
           </p>
         </div>
 
-        {/* Loading indicator */}
+        {/* Loading dots */}
         <div
-          className={`mt-2 transition-all duration-500 ${
+          className={`mt-1 transition-all duration-500 ${
             phase === "bars" || phase === "logo"
               ? "opacity-0"
               : phase === "exit"
@@ -89,7 +100,7 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="w-1.5 h-1.5 rounded-full bg-[#2563eb] animate-bounce"
+                className="w-1.5 h-1.5 rounded-full bg-[#1D5D88] animate-bounce"
                 style={{ animationDelay: `${i * 150}ms`, animationDuration: "0.8s" }}
               />
             ))}

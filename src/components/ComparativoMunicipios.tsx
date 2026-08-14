@@ -9,6 +9,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  LabelList,
 } from "recharts";
 import { IdebRecord, IdebValue } from "@/types/ideb";
 import {
@@ -23,52 +24,56 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 const ANO_INICIAL_GRAFICO = 2019;
 
-function makeLineLabel(color: string, casas: number, lineIdx: number, totalLines: number) {
-  const offsets = [-18, -30, -6, -42];
-  const baseOff = totalLines > 1 ? (offsets[lineIdx % offsets.length]) : -18;
-
+function LineLabelContent(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (props: any) => {
-    const { x, y, value, index } = props;
-    if (value === null || value === undefined) return null;
+  props: any,
+  color: string,
+  casas: number,
+  lineIdx: number,
+  totalLines: number,
+) {
+  const { x, y, value, index } = props;
+  if (value === null || value === undefined) return null;
 
-    const text = typeof value === "number"
-      ? value.toFixed(casas).replace(".", ",")
-      : String(value);
+  const text = typeof value === "number"
+    ? value.toFixed(casas).replace(".", ",")
+    : String(value);
 
-    const isFirst = index === 0;
-    const charW = 6.5;
-    const padX = 4;
-    const padY = 2;
-    const w = text.length * charW + padX * 2;
-    const h = 13 + padY * 2;
-    const anchor = isFirst ? "start" : "middle";
-    const rx = isFirst ? x - padX : x - w / 2;
+  const offsets = [-18, -30, -6, -42];
+  const baseOff = totalLines > 1 ? offsets[lineIdx % offsets.length] : -18;
 
-    return (
-      <g>
-        <rect
-          x={rx}
-          y={y + baseOff - padY}
-          width={w}
-          height={h}
-          rx={4}
-          fill="white"
-          fillOpacity={0.94}
-        />
-        <text
-          x={x}
-          y={y + baseOff + 11}
-          textAnchor={anchor}
-          fontSize={11}
-          fontWeight={700}
-          fill={color}
-        >
-          {text}
-        </text>
-      </g>
-    );
-  };
+  const charW = 6.5;
+  const padX = 4;
+  const padY = 2;
+  const w = text.length * charW + padX * 2;
+  const h = 13 + padY * 2;
+  const isFirst = index === 0;
+  const anchor = isFirst ? "start" : "middle";
+  const rx = isFirst ? x - padX : x - w / 2;
+
+  return (
+    <g>
+      <rect
+        x={rx}
+        y={y + baseOff - padY}
+        width={w}
+        height={h}
+        rx={4}
+        fill="white"
+        fillOpacity={0.94}
+      />
+      <text
+        x={x}
+        y={y + baseOff + 11}
+        textAnchor={anchor}
+        fontSize={11}
+        fontWeight={700}
+        fill={color}
+      >
+        {text}
+      </text>
+    </g>
+  );
 }
 
 type FieldKey =
@@ -267,28 +272,36 @@ function BlocoComparativo({
                 labelFormatter={(l) => `Ano: ${l}`}
                 contentStyle={{ fontSize: 12, borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
               />
-              {presentes.map((m, idx) => (
-                <Line
-                  key={m}
-                  type="monotone"
-                  dataKey={m}
-                  name={m}
-                  stroke={corDe(m)}
-                  strokeWidth={espessura}
-                  dot={{
-                    r: Math.round(espessura * 1.3 * 10) / 10,
-                    fill: corDe(m),
-                    strokeWidth: 0,
-                  }}
-                  activeDot={{
-                    r: mobile ? 4 : 5,
-                    strokeWidth: 2,
-                    stroke: "#fff",
-                  }}
-                  connectNulls
-                  label={makeLineLabel(corDe(m), ind.casas, idx, presentes.length)}
-                />
-              ))}
+              {presentes.map((m, idx) => {
+                const c = corDe(m);
+                return (
+                  <Line
+                    key={m}
+                    type="monotone"
+                    dataKey={m}
+                    name={m}
+                    stroke={c}
+                    strokeWidth={espessura}
+                    dot={{
+                      r: Math.round(espessura * 1.3 * 10) / 10,
+                      fill: c,
+                      strokeWidth: 0,
+                    }}
+                    activeDot={{
+                      r: mobile ? 4 : 5,
+                      strokeWidth: 2,
+                      stroke: "#fff",
+                    }}
+                    connectNulls
+                    isAnimationActive={false}
+                  >
+                    <LabelList
+                      dataKey={m}
+                      content={(props) => LineLabelContent(props, c, ind.casas, idx, presentes.length)}
+                    />
+                  </Line>
+                );
+              })}
             </LineChart>
           </ResponsiveContainer>
         </div>
