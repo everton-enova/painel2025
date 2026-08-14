@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useIdebData } from "@/hooks/useIdebData";
 import { useFilters } from "@/hooks/useFilters";
 import { useEscolas } from "@/hooks/useEscolas";
@@ -32,18 +32,22 @@ export default function Home() {
     toggleBahia,
   } = useFilters(data);
 
-  const municipioSelecionado =
-    filters.municipios.length === 1 && filters.municipios[0] !== "Bahia"
-      ? filters.municipios[0]
-      : filters.municipios.length === 2 && bahiaSelecionada
-        ? filters.municipios.find((m) => m !== "Bahia") ?? null
-        : null;
+  const municipiosComEscola = filters.municipios.filter((m) => m !== "Bahia");
+  const [escolaTab, setEscolaTab] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (municipiosComEscola.length > 0 && (!escolaTab || !municipiosComEscola.includes(escolaTab))) {
+      setEscolaTab(municipiosComEscola[0]);
+    } else if (municipiosComEscola.length === 0) {
+      setEscolaTab(null);
+    }
+  }, [municipiosComEscola.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const codigoMunicipio = useMemo(() => {
-    if (!municipioSelecionado) return null;
-    const rec = data.find((r) => r.municipio === municipioSelecionado);
+    if (!escolaTab) return null;
+    const rec = data.find((r) => r.municipio === escolaTab);
     return rec?.codigo_municipio ?? null;
-  }, [data, municipioSelecionado]);
+  }, [data, escolaTab]);
 
   const { escolas, isLoading: escolasLoading, escolasUnicas } =
     useEscolas(codigoMunicipio);
@@ -120,13 +124,33 @@ export default function Home() {
         )
       )}
 
-      {municipioSelecionado && (
-        <EscolaPanel
-          escolas={escolas}
-          escolasUnicas={escolasUnicas}
-          isLoading={escolasLoading}
-          municipio={municipioSelecionado}
-        />
+      {escolaTab && (
+        <>
+          {municipiosComEscola.length >= 2 && (
+            <div className="flex flex-wrap gap-1.5">
+              {municipiosComEscola.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setEscolaTab(m)}
+                  className={`rounded-full px-4 py-2 text-[13px] font-medium transition-all duration-200 ${
+                    escolaTab === m
+                      ? "bg-[var(--accent)] text-white shadow-sm"
+                      : "bg-[#f0f0f0] text-[var(--text-secondary)] hover:bg-[#e5e5e5]"
+                  }`}
+                >
+                  Escolas — {m}
+                </button>
+              ))}
+            </div>
+          )}
+          <EscolaPanel
+            escolas={escolas}
+            escolasUnicas={escolasUnicas}
+            isLoading={escolasLoading}
+            municipio={escolaTab}
+          />
+        </>
       )}
 
       {hasActiveFilter && (
