@@ -76,6 +76,11 @@ function GrowingChart() {
         <filter id="splash-shadow-red" x="-10%" y="-10%" width="120%" height="120%">
           <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#D03B3B" floodOpacity="0.3" />
         </filter>
+        <radialGradient id="splash-vignette" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="white" stopOpacity="1" />
+          <stop offset="45%" stopColor="white" stopOpacity="0.97" />
+          <stop offset="75%" stopColor="white" stopOpacity="0" />
+        </radialGradient>
         <clipPath id="splash-reveal">
           <rect
             x="0" y="0" height={h}
@@ -124,6 +129,9 @@ function GrowingChart() {
             fillOpacity="0.15"
           />
         ))}
+
+        {/* Central vignette — clears the area behind logo/text */}
+        <rect x="0" y="0" width={w} height={h} fill="url(#splash-vignette)" />
       </g>
     </svg>
   );
