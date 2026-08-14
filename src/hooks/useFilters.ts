@@ -144,7 +144,7 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
   useEffect(() => {
     setFilters((prev) => {
       const municipios = prev.municipios.filter((m) =>
-        filterOptions.municipios.includes(m)
+        m === "Bahia" || filterOptions.municipios.includes(m)
       );
       const redes = prev.redes.filter((r) => filterOptions.redes.includes(r));
       const etapas = prev.etapas.filter((e) =>
