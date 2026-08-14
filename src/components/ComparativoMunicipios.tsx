@@ -9,7 +9,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Customized,
 } from "recharts";
 import { IdebRecord, IdebValue } from "@/types/ideb";
 import {
@@ -24,81 +23,52 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 const ANO_INICIAL_GRAFICO = 2019;
 
-const LABEL_H = 16;
-const MIN_GAP = 18;
+function makeLineLabel(color: string, casas: number, lineIdx: number, totalLines: number) {
+  const offsets = [-18, -30, -6, -42];
+  const baseOff = totalLines > 1 ? (offsets[lineIdx % offsets.length]) : -18;
 
-interface SmartLabelsProps {
-  formattedGraphicalItems?: Array<{
-    props: { points: Array<{ x: number; y: number; value: number | null }> };
-    item: { props: { stroke: string } };
-  }>;
-  casas: number;
-}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (props: any) => {
+    const { x, y, value, index } = props;
+    if (value === null || value === undefined) return null;
 
-function SmartLabels({ formattedGraphicalItems, casas }: SmartLabelsProps) {
-  if (!formattedGraphicalItems || formattedGraphicalItems.length === 0) return null;
+    const text = typeof value === "number"
+      ? value.toFixed(casas).replace(".", ",")
+      : String(value);
 
-  const items = formattedGraphicalItems;
-  const numPoints = items[0]?.props?.points?.length ?? 0;
-  if (numPoints === 0) return null;
+    const isFirst = index === 0;
+    const charW = 6.5;
+    const padX = 4;
+    const padY = 2;
+    const w = text.length * charW + padX * 2;
+    const h = 13 + padY * 2;
+    const anchor = isFirst ? "start" : "middle";
+    const rx = isFirst ? x - padX : x - w / 2;
 
-  const elements: React.ReactElement[] = [];
-
-  for (let ptIdx = 0; ptIdx < numPoints; ptIdx++) {
-    const isFirst = ptIdx === 0;
-    const isLast = ptIdx === numPoints - 1;
-    const anchor = isFirst ? "start" : isLast ? "end" : "middle";
-
-    const labels: { x: number; y: number; value: number; color: string }[] = [];
-    for (const item of items) {
-      const pt = item.props.points[ptIdx];
-      if (!pt || pt.value === null || pt.value === undefined) continue;
-      labels.push({ x: pt.x, y: pt.y, value: pt.value, color: item.item.props.stroke });
-    }
-
-    labels.sort((a, b) => a.y - b.y);
-
-    const slots: number[] = [];
-    for (let i = 0; i < labels.length; i++) {
-      let slot = labels[i].y - LABEL_H;
-      if (i > 0 && slot < slots[i - 1] + MIN_GAP) {
-        slot = slots[i - 1] + MIN_GAP;
-      }
-      slots.push(slot);
-    }
-
-    for (let i = 0; i < labels.length; i++) {
-      const { x, y: pointY, value, color } = labels[i];
-      const labelY = slots[i];
-      const text = value.toFixed(casas).replace(".", ",");
-      const needsLine = Math.abs(labelY - (pointY - LABEL_H)) > 4;
-
-      const charW = 6.5;
-      const padX = 3;
-      const padY = 2;
-      const w = text.length * charW + padX * 2;
-      const h = 13 + padY * 2;
-      const rx = anchor === "start" ? x - padX : anchor === "end" ? x - w + padX : x - w / 2;
-
-      elements.push(
-        <g key={`${ptIdx}-${i}`}>
-          {needsLine && (
-            <line
-              x1={x} y1={pointY - 3}
-              x2={x} y2={labelY + 6}
-              stroke={color} strokeWidth={1} strokeDasharray="2 2" opacity={0.4}
-            />
-          )}
-          <rect x={rx} y={labelY - padY} width={w} height={h} rx={4} fill="white" fillOpacity={0.94} />
-          <text x={x} y={labelY + 11} textAnchor={anchor} fontSize={11} fontWeight={600} fill={color}>
-            {text}
-          </text>
-        </g>
-      );
-    }
-  }
-
-  return <g>{elements}</g>;
+    return (
+      <g>
+        <rect
+          x={rx}
+          y={y + baseOff - padY}
+          width={w}
+          height={h}
+          rx={4}
+          fill="white"
+          fillOpacity={0.94}
+        />
+        <text
+          x={x}
+          y={y + baseOff + 11}
+          textAnchor={anchor}
+          fontSize={11}
+          fontWeight={700}
+          fill={color}
+        >
+          {text}
+        </text>
+      </g>
+    );
+  };
 }
 
 type FieldKey =
@@ -297,7 +267,7 @@ function BlocoComparativo({
                 labelFormatter={(l) => `Ano: ${l}`}
                 contentStyle={{ fontSize: 12, borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
               />
-              {presentes.map((m) => (
+              {presentes.map((m, idx) => (
                 <Line
                   key={m}
                   type="monotone"
@@ -316,10 +286,9 @@ function BlocoComparativo({
                     stroke: "#fff",
                   }}
                   connectNulls
+                  label={makeLineLabel(corDe(m), ind.casas, idx, presentes.length)}
                 />
               ))}
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              <Customized component={(props: any) => <SmartLabels {...props} casas={ind.casas} />} />
             </LineChart>
           </ResponsiveContainer>
         </div>
