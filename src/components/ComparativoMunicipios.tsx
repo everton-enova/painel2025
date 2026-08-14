@@ -9,7 +9,9 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LabelList,
+  useXAxisScale,
+  useYAxisScale,
+  usePlotArea,
 } from "recharts";
 import { IdebRecord, IdebValue } from "@/types/ideb";
 import {
@@ -23,57 +25,114 @@ import { dominioDinamico, marcasDoDominio } from "@/lib/escala";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 const ANO_INICIAL_GRAFICO = 2019;
+const LABEL_H = 14;
+const MIN_GAP = 16;
+const CHAR_W = 6;
+const PAD_X = 3;
+const PAD_Y = 2;
 
-function LineLabelContent(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props: any,
-  color: string,
-  casas: number,
-  lineIdx: number,
-  totalLines: number,
-) {
-  const { x, y, value, index } = props;
-  if (value === null || value === undefined) return null;
+interface SmartLabelsProps {
+  anos: string[];
+  presentes: string[];
+  dados: Record<string, string | number | null>[];
+  casas: number;
+  corDe: (m: string) => string;
+}
 
-  const text = typeof value === "number"
-    ? value.toFixed(casas).replace(".", ",")
-    : String(value);
+function SmartLabels({ anos, presentes, dados, casas, corDe }: SmartLabelsProps) {
+  const xScale = useXAxisScale();
+  const yScale = useYAxisScale();
+  const plotArea = usePlotArea();
 
-  const offsets = [-18, -30, -6, -42];
-  const baseOff = totalLines > 1 ? offsets[lineIdx % offsets.length] : -18;
+  if (!xScale || !yScale || !plotArea) return null;
 
-  const charW = 6.5;
-  const padX = 4;
-  const padY = 2;
-  const w = text.length * charW + padX * 2;
-  const h = 13 + padY * 2;
-  const isFirst = index === 0;
-  const anchor = isFirst ? "start" : "middle";
-  const rx = isFirst ? x - padX : x - w / 2;
+  const minY = plotArea.y - 18;
+  const maxY = plotArea.y + plotArea.height - 4;
+  const minX = plotArea.x;
+  const maxX = plotArea.x + plotArea.width;
 
-  return (
-    <g>
-      <rect
-        x={rx}
-        y={y + baseOff - padY}
-        width={w}
-        height={h}
-        rx={4}
-        fill="white"
-        fillOpacity={0.94}
-      />
-      <text
-        x={x}
-        y={y + baseOff + 11}
-        textAnchor={anchor}
-        fontSize={11}
-        fontWeight={700}
-        fill={color}
-      >
-        {text}
-      </text>
-    </g>
-  );
+  const elements: React.ReactElement[] = [];
+
+  for (let ptIdx = 0; ptIdx < anos.length; ptIdx++) {
+    const ano = anos[ptIdx];
+    const px = xScale(ano);
+    if (px === undefined) continue;
+
+    const isFirst = ptIdx === 0;
+    const isLast = ptIdx === anos.length - 1;
+
+    const labels: { y: number; value: number; color: string; mun: string }[] = [];
+    for (const m of presentes) {
+      const row = dados[ptIdx];
+      const val = row?.[m];
+      if (val === null || val === undefined || typeof val !== "number") continue;
+      const py = yScale(val);
+      if (py === undefined) continue;
+      labels.push({ y: py, value: val, color: corDe(m), mun: m });
+    }
+
+    if (labels.length === 0) continue;
+
+    labels.sort((a, b) => a.y - b.y);
+
+    const slots: number[] = [];
+    for (let i = 0; i < labels.length; i++) {
+      let slot = labels[i].y - LABEL_H;
+      if (i > 0 && slot < slots[i - 1] + MIN_GAP) {
+        slot = slots[i - 1] + MIN_GAP;
+      }
+      if (slot < minY) slot = minY;
+      if (slot + LABEL_H > maxY) slot = maxY - LABEL_H;
+      slots.push(slot);
+    }
+
+    for (let i = 0; i < labels.length; i++) {
+      const { y: pointY, value, color } = labels[i];
+      const labelY = slots[i];
+      const text = value.toFixed(casas).replace(".", ",");
+      const needsLine = Math.abs(labelY - (pointY - LABEL_H)) > 5;
+
+      const w = text.length * CHAR_W + PAD_X * 2;
+      const h = 13 + PAD_Y * 2;
+
+      const anchor = isFirst ? "start" : isLast ? "end" : "middle";
+      let rx: number;
+      if (isFirst) {
+        rx = Math.max(minX, px - PAD_X);
+      } else if (isLast) {
+        rx = Math.min(maxX - w, px - w + PAD_X);
+      } else {
+        rx = px - w / 2;
+      }
+      if (rx < minX) rx = minX;
+      if (rx + w > maxX) rx = maxX - w;
+
+      elements.push(
+        <g key={`${ptIdx}-${i}`}>
+          {needsLine && (
+            <line
+              x1={px} y1={pointY - 3}
+              x2={px} y2={labelY + LABEL_H - 2}
+              stroke={color} strokeWidth={1} strokeDasharray="2 2" opacity={0.35}
+            />
+          )}
+          <rect x={rx} y={labelY - PAD_Y} width={w} height={h} rx={3} fill="white" fillOpacity={0.95} />
+          <text
+            x={isFirst ? rx + PAD_X : isLast ? rx + w - PAD_X : px}
+            y={labelY + 11}
+            textAnchor={anchor}
+            fontSize={11}
+            fontWeight={700}
+            fill={color}
+          >
+            {text}
+          </text>
+        </g>
+      );
+    }
+  }
+
+  return <g>{elements}</g>;
 }
 
 type FieldKey =
@@ -239,6 +298,7 @@ function BlocoComparativo({
 
   const renderChart = (ind: typeof INDICADORES[number], tall = false) => {
     const dominio = dominioDe(ind.field, ind.limite);
+    const chartData = dadosGrafico(ind.field);
     return (
       <div key={ind.field} className="rounded-2xl bg-white p-4 sm:p-5 flex flex-col" style={{ boxShadow: "var(--card-shadow)" }}>
         <h4 className="text-[13px] font-semibold text-[var(--foreground)] mb-3">
@@ -247,8 +307,8 @@ function BlocoComparativo({
         <div className="flex-1 min-h-0">
           <ResponsiveContainer width="100%" height={tall ? 280 : 210}>
             <LineChart
-              data={dadosGrafico(ind.field)}
-              margin={{ top: 28, right: 8, left: -12, bottom: 10 }}
+              data={chartData}
+              margin={{ top: 30, right: 38, left: -12, bottom: 10 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" />
               <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#aeaeb2" }} axisLine={{ stroke: "var(--separator)" }} tickLine={false} />
@@ -272,7 +332,7 @@ function BlocoComparativo({
                 labelFormatter={(l) => `Ano: ${l}`}
                 contentStyle={{ fontSize: 12, borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
               />
-              {presentes.map((m, idx) => {
+              {presentes.map((m) => {
                 const c = corDe(m);
                 return (
                   <Line
@@ -294,14 +354,16 @@ function BlocoComparativo({
                     }}
                     connectNulls
                     isAnimationActive={false}
-                  >
-                    <LabelList
-                      dataKey={m}
-                      content={(props) => LineLabelContent(props, c, ind.casas, idx, presentes.length)}
-                    />
-                  </Line>
+                  />
                 );
               })}
+              <SmartLabels
+                anos={anos.map(String)}
+                presentes={presentes}
+                dados={chartData}
+                casas={ind.casas}
+                corDe={corDe}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
