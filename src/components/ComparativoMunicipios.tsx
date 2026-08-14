@@ -42,12 +42,12 @@ function SmartLabels({ formattedGraphicalItems, casas }: SmartLabelsProps) {
   const numPoints = items[0]?.props?.points?.length ?? 0;
   if (numPoints === 0) return null;
 
-  const endpoints = [0, numPoints - 1];
   const elements: React.ReactElement[] = [];
 
-  for (const ptIdx of endpoints) {
+  for (let ptIdx = 0; ptIdx < numPoints; ptIdx++) {
     const isFirst = ptIdx === 0;
-    const anchor = isFirst ? "start" : "end";
+    const isLast = ptIdx === numPoints - 1;
+    const anchor = isFirst ? "start" : isLast ? "end" : "middle";
 
     const labels: { x: number; y: number; value: number; color: string }[] = [];
     for (const item of items) {
@@ -78,7 +78,7 @@ function SmartLabels({ formattedGraphicalItems, casas }: SmartLabelsProps) {
       const padY = 2;
       const w = text.length * charW + padX * 2;
       const h = 13 + padY * 2;
-      const rx = anchor === "start" ? x - padX : x - w + padX;
+      const rx = anchor === "start" ? x - padX : anchor === "end" ? x - w + padX : x - w / 2;
 
       elements.push(
         <g key={`${ptIdx}-${i}`}>
@@ -86,7 +86,7 @@ function SmartLabels({ formattedGraphicalItems, casas }: SmartLabelsProps) {
             <line
               x1={x} y1={pointY - 3}
               x2={x} y2={labelY + 6}
-              stroke={color} strokeWidth={1} strokeDasharray="2 2" opacity={0.5}
+              stroke={color} strokeWidth={1} strokeDasharray="2 2" opacity={0.4}
             />
           )}
           <rect x={rx} y={labelY - padY} width={w} height={h} rx={4} fill="white" fillOpacity={0.94} />
@@ -271,7 +271,7 @@ function BlocoComparativo({
           <ResponsiveContainer width="100%" height={tall ? 280 : 210}>
             <LineChart
               data={dadosGrafico(ind.field)}
-              margin={{ top: 20, right: 8, left: -12, bottom: 10 }}
+              margin={{ top: 28, right: 8, left: -12, bottom: 10 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" />
               <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#aeaeb2" }} axisLine={{ stroke: "var(--separator)" }} tickLine={false} />

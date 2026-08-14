@@ -59,6 +59,7 @@ function parseEscolaTab(csv: string, config: EscolaTabConfig): EscolaRecord[] {
     const rede = (row[5] || "").trim();
 
     if (!codigoMunicipio || !codigoEscola || !escola) continue;
+    if (rede === "Privada" || rede === "Total" || rede === "Pública") continue;
 
     for (let yi = 0; yi < config.years.length; yi++) {
       const ano = config.years[yi];

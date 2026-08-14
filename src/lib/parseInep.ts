@@ -1,5 +1,7 @@
 import { IdebRecord, IdebValue } from "@/types/ideb";
 
+const REDES_PERMITIDAS = new Set(["Estadual", "Municipal"]);
+
 function parseDecimal(value: string | undefined): IdebValue {
   if (!value) return null;
   const trimmed = value.trim();
@@ -135,7 +137,7 @@ function parseTab(
     const municipio = (row[2] || "").trim();
     const rede = (row[3] || "").trim();
 
-    if (!codigoMunicipio || !municipio || rede === "Pública") continue;
+    if (!codigoMunicipio || !municipio || !REDES_PERMITIDAS.has(rede)) continue;
 
     const nte = nteMap.get(codigoMunicipio) || "";
 
@@ -191,7 +193,7 @@ function parseBahiaTab(csv: string, config: TabConfig): IdebRecord[] {
     const redeRaw = (row[1] || "").trim().replace(/\s*\(\d+\)$/, "");
 
     if (uf !== "Bahia" && uf !== "BA") continue;
-    if (!redeRaw || redeRaw === "Pública") continue;
+    if (!redeRaw || !REDES_PERMITIDAS.has(redeRaw)) continue;
     const rede = redeRaw;
 
     for (let yi = 0; yi < config.years.length; yi++) {

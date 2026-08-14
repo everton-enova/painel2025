@@ -40,15 +40,13 @@ export function temEdicaoVigente(anos: number[]): boolean {
   return anos.some((a) => EDICOES_VIGENTES.includes(a));
 }
 
-// Paleta categórica validada para daltonismo (ΔE adjacente >= 9,1). A cor
-// segue o município escolhido — pela ordem de seleção, nunca pelo ranking.
 export const SERIES_COLORS = [
-  "#2a78d6",
-  "#eb6834",
-  "#1baf7a",
-  "#eda100",
-  "#e87ba4",
+  "#2563eb",
+  "#16a34a",
+  "#9333ea",
+  "#ea580c",
+  "#0891b2",
 ];
 
-export const BAHIA_COLOR = "#d03b3b";
+export const BAHIA_COLOR = "#dc2626";
 export const MAX_COMPARACAO = SERIES_COLORS.length;
