@@ -50,4 +50,5 @@ export const SERIES_COLORS = [
   "#e87ba4",
 ];
 
+export const BAHIA_COLOR = "#d03b3b";
 export const MAX_COMPARACAO = SERIES_COLORS.length;

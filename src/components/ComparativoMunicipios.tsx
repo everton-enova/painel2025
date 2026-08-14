@@ -17,6 +17,7 @@ import {
   EDICAO_ANTERIOR,
   EDICOES_VIGENTES,
   SERIES_COLORS,
+  BAHIA_COLOR,
 } from "@/lib/constants";
 import { dominioDinamico, marcasDoDominio } from "@/lib/escala";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -138,8 +139,11 @@ export function ComparativoMunicipios({
   redes: redesSel,
   etapas: etapasSel,
 }: ComparativoProps) {
-  const corDe = (municipio: string) =>
-    SERIES_COLORS[municipios.indexOf(municipio) % SERIES_COLORS.length];
+  const corDe = (municipio: string) => {
+    if (municipio === "Bahia") return BAHIA_COLOR;
+    const semBahia = municipios.filter((m) => m !== "Bahia");
+    return SERIES_COLORS[semBahia.indexOf(municipio) % SERIES_COLORS.length];
+  };
 
   const blocos = useMemo(() => {
     const doSelecionado = data.filter((r) => municipios.includes(r.municipio));
