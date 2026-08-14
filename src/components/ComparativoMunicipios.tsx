@@ -232,7 +232,9 @@ function BlocoComparativo({
   );
 
   const presentes = useMemo(
-    () => municipios.filter((m) => registros.some((r) => r.municipio === m)),
+    () => municipios
+      .filter((m) => registros.some((r) => r.municipio === m))
+      .sort((a, b) => (a === "Bahia" ? -1 : b === "Bahia" ? 1 : 0)),
     [municipios, registros]
   );
 
@@ -397,14 +399,16 @@ function TabelaComparativa({
         </thead>
         <tbody className="divide-y divide-[var(--separator)]">
           {municipios.map((m) => (
-            <tr key={m} className="hover:bg-[#fafafa] transition-colors">
+            <tr key={m} className={`transition-colors ${m === "Bahia" ? "bg-[#fef2f2]" : "hover:bg-[#fafafa]"}`}>
               <td className="px-3 py-2.5 whitespace-nowrap">
                 <span className="inline-flex items-center gap-2">
                   <span
                     className="w-2 h-2 rounded-full shrink-0"
                     style={{ backgroundColor: corDe(m) }}
                   />
-                  <span className="font-medium text-[var(--foreground)]">{m}</span>
+                  <span className="font-medium text-[var(--foreground)]">
+                    {m}{m === "Bahia" && <span className="ml-1 text-[10px] font-normal text-[var(--text-tertiary)]">(Estado)</span>}
+                  </span>
                 </span>
               </td>
               {INDICADORES.map((i) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useIdebData } from "@/hooks/useIdebData";
 import { useFilters } from "@/hooks/useFilters";
 import { useEscolas } from "@/hooks/useEscolas";
@@ -9,13 +9,15 @@ import { Filters } from "@/components/Filters";
 import { ChartSections } from "@/components/ChartSections";
 import { DataTable } from "@/components/DataTable";
 import { RankingTable } from "@/components/RankingTable";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { ComparativoMunicipios } from "@/components/ComparativoMunicipios";
 import { EscolaPanel } from "@/components/EscolaPanel";
+import { SplashScreen } from "@/components/SplashScreen";
 
 export default function Home() {
   const { data, updatedAt, source, isLoading, error } = useIdebData();
+  const [splashDone, setSplashDone] = useState(false);
+  const handleSplashFinish = useCallback(() => setSplashDone(true), []);
   const {
     filters,
     setNte,
@@ -52,12 +54,8 @@ export default function Home() {
   const { escolas, isLoading: escolasLoading, escolasUnicas } =
     useEscolas(codigoMunicipio);
 
-  if (isLoading) {
-    return (
-      <main className="mx-auto px-6 lg:px-10 xl:px-16 py-8">
-        <LoadingSpinner />
-      </main>
-    );
+  if (isLoading || !splashDone) {
+    return <SplashScreen onFinish={handleSplashFinish} />;
   }
 
   if (error) {
