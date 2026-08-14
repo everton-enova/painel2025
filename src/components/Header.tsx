@@ -2,12 +2,18 @@
 
 import Image from "next/image";
 
+interface NteSessionInfo {
+  nte: string | null;
+  logout: () => Promise<void>;
+}
+
 interface HeaderProps {
   updatedAt: string | null;
   source: "sheet" | "mock" | null;
+  nteSession?: NteSessionInfo;
 }
 
-export function Header({ updatedAt, source }: HeaderProps) {
+export function Header({ updatedAt, source, nteSession }: HeaderProps) {
   const formattedDate = updatedAt
     ? new Date(updatedAt).toLocaleDateString("pt-BR", {
         day: "2-digit",
@@ -60,6 +66,24 @@ export function Header({ updatedAt, source }: HeaderProps) {
               </p>
             )}
           </div>
+          {nteSession?.nte && (
+            <div className="flex items-center gap-2">
+              <span className="text-[12px] text-[var(--text-secondary)] bg-[#e8f4fd] px-3 py-1.5 rounded-full font-medium">
+                {nteSession.nte}
+              </span>
+              <button
+                onClick={nteSession.logout}
+                title="Sair"
+                className="rounded-full bg-[#f0f0f0] hover:bg-[#fce8e8] w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-sm text-[var(--text-secondary)] hover:text-[#d03b3b] transition-all duration-200"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </button>
+            </div>
+          )}
           <button
             onClick={showHelp}
             title="Como usar o painel"

@@ -25,6 +25,7 @@ interface FiltersProps {
   bahiaDisponivel: boolean;
   bahiaSelecionada: boolean;
   onToggleBahia: () => void;
+  nteFixed?: boolean;
 }
 
 function GrupoAlternavel({
@@ -184,6 +185,7 @@ export function Filters({
   bahiaDisponivel,
   bahiaSelecionada,
   onToggleBahia,
+  nteFixed,
 }: FiltersProps) {
   const hasActiveFilter =
     filters.nte !== null ||
@@ -196,23 +198,25 @@ export function Filters({
     <div className="bg-white rounded-2xl p-4 sm:p-5" style={{ boxShadow: "var(--card-shadow)" }}>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row sm:items-start gap-4 flex-wrap">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-medium text-[var(--text-secondary)] tracking-wide">
-              NTE
-            </label>
-            <select
-              value={filters.nte ?? ""}
-              onChange={(e) => onNteChange(e.target.value || null)}
-              className="rounded-xl bg-[#f0f0f0] px-4 py-2.5 text-[13px] text-[var(--foreground)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2386868b%22%20d%3D%22M3%204.5L6%208l3-3.5%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-8"
-            >
-              <option value="">Todos</option>
-              {options.ntes.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          </div>
+          {!nteFixed && (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-medium text-[var(--text-secondary)] tracking-wide">
+                NTE
+              </label>
+              <select
+                value={filters.nte ?? ""}
+                onChange={(e) => onNteChange(e.target.value || null)}
+                className="rounded-xl bg-[#f0f0f0] px-4 py-2.5 text-[13px] text-[var(--foreground)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2386868b%22%20d%3D%22M3%204.5L6%208l3-3.5%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-8"
+              >
+                <option value="">Todos</option>
+                {options.ntes.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <MunicipioSearch
             searchTerm={searchTerm}

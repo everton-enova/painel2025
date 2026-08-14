@@ -4,6 +4,8 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import { useIdebData } from "@/hooks/useIdebData";
 import { useFilters } from "@/hooks/useFilters";
 import { useEscolas } from "@/hooks/useEscolas";
+import { useNteSession } from "@/hooks/useNteSession";
+import { isNteMode } from "@/lib/mode";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
 import { ChartSections } from "@/components/ChartSections";
@@ -18,6 +20,7 @@ export default function Home() {
   const { data, updatedAt, source, isLoading, error } = useIdebData();
   const [splashDone, setSplashDone] = useState(false);
   const handleSplashFinish = useCallback(() => setSplashDone(true), []);
+  const nteSession = useNteSession();
   const {
     filters,
     setNte,
@@ -33,6 +36,13 @@ export default function Home() {
     bahiaSelecionada,
     toggleBahia,
   } = useFilters(data);
+
+  // No modo NTE, fixa o filtro no NTE do usuário logado
+  useEffect(() => {
+    if (isNteMode() && nteSession.nte && filters.nte !== nteSession.nte) {
+      setNte(nteSession.nte);
+    }
+  }, [nteSession.nte, filters.nte, setNte]);
 
   const municipiosComEscola = filters.municipios.filter((m) => m !== "Bahia");
   const [escolaTab, setEscolaTab] = useState<string | null>(null);
@@ -87,12 +97,17 @@ export default function Home() {
     <main className="mx-auto w-full min-w-0 px-4 sm:px-6 lg:px-10 xl:px-16 py-5 sm:py-8 space-y-5 sm:space-y-7">
       <OnboardingTour />
 
-      <Header updatedAt={updatedAt} source={source} />
+      <Header
+        updatedAt={updatedAt}
+        source={source}
+        nteSession={isNteMode() ? nteSession : undefined}
+      />
 
       <Filters
         filters={filters}
         options={filterOptions}
         onNteChange={setNte}
+        nteFixed={isNteMode()}
         onToggle={toggle}
         onClearKey={clearKey}
         onClear={clearFilters}
