@@ -62,6 +62,17 @@ function LineShadowDef({ id, color }: { id: string; color: string }) {
   );
 }
 
+function LabelBg({ label, tx, ty, anchor = "middle" }: { label: string; tx: number; ty: number; anchor?: string }) {
+  const charW = 6.5;
+  const padX = 3;
+  const padY = 2;
+  const w = label.length * charW + padX * 2;
+  const h = 13 + padY * 2;
+  const rx = anchor === "start" ? tx - padX : anchor === "end" ? tx - w + padX : tx - w / 2;
+  const ry = ty - 11 - padY;
+  return <rect x={rx} y={ry} width={w} height={h} rx={4} fill="white" fillOpacity={0.92} />;
+}
+
 function CustomBarLabel({
   x,
   y,
@@ -74,17 +85,16 @@ function CustomBarLabel({
   value?: number | null;
 }) {
   if (value === null || value === undefined || x === undefined || y === undefined || width === undefined) return null;
+  const label = value.toFixed(1).replace(".", ",");
+  const tx = x + width / 2;
+  const ty = y - 6;
   return (
-    <text
-      x={x + width / 2}
-      y={y - 6}
-      textAnchor="middle"
-      fontSize={11}
-      fontWeight={500}
-      fill="#86868b"
-    >
-      {value.toFixed(1).replace(".", ",")}
-    </text>
+    <g>
+      <LabelBg label={label} tx={tx} ty={ty} />
+      <text x={tx} y={ty} textAnchor="middle" fontSize={11} fontWeight={500} fill="#86868b">
+        {label}
+      </text>
+    </g>
   );
 }
 
@@ -100,17 +110,15 @@ function CustomLineLabel({
   color: string;
 }) {
   if (value === null || value === undefined || x === undefined || y === undefined) return null;
+  const label = value.toFixed(2).replace(".", ",");
+  const ty = y - 10;
   return (
-    <text
-      x={x}
-      y={y - 10}
-      textAnchor="middle"
-      fontSize={11}
-      fontWeight={500}
-      fill={color}
-    >
-      {value.toFixed(2).replace(".", ",")}
-    </text>
+    <g>
+      <LabelBg label={label} tx={x} ty={ty} />
+      <text x={x} y={ty} textAnchor="middle" fontSize={11} fontWeight={500} fill={color}>
+        {label}
+      </text>
+    </g>
   );
 }
 

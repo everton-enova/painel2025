@@ -50,17 +50,20 @@ function LineLabel({
   casas: number;
 }) {
   if (value === null || value === undefined || x === undefined || y === undefined) return null;
+  const label = value.toFixed(casas).replace(".", ",");
+  const ty = y - 10;
+  const charW = 6;
+  const padX = 3;
+  const padY = 2;
+  const w = label.length * charW + padX * 2;
+  const h = 12 + padY * 2;
   return (
-    <text
-      x={x}
-      y={y - 10}
-      textAnchor="middle"
-      fontSize={10}
-      fontWeight={500}
-      fill={color}
-    >
-      {value.toFixed(casas).replace(".", ",")}
-    </text>
+    <g>
+      <rect x={x - w / 2} y={ty - 10 - padY} width={w} height={h} rx={3} fill="white" fillOpacity={0.92} />
+      <text x={x} y={ty} textAnchor="middle" fontSize={10} fontWeight={500} fill={color}>
+        {label}
+      </text>
+    </g>
   );
 }
 

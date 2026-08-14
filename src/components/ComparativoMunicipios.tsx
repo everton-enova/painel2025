@@ -44,17 +44,31 @@ function LineLabel({
   if (value === null || value === undefined || x === undefined || y === undefined) return null;
   if (index !== 0 && index !== totalPoints - 1) return null;
   const isFirst = index === 0;
+  const label = value.toFixed(casas).replace(".", ",");
+  const tx = x;
+  const ty = acima ? y - 10 : y + 16;
+  const anchor = isFirst ? "start" : "end";
+  const charW = 6.5;
+  const padX = 3;
+  const padY = 2;
+  const w = label.length * charW + padX * 2;
+  const h = 13 + padY * 2;
+  const rx = anchor === "start" ? tx - padX : anchor === "end" ? tx - w + padX : tx - w / 2;
+  const ry = ty - 11 - padY;
   return (
-    <text
-      x={x}
-      y={acima ? y - 10 : y + 16}
-      textAnchor={isFirst ? "start" : "end"}
-      fontSize={11}
-      fontWeight={600}
-      fill={color}
-    >
-      {value.toFixed(casas).replace(".", ",")}
-    </text>
+    <g>
+      <rect x={rx} y={ry} width={w} height={h} rx={4} fill="white" fillOpacity={0.92} />
+      <text
+        x={tx}
+        y={ty}
+        textAnchor={anchor}
+        fontSize={11}
+        fontWeight={600}
+        fill={color}
+      >
+        {label}
+      </text>
+    </g>
   );
 }
 
