@@ -29,6 +29,12 @@ function GrowingChart() {
     [960, 420], [1080, 370], [1200, 330], [1320, 280], [1400, 220],
   ];
 
+  const points3 = [
+    [0, 680], [120, 660], [240, 640], [360, 620],
+    [480, 640], [600, 590], [720, 560], [840, 530],
+    [960, 500], [1080, 460], [1200, 410], [1320, 360], [1400, 310],
+  ];
+
   const toPath = (pts: number[][]) => {
     let d = `M ${pts[0][0]} ${pts[0][1]}`;
     for (let i = 1; i < pts.length; i++) {
@@ -43,8 +49,10 @@ function GrowingChart() {
 
   const path1 = toPath(points);
   const path2 = toPath(points2);
+  const path3 = toPath(points3);
   const area1 = `${path1} L ${w} ${h} L 0 ${h} Z`;
   const area2 = `${path2} L ${w} ${h} L 0 ${h} Z`;
+  const area3 = `${path3} L ${w} ${h} L 0 ${h} Z`;
 
   return (
     <svg
@@ -61,6 +69,13 @@ function GrowingChart() {
           <stop offset="0%" stopColor="#00923F" stopOpacity="0.06" />
           <stop offset="100%" stopColor="#00923F" stopOpacity="0.01" />
         </linearGradient>
+        <linearGradient id="splash-grad3" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#D03B3B" stopOpacity="0.05" />
+          <stop offset="100%" stopColor="#D03B3B" stopOpacity="0.01" />
+        </linearGradient>
+        <filter id="splash-shadow-red" x="-10%" y="-10%" width="120%" height="120%">
+          <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#D03B3B" floodOpacity="0.3" />
+        </filter>
         <clipPath id="splash-reveal">
           <rect
             x="0" y="0" height={h}
@@ -72,10 +87,19 @@ function GrowingChart() {
 
       <g clipPath="url(#splash-reveal)">
         {/* Area fills */}
+        <path d={area3} fill="url(#splash-grad3)" />
         <path d={area2} fill="url(#splash-grad2)" />
         <path d={area1} fill="url(#splash-grad1)" />
 
         {/* Lines */}
+        <path
+          d={path3}
+          fill="none"
+          stroke="#D03B3B"
+          strokeWidth="2.5"
+          strokeOpacity="0.22"
+          style={{ filter: "url(#splash-shadow-red)" }}
+        />
         <path
           d={path2}
           fill="none"
