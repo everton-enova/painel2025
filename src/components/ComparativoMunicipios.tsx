@@ -28,18 +28,20 @@ function LineLabel({
   value,
   color,
   casas,
+  acima,
 }: {
   x?: number;
   y?: number;
   value?: number | null;
   color: string;
   casas: number;
+  acima: boolean;
 }) {
   if (value === null || value === undefined || x === undefined || y === undefined) return null;
   return (
     <text
       x={x}
-      y={y - 10}
+      y={acima ? y - 10 : y + 16}
       textAnchor="middle"
       fontSize={10}
       fontWeight={500}
@@ -234,7 +236,7 @@ function BlocoComparativo({
             <ResponsiveContainer width="100%" height={210}>
               <LineChart
                 data={dadosGrafico(ind.field)}
-                margin={{ top: 20, right: 8, left: -12, bottom: 0 }}
+                margin={{ top: 20, right: 8, left: -12, bottom: 10 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" />
                 <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#aeaeb2" }} axisLine={{ stroke: "var(--separator)" }} tickLine={false} />
@@ -258,7 +260,7 @@ function BlocoComparativo({
                   labelFormatter={(l) => `Ano: ${l}`}
                   contentStyle={{ fontSize: 12, borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
                 />
-                {presentes.map((m) => (
+                {presentes.map((m, idx) => (
                   <Line
                     key={m}
                     type="monotone"
@@ -277,7 +279,7 @@ function BlocoComparativo({
                       stroke: "#fff",
                     }}
                     connectNulls
-                    label={<LineLabel color={corDe(m)} casas={ind.casas} />}
+                    label={<LineLabel color={corDe(m)} casas={ind.casas} acima={idx % 2 === 0} />}
                   />
                 ))}
               </LineChart>
