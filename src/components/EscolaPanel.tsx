@@ -36,6 +36,34 @@ const INDICADORES: { field: FieldKey; label: string; casas: number; color: strin
   { field: "indicador_rendimento", label: "Ind. Rendimento", casas: 2, color: "#ff9500" },
 ];
 
+function LineLabel({
+  x,
+  y,
+  value,
+  color,
+  casas,
+}: {
+  x?: number;
+  y?: number;
+  value?: number | null;
+  color: string;
+  casas: number;
+}) {
+  if (value === null || value === undefined || x === undefined || y === undefined) return null;
+  return (
+    <text
+      x={x}
+      y={y - 10}
+      textAnchor="middle"
+      fontSize={10}
+      fontWeight={500}
+      fill={color}
+    >
+      {value.toFixed(casas).replace(".", ",")}
+    </text>
+  );
+}
+
 function fmt(v: IdebValue, casas = 2): string {
   if (v === null) return "—";
   if (v === "ND") return "ND";
@@ -268,7 +296,7 @@ function EscolaDetalhe({
                     <ResponsiveContainer width="100%" height={180}>
                       <LineChart
                         data={chartData}
-                        margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+                        margin={{ top: 20, right: 8, left: -12, bottom: 0 }}
                       >
                         <CartesianGrid
                           strokeDasharray="3 3"
@@ -318,6 +346,7 @@ function EscolaDetalhe({
                             stroke: "#fff",
                           }}
                           connectNulls
+                          label={<LineLabel color={ind.color} casas={ind.casas} />}
                         />
                       </LineChart>
                     </ResponsiveContainer>

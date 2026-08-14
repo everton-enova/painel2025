@@ -22,6 +22,34 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 const ANO_INICIAL_GRAFICO = 2019;
 
+function LineLabel({
+  x,
+  y,
+  value,
+  color,
+  casas,
+}: {
+  x?: number;
+  y?: number;
+  value?: number | null;
+  color: string;
+  casas: number;
+}) {
+  if (value === null || value === undefined || x === undefined || y === undefined) return null;
+  return (
+    <text
+      x={x}
+      y={y - 10}
+      textAnchor="middle"
+      fontSize={10}
+      fontWeight={500}
+      fill={color}
+    >
+      {value.toFixed(casas).replace(".", ",")}
+    </text>
+  );
+}
+
 type FieldKey =
   | "ideb"
   | "nota_padronizada"
@@ -206,7 +234,7 @@ function BlocoComparativo({
             <ResponsiveContainer width="100%" height={210}>
               <LineChart
                 data={dadosGrafico(ind.field)}
-                margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+                margin={{ top: 20, right: 8, left: -12, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" />
                 <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#aeaeb2" }} axisLine={{ stroke: "var(--separator)" }} tickLine={false} />
@@ -249,6 +277,7 @@ function BlocoComparativo({
                       stroke: "#fff",
                     }}
                     connectNulls
+                    label={<LineLabel color={corDe(m)} casas={ind.casas} />}
                   />
                 ))}
               </LineChart>
