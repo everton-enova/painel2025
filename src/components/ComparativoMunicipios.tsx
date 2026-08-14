@@ -9,6 +9,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Customized,
 } from "recharts";
 import { IdebRecord, IdebValue } from "@/types/ideb";
 import {
@@ -22,54 +23,81 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 const ANO_INICIAL_GRAFICO = 2019;
 
-function LineLabel({
-  x,
-  y,
-  value,
-  index,
-  color,
-  casas,
-  acima,
-  totalPoints,
-}: {
-  x?: number;
-  y?: number;
-  value?: number | null;
-  index?: number;
-  color: string;
+const LABEL_H = 16;
+const MIN_GAP = 18;
+
+interface SmartLabelsProps {
+  formattedGraphicalItems?: Array<{
+    props: { points: Array<{ x: number; y: number; value: number | null }> };
+    item: { props: { stroke: string } };
+  }>;
   casas: number;
-  acima: boolean;
-  totalPoints: number;
-}) {
-  if (value === null || value === undefined || x === undefined || y === undefined) return null;
-  if (index !== 0 && index !== totalPoints - 1) return null;
-  const isFirst = index === 0;
-  const label = value.toFixed(casas).replace(".", ",");
-  const tx = x;
-  const ty = acima ? y - 10 : y + 16;
-  const anchor = isFirst ? "start" : "end";
-  const charW = 6.5;
-  const padX = 3;
-  const padY = 2;
-  const w = label.length * charW + padX * 2;
-  const h = 13 + padY * 2;
-  const rx = anchor === "start" ? tx - padX : anchor === "end" ? tx - w + padX : tx - w / 2;
-  const ry = ty - 11 - padY;
-  return (
-    <g>
-      <rect x={rx} y={ry} width={w} height={h} rx={4} fill="white" fillOpacity={0.92} />
-      <text
-        x={tx}
-        y={ty}
-        textAnchor={anchor}
-        fontSize={11}
-        fontWeight={600}
-        fill={color}
-      >
-        {label}
-      </text>
-    </g>
-  );
+}
+
+function SmartLabels({ formattedGraphicalItems, casas }: SmartLabelsProps) {
+  if (!formattedGraphicalItems || formattedGraphicalItems.length === 0) return null;
+
+  const items = formattedGraphicalItems;
+  const numPoints = items[0]?.props?.points?.length ?? 0;
+  if (numPoints === 0) return null;
+
+  const endpoints = [0, numPoints - 1];
+  const elements: React.ReactElement[] = [];
+
+  for (const ptIdx of endpoints) {
+    const isFirst = ptIdx === 0;
+    const anchor = isFirst ? "start" : "end";
+
+    const labels: { x: number; y: number; value: number; color: string }[] = [];
+    for (const item of items) {
+      const pt = item.props.points[ptIdx];
+      if (!pt || pt.value === null || pt.value === undefined) continue;
+      labels.push({ x: pt.x, y: pt.y, value: pt.value, color: item.item.props.stroke });
+    }
+
+    labels.sort((a, b) => a.y - b.y);
+
+    const slots: number[] = [];
+    for (let i = 0; i < labels.length; i++) {
+      let slot = labels[i].y - LABEL_H;
+      if (i > 0 && slot < slots[i - 1] + MIN_GAP) {
+        slot = slots[i - 1] + MIN_GAP;
+      }
+      slots.push(slot);
+    }
+
+    for (let i = 0; i < labels.length; i++) {
+      const { x, y: pointY, value, color } = labels[i];
+      const labelY = slots[i];
+      const text = value.toFixed(casas).replace(".", ",");
+      const needsLine = Math.abs(labelY - (pointY - LABEL_H)) > 4;
+
+      const charW = 6.5;
+      const padX = 3;
+      const padY = 2;
+      const w = text.length * charW + padX * 2;
+      const h = 13 + padY * 2;
+      const rx = anchor === "start" ? x - padX : x - w + padX;
+
+      elements.push(
+        <g key={`${ptIdx}-${i}`}>
+          {needsLine && (
+            <line
+              x1={x} y1={pointY - 3}
+              x2={x} y2={labelY + 6}
+              stroke={color} strokeWidth={1} strokeDasharray="2 2" opacity={0.5}
+            />
+          )}
+          <rect x={rx} y={labelY - padY} width={w} height={h} rx={4} fill="white" fillOpacity={0.94} />
+          <text x={x} y={labelY + 11} textAnchor={anchor} fontSize={11} fontWeight={600} fill={color}>
+            {text}
+          </text>
+        </g>
+      );
+    }
+  }
+
+  return <g>{elements}</g>;
 }
 
 type FieldKey =
@@ -263,7 +291,7 @@ function BlocoComparativo({
                 labelFormatter={(l) => `Ano: ${l}`}
                 contentStyle={{ fontSize: 12, borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
               />
-              {presentes.map((m, idx) => (
+              {presentes.map((m) => (
                 <Line
                   key={m}
                   type="monotone"
@@ -282,9 +310,10 @@ function BlocoComparativo({
                     stroke: "#fff",
                   }}
                   connectNulls
-                  label={<LineLabel color={corDe(m)} casas={ind.casas} acima={idx % 2 === 0} totalPoints={anos.length} />}
                 />
               ))}
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              <Customized component={(props: any) => <SmartLabels {...props} casas={ind.casas} />} />
             </LineChart>
           </ResponsiveContainer>
         </div>
