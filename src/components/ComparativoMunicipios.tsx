@@ -26,11 +26,12 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 const ANO_INICIAL_GRAFICO = 2019;
 const LABEL_H = 14;
-const MIN_GAP = 15;
+const LABEL_OFFSET = 26;
+const MIN_GAP = 16;
 const CHAR_W = 6;
 const PAD_X = 3;
 const PAD_Y = 2;
-const MAX_CONNECTOR = 22;
+const MAX_CONNECTOR = 38;
 
 interface SmartLabelsProps {
   anos: string[];
@@ -47,7 +48,7 @@ function SmartLabels({ anos, presentes, dados, casas, corDe }: SmartLabelsProps)
 
   if (!xScale || !yScale || !plotArea) return null;
 
-  const minY = plotArea.y - 18;
+  const minY = plotArea.y - 28;
   const maxY = plotArea.y + plotArea.height - 4;
   const minX = plotArea.x;
   const maxX = plotArea.x + plotArea.width;
@@ -88,8 +89,8 @@ function SmartLabels({ anos, presentes, dados, casas, corDe }: SmartLabelsProps)
       }
     }
 
-    // Place labels above points by default
-    const slots: number[] = labels.map((l) => l.y - LABEL_H);
+    // Place labels well above points (LABEL_OFFSET gap)
+    const slots: number[] = labels.map((l) => l.y - LABEL_OFFSET);
 
     // Push overlapping labels apart (top-down)
     for (let i = 1; i < slots.length; i++) {
@@ -114,9 +115,9 @@ function SmartLabels({ anos, presentes, dados, casas, corDe }: SmartLabelsProps)
     // If connector would be too long, flip label below the point
     for (let i = 0; i < labels.length; i++) {
       const pointY = labels[i].y;
-      const dist = Math.abs(slots[i] - (pointY - LABEL_H));
+      const dist = Math.abs(slots[i] - (pointY - LABEL_OFFSET));
       if (dist > MAX_CONNECTOR) {
-        const below = pointY + 6;
+        const below = pointY + LABEL_OFFSET - LABEL_H + 4;
         if (below + LABEL_H <= maxY) {
           const conflictsBelow = slots.some(
             (s, j) => j !== i && Math.abs(s - below) < MIN_GAP
@@ -133,7 +134,6 @@ function SmartLabels({ anos, presentes, dados, casas, corDe }: SmartLabelsProps)
       const labelY = slots[i];
       const text = value.toFixed(casas).replace(".", ",");
       const isBelow = labelY > pointY;
-      const needsLine = Math.abs(labelY - (pointY - LABEL_H)) > 5;
 
       const w = text.length * CHAR_W + PAD_X * 2;
       const h = 13 + PAD_Y * 2;
@@ -150,18 +150,16 @@ function SmartLabels({ anos, presentes, dados, casas, corDe }: SmartLabelsProps)
       if (rx < minX) rx = minX;
       if (rx + w > maxX) rx = maxX - w;
 
-      const lineY1 = isBelow ? pointY + 3 : pointY - 3;
-      const lineY2 = isBelow ? labelY - 1 : labelY + LABEL_H - 2;
+      const lineY1 = isBelow ? pointY + 4 : pointY - 4;
+      const lineY2 = isBelow ? labelY - 1 : labelY + LABEL_H - 1;
 
       elements.push(
         <g key={`${ptIdx}-${i}`}>
-          {needsLine && (
-            <line
-              x1={px} y1={lineY1}
-              x2={px} y2={lineY2}
-              stroke={color} strokeWidth={1} strokeDasharray="2 2" opacity={0.3}
-            />
-          )}
+          <line
+            x1={px} y1={lineY1}
+            x2={px} y2={lineY2}
+            stroke={color} strokeWidth={0.75} strokeDasharray="1.5 2" opacity={0.35}
+          />
           <rect x={rx} y={labelY - PAD_Y} width={w} height={h} rx={3} fill="white" fillOpacity={0.95} />
           <text
             x={isFirst ? rx + PAD_X : isLast ? rx + w - PAD_X : px}
@@ -354,7 +352,7 @@ function BlocoComparativo({
           <ResponsiveContainer width="100%" height={tall ? 280 : 210}>
             <LineChart
               data={chartData}
-              margin={{ top: 30, right: 38, left: -12, bottom: 10 }}
+              margin={{ top: 36, right: 38, left: -12, bottom: 10 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" />
               <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#aeaeb2" }} axisLine={{ stroke: "var(--separator)" }} tickLine={false} />
