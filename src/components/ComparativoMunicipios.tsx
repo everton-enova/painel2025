@@ -26,25 +26,31 @@ function LineLabel({
   x,
   y,
   value,
+  index,
   color,
   casas,
   acima,
+  totalPoints,
 }: {
   x?: number;
   y?: number;
   value?: number | null;
+  index?: number;
   color: string;
   casas: number;
   acima: boolean;
+  totalPoints: number;
 }) {
   if (value === null || value === undefined || x === undefined || y === undefined) return null;
+  if (index !== 0 && index !== totalPoints - 1) return null;
+  const isFirst = index === 0;
   return (
     <text
       x={x}
       y={acima ? y - 10 : y + 16}
-      textAnchor="middle"
-      fontSize={10}
-      fontWeight={500}
+      textAnchor={isFirst ? "start" : "end"}
+      fontSize={11}
+      fontWeight={600}
       fill={color}
     >
       {value.toFixed(casas).replace(".", ",")}
@@ -225,7 +231,7 @@ function BlocoComparativo({
         corDe={corDe}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {INDICADORES.map((ind) => {
           const dominio = dominioDe(ind.field, ind.limite);
           return (
@@ -279,7 +285,7 @@ function BlocoComparativo({
                       stroke: "#fff",
                     }}
                     connectNulls
-                    label={<LineLabel color={corDe(m)} casas={ind.casas} acima={idx % 2 === 0} />}
+                    label={<LineLabel color={corDe(m)} casas={ind.casas} acima={idx % 2 === 0} totalPoints={anos.length} />}
                   />
                 ))}
               </LineChart>

@@ -54,7 +54,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-[1600px] px-6 py-8">
         <LoadingSpinner />
       </main>
     );
@@ -62,7 +62,7 @@ export default function Home() {
 
   if (error) {
     return (
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-[1600px] px-6 py-8">
         <div className="rounded-2xl bg-[#fce8e8] p-8 text-center">
           <p className="text-[15px] font-medium text-[#d03b3b]">
             Erro ao carregar dados
@@ -86,7 +86,7 @@ export default function Home() {
   const comparando = filters.municipios.length >= 2;
 
   return (
-    <main className="mx-auto w-full min-w-0 max-w-7xl px-4 sm:px-6 py-5 sm:py-8 space-y-5 sm:space-y-7">
+    <main className="mx-auto w-full min-w-0 max-w-[1600px] px-4 sm:px-6 lg:px-10 py-5 sm:py-8 space-y-5 sm:space-y-7">
       <OnboardingTour />
 
       <Header updatedAt={updatedAt} source={source} />
