@@ -43,6 +43,7 @@ interface ChartIndicadorProps {
   field: FieldKey;
   title: string;
   color: string;
+  tall?: boolean;
 }
 
 function LineShadowDef({ id, color }: { id: string; color: string }) {
@@ -118,6 +119,7 @@ export function ChartIndicador({
   field,
   title,
   color,
+  tall,
 }: ChartIndicadorProps) {
   const withValues = data.filter((r) => typeof r[field] === "number");
   const anos = [...new Set(withValues.map((r) => r.ano))]
@@ -144,9 +146,9 @@ export function ChartIndicador({
   const dotRadius = Math.round(strokeWidth * 1.3 * 10) / 10;
 
   return (
-    <div className="bg-white rounded-2xl p-4 sm:p-5 transition-shadow duration-300 hover:shadow-[var(--card-shadow-hover)]" style={{ boxShadow: "var(--card-shadow)" }}>
+    <div className={`bg-white rounded-2xl p-4 sm:p-5 transition-shadow duration-300 hover:shadow-[var(--card-shadow-hover)] flex flex-col${tall ? " h-full" : ""}`} style={{ boxShadow: "var(--card-shadow)" }}>
       <h3 className="text-[13px] font-semibold text-[var(--foreground)] mb-4">{title}</h3>
-      <ResponsiveContainer width="100%" height={200} className="sm:!h-[220px]">
+      <ResponsiveContainer width="100%" height={tall ? "100%" : 200} className={tall ? "min-h-[220px]" : "sm:!h-[220px]"}>
         {chartType === "bar" ? (
           <BarChart data={chartData} margin={{ top: 20, right: 5, left: -10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" />

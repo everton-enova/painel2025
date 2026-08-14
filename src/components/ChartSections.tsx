@@ -25,6 +25,9 @@ function SectionContent({ data, suffix }: { data: IdebRecord[]; suffix: string }
   const kpis2023 = computeKPIs(data2023);
   const kpis2025 = computeKPIs(data2025);
 
+  const ideb = CHART_CONFIG[0];
+  const rest = CHART_CONFIG.slice(1);
+
   return (
     <>
       <div>
@@ -33,16 +36,28 @@ function SectionContent({ data, suffix }: { data: IdebRecord[]; suffix: string }
         </p>
         <SummaryCards kpis2023={kpis2023} kpis2025={kpis2025} />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {CHART_CONFIG.map((c) => (
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div className="lg:col-span-2">
           <ChartIndicador
-            key={`${c.field}-${suffix}`}
+            key={`${ideb.field}-${suffix}`}
             data={data}
-            field={c.field}
-            title={c.title}
-            color={c.color}
+            field={ideb.field}
+            title={ideb.title}
+            color={ideb.color}
+            tall
           />
-        ))}
+        </div>
+        <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {rest.map((c) => (
+            <ChartIndicador
+              key={`${c.field}-${suffix}`}
+              data={data}
+              field={c.field}
+              title={c.title}
+              color={c.color}
+            />
+          ))}
+        </div>
       </div>
     </>
   );

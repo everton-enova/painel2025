@@ -214,87 +214,101 @@ function BlocoComparativo({
       limite
     );
 
+  const renderChart = (ind: typeof INDICADORES[number], tall = false) => {
+    const dominio = dominioDe(ind.field, ind.limite);
+    return (
+      <div key={ind.field} className="rounded-2xl bg-white p-4 sm:p-5 flex flex-col" style={{ boxShadow: "var(--card-shadow)" }}>
+        <h4 className="text-[13px] font-semibold text-[var(--foreground)] mb-3">
+          {ind.label}
+        </h4>
+        <div className="flex-1 min-h-0">
+          <ResponsiveContainer width="100%" height={tall ? 280 : 210}>
+            <LineChart
+              data={dadosGrafico(ind.field)}
+              margin={{ top: 20, right: 8, left: -12, bottom: 10 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" />
+              <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#aeaeb2" }} axisLine={{ stroke: "var(--separator)" }} tickLine={false} />
+              <YAxis
+                domain={dominio}
+                ticks={marcasDoDominio(dominio)}
+                tick={{ fontSize: 11, fill: "#aeaeb2" }}
+                tickFormatter={(v: number) =>
+                  v.toFixed(ind.casas).replace(".", ",")
+                }
+                width={44}
+                allowDecimals
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                formatter={(value, name) => [
+                  fmt(value as number, ind.casas === 0 ? 1 : 2),
+                  name as string,
+                ]}
+                labelFormatter={(l) => `Ano: ${l}`}
+                contentStyle={{ fontSize: 12, borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
+              />
+              {presentes.map((m, idx) => (
+                <Line
+                  key={m}
+                  type="monotone"
+                  dataKey={m}
+                  name={m}
+                  stroke={corDe(m)}
+                  strokeWidth={espessura}
+                  dot={{
+                    r: Math.round(espessura * 1.3 * 10) / 10,
+                    fill: corDe(m),
+                    strokeWidth: 0,
+                  }}
+                  activeDot={{
+                    r: mobile ? 4 : 5,
+                    strokeWidth: 2,
+                    stroke: "#fff",
+                  }}
+                  connectNulls
+                  label={<LineLabel color={corDe(m)} casas={ind.casas} acima={idx % 2 === 0} totalPoints={anos.length} />}
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  };
+
+  const idebInd = INDICADORES[0];
+  const restInd = INDICADORES.slice(1);
+
   return (
-    <section className="bg-white rounded-2xl p-4 sm:p-6 space-y-5" style={{ boxShadow: "var(--card-shadow)" }}>
-      <div>
-        <h3 className="text-[15px] font-semibold text-[var(--foreground)]">
-          {unico ? "Comparativo entre municípios" : `${rede} — ${etapa}`}
-        </h3>
-        <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
-          {unico ? `${rede} — ${etapa}` : `${presentes.length} municípios`}
-        </p>
-      </div>
-
-      <TabelaComparativa
-        municipios={presentes}
-        valorDe={valorDe}
-        corDe={corDe}
-      />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {INDICADORES.map((ind) => {
-          const dominio = dominioDe(ind.field, ind.limite);
-          return (
-          <div key={ind.field} className="rounded-2xl bg-[#fafafa] p-4">
-            <h4 className="text-[13px] font-semibold text-[var(--foreground)] mb-3">
-              {ind.label}
-            </h4>
-            <ResponsiveContainer width="100%" height={210}>
-              <LineChart
-                data={dadosGrafico(ind.field)}
-                margin={{ top: 20, right: 8, left: -12, bottom: 10 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" />
-                <XAxis dataKey="ano" tick={{ fontSize: 11, fill: "#aeaeb2" }} axisLine={{ stroke: "var(--separator)" }} tickLine={false} />
-                <YAxis
-                  domain={dominio}
-                  ticks={marcasDoDominio(dominio)}
-                  tick={{ fontSize: 11, fill: "#aeaeb2" }}
-                  tickFormatter={(v: number) =>
-                    v.toFixed(ind.casas).replace(".", ",")
-                  }
-                  width={44}
-                  allowDecimals
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  formatter={(value, name) => [
-                    fmt(value as number, ind.casas === 0 ? 1 : 2),
-                    name as string,
-                  ]}
-                  labelFormatter={(l) => `Ano: ${l}`}
-                  contentStyle={{ fontSize: 12, borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
-                />
-                {presentes.map((m, idx) => (
-                  <Line
-                    key={m}
-                    type="monotone"
-                    dataKey={m}
-                    name={m}
-                    stroke={corDe(m)}
-                    strokeWidth={espessura}
-                    dot={{
-                      r: Math.round(espessura * 1.3 * 10) / 10,
-                      fill: corDe(m),
-                      strokeWidth: 0,
-                    }}
-                    activeDot={{
-                      r: mobile ? 4 : 5,
-                      strokeWidth: 2,
-                      stroke: "#fff",
-                    }}
-                    connectNulls
-                    label={<LineLabel color={corDe(m)} casas={ind.casas} acima={idx % 2 === 0} totalPoints={anos.length} />}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="lg:col-span-3 bg-white rounded-2xl p-4 sm:p-6 space-y-4" style={{ boxShadow: "var(--card-shadow)" }}>
+          <div>
+            <h3 className="text-[15px] font-semibold text-[var(--foreground)]">
+              {unico ? "Comparativo entre municípios" : `${rede} — ${etapa}`}
+            </h3>
+            <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
+              {unico ? `${rede} — ${etapa}` : `${presentes.length} municípios`}
+            </p>
           </div>
-          );
-        })}
+          <TabelaComparativa
+            municipios={presentes}
+            valorDe={valorDe}
+            corDe={corDe}
+          />
+        </div>
+
+        <div className="lg:col-span-2">
+          {renderChart(idebInd, true)}
+        </div>
       </div>
-    </section>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {restInd.map((ind) => renderChart(ind))}
+      </div>
+    </div>
   );
 }
 
