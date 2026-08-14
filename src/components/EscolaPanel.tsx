@@ -16,7 +16,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface EscolaPanelProps {
   escolas: EscolaRecord[];
-  escolasUnicas: { codigo: string; nome: string; rede: string }[];
+  escolasUnicas: { codigo: string; nome: string; rede: string; etapas: string[] }[];
   isLoading: boolean;
   municipio: string;
 }
@@ -50,12 +50,18 @@ export function EscolaPanel({
 }: EscolaPanelProps) {
   const [escolaSel, setEscolaSel] = useState<string | null>(null);
   const [busca, setBusca] = useState("");
+  const [etapaFiltro, setEtapaFiltro] = useState<string | null>(null);
 
-  const listaFiltrada = busca
-    ? escolasUnicas.filter((e) =>
-        e.nome.toLowerCase().includes(busca.toLowerCase())
-      )
-    : escolasUnicas;
+  const etapasDisponiveis = useMemo(
+    () => [...new Set(escolas.map((e) => e.etapa))].sort(),
+    [escolas]
+  );
+
+  const listaFiltrada = escolasUnicas.filter((e) => {
+    if (busca && !e.nome.toLowerCase().includes(busca.toLowerCase())) return false;
+    if (etapaFiltro && !e.etapas.includes(etapaFiltro)) return false;
+    return true;
+  });
 
   const registros = useMemo(
     () => (escolaSel ? escolas.filter((e) => e.codigo_escola === escolaSel) : []),
@@ -84,11 +90,13 @@ export function EscolaPanel({
           Escolas — {municipio}
         </h3>
         <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
-          {escolasUnicas.length} escolas com dados disponíveis
+          {etapaFiltro
+            ? `${listaFiltrada.length} de ${escolasUnicas.length} escolas — ${etapaFiltro}`
+            : `${escolasUnicas.length} escolas com dados disponíveis`}
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 items-start">
         <div className="flex-1 min-w-0">
           <input
             type="text"
@@ -98,6 +106,35 @@ export function EscolaPanel({
             className="w-full rounded-xl bg-[#f0f0f0] px-4 py-2.5 text-[13px] text-[var(--foreground)] placeholder:text-[var(--text-tertiary)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 transition-all duration-200"
           />
         </div>
+        {etapasDisponiveis.length > 1 && (
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => setEtapaFiltro(null)}
+              className={`rounded-full px-3 py-2 text-[12px] font-medium transition-all duration-200 ${
+                etapaFiltro === null
+                  ? "bg-[var(--accent)] text-white shadow-sm"
+                  : "bg-[#f0f0f0] text-[var(--text-secondary)] hover:bg-[#e5e5e5]"
+              }`}
+            >
+              Todas
+            </button>
+            {etapasDisponiveis.map((et) => (
+              <button
+                key={et}
+                type="button"
+                onClick={() => setEtapaFiltro(etapaFiltro === et ? null : et)}
+                className={`rounded-full px-3 py-2 text-[12px] font-medium transition-all duration-200 ${
+                  etapaFiltro === et
+                    ? "bg-[var(--accent)] text-white shadow-sm"
+                    : "bg-[#f0f0f0] text-[var(--text-secondary)] hover:bg-[#e5e5e5]"
+                }`}
+              >
+                {et}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="max-h-52 overflow-y-auto rounded-xl border border-[var(--separator)]">
@@ -105,20 +142,26 @@ export function EscolaPanel({
           <thead className="sticky top-0 bg-white">
             <tr className="border-b border-[var(--separator)]">
               <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Escola</th>
+              <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Etapa</th>
               <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Rede</th>
               <th className="px-3 py-2 text-right font-medium text-[var(--text-tertiary)]">Ideb {EDICAO_ATUAL}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--separator)]">
             {listaFiltrada.map((e) => {
+              const etapaExibida = etapaFiltro ?? e.etapas[0];
               const rec2025 = escolas.find(
                 (r) =>
                   r.codigo_escola === e.codigo &&
                   r.ano === EDICAO_ATUAL &&
-                  r.etapa ===
-                    escolas.find((x) => x.codigo_escola === e.codigo)?.etapa
+                  r.etapa === etapaExibida
               );
               const ativo = escolaSel === e.codigo;
+              const SIGLA: Record<string, string> = {
+                "Anos Iniciais": "AI",
+                "Anos Finais": "AF",
+                "Ensino Médio": "EM",
+              };
               return (
                 <tr
                   key={e.codigo}
@@ -131,6 +174,18 @@ export function EscolaPanel({
                 >
                   <td className="px-3 py-2 font-medium text-[var(--foreground)]">
                     {e.nome}
+                  </td>
+                  <td className="px-3 py-2 text-[var(--text-secondary)]">
+                    <span className="inline-flex gap-1">
+                      {e.etapas.map((et) => (
+                        <span
+                          key={et}
+                          className="inline-block rounded-md bg-[#f0f0f0] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-secondary)]"
+                        >
+                          {SIGLA[et] ?? et}
+                        </span>
+                      ))}
+                    </span>
                   </td>
                   <td className="px-3 py-2 text-[var(--text-secondary)]">
                     {e.rede}

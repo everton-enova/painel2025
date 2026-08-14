@@ -7,7 +7,7 @@ interface UseEscolasReturn {
   escolas: EscolaRecord[];
   isLoading: boolean;
   error: string | null;
-  escolasUnicas: { codigo: string; nome: string; rede: string }[];
+  escolasUnicas: { codigo: string; nome: string; rede: string; etapas: string[] }[];
 }
 
 export function useEscolas(codigoMunicipio: string | null): UseEscolasReturn {
@@ -50,14 +50,25 @@ export function useEscolas(codigoMunicipio: string | null): UseEscolasReturn {
   }, [codigoMunicipio]);
 
   const escolasUnicas = escolas.length > 0
-    ? [
-        ...new Map(
-          escolas.map((e) => [
-            e.codigo_escola,
-            { codigo: e.codigo_escola, nome: e.escola, rede: e.rede },
-          ])
-        ).values(),
-      ].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))
+    ? (() => {
+        const map = new Map<string, { codigo: string; nome: string; rede: string; etapas: Set<string> }>();
+        for (const e of escolas) {
+          const existing = map.get(e.codigo_escola);
+          if (existing) {
+            existing.etapas.add(e.etapa);
+          } else {
+            map.set(e.codigo_escola, {
+              codigo: e.codigo_escola,
+              nome: e.escola,
+              rede: e.rede,
+              etapas: new Set([e.etapa]),
+            });
+          }
+        }
+        return [...map.values()]
+          .map((e) => ({ ...e, etapas: [...e.etapas].sort() }))
+          .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+      })()
     : [];
 
   return { escolas, isLoading, error, escolasUnicas };
