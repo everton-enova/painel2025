@@ -89,8 +89,36 @@ function SmartLabels({ anos, presentes, dados, casas, corDe }: SmartLabelsProps)
       }
     }
 
-    // Place labels well above points (LABEL_OFFSET gap)
+    // All line Y positions at this X (for repulsion)
+    const allLineYs = raw.map((r) => r.y);
+
+    const LINE_REPEL = 6;
+    const rectH = 13 + PAD_Y * 2;
+
+    const hitsLine = (slotY: number) => {
+      const top = slotY - PAD_Y - LINE_REPEL;
+      const bot = slotY + rectH - PAD_Y + LINE_REPEL;
+      return allLineYs.some((ly) => ly >= top && ly <= bot);
+    };
+
+    // Place labels above points (LABEL_OFFSET gap)
     const slots: number[] = labels.map((l) => l.y - LABEL_OFFSET);
+
+    // Repel from lines: nudge each label away if overlapping a line
+    for (let i = 0; i < slots.length; i++) {
+      if (hitsLine(slots[i])) {
+        const pointY = labels[i].y;
+        const tryAbove = slots[i] - LINE_REPEL * 2;
+        const tryBelow = pointY + LINE_REPEL + 4;
+        if (tryAbove >= minY && !hitsLine(tryAbove)) {
+          slots[i] = tryAbove;
+        } else if (tryBelow + LABEL_H <= maxY && !hitsLine(tryBelow)) {
+          slots[i] = tryBelow;
+        } else {
+          slots[i] = tryAbove >= minY ? tryAbove : tryBelow;
+        }
+      }
+    }
 
     // Push overlapping labels apart (top-down)
     for (let i = 1; i < slots.length; i++) {
@@ -112,19 +140,18 @@ function SmartLabels({ anos, presentes, dados, casas, corDe }: SmartLabelsProps)
       if (slots[i] < minY) slots[i] = minY;
     }
 
-    // If connector would be too long, flip label below the point
-    for (let i = 0; i < labels.length; i++) {
-      const pointY = labels[i].y;
-      const dist = Math.abs(slots[i] - (pointY - LABEL_OFFSET));
-      if (dist > MAX_CONNECTOR) {
-        const below = pointY + LABEL_OFFSET - LABEL_H + 4;
-        if (below + LABEL_H <= maxY) {
-          const conflictsBelow = slots.some(
-            (s, j) => j !== i && Math.abs(s - below) < MIN_GAP
-          );
-          if (!conflictsBelow) {
-            slots[i] = below;
-          }
+    // Second repulsion pass after collision resolution
+    for (let i = 0; i < slots.length; i++) {
+      if (hitsLine(slots[i])) {
+        const pointY = labels[i].y;
+        const tryAbove = slots[i] - LINE_REPEL * 2;
+        const tryBelow = pointY + LINE_REPEL + 4;
+        const noConflictAbove = tryAbove >= minY && !slots.some((s, j) => j !== i && Math.abs(s - tryAbove) < MIN_GAP);
+        const noConflictBelow = tryBelow + LABEL_H <= maxY && !slots.some((s, j) => j !== i && Math.abs(s - tryBelow) < MIN_GAP);
+        if (noConflictAbove && !hitsLine(tryAbove)) {
+          slots[i] = tryAbove;
+        } else if (noConflictBelow && !hitsLine(tryBelow)) {
+          slots[i] = tryBelow;
         }
       }
     }
