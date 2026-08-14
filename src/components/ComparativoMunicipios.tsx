@@ -26,10 +26,11 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 const ANO_INICIAL_GRAFICO = 2019;
 const LABEL_H = 14;
-const MIN_GAP = 16;
+const MIN_GAP = 15;
 const CHAR_W = 6;
 const PAD_X = 3;
 const PAD_Y = 2;
+const MAX_CONNECTOR = 22;
 
 interface SmartLabelsProps {
   anos: string[];
@@ -61,35 +62,77 @@ function SmartLabels({ anos, presentes, dados, casas, corDe }: SmartLabelsProps)
     const isFirst = ptIdx === 0;
     const isLast = ptIdx === anos.length - 1;
 
-    const labels: { y: number; value: number; color: string; mun: string }[] = [];
+    const raw: { y: number; value: number; color: string; mun: string }[] = [];
     for (const m of presentes) {
       const row = dados[ptIdx];
       const val = row?.[m];
       if (val === null || val === undefined || typeof val !== "number") continue;
       const py = yScale(val);
       if (py === undefined) continue;
-      labels.push({ y: py, value: val, color: corDe(m), mun: m });
+      raw.push({ y: py, value: val, color: corDe(m), mun: m });
     }
 
-    if (labels.length === 0) continue;
+    if (raw.length === 0) continue;
 
-    labels.sort((a, b) => a.y - b.y);
+    raw.sort((a, b) => a.y - b.y);
 
-    const slots: number[] = [];
-    for (let i = 0; i < labels.length; i++) {
-      let slot = labels[i].y - LABEL_H;
-      if (i > 0 && slot < slots[i - 1] + MIN_GAP) {
-        slot = slots[i - 1] + MIN_GAP;
+    // Deduplicate: when two+ lines share the same formatted value at same X,
+    // show only one label (use color of the first occurrence)
+    const seen = new Map<string, number>();
+    const labels: typeof raw = [];
+    for (const item of raw) {
+      const text = item.value.toFixed(casas);
+      if (!seen.has(text)) {
+        seen.set(text, labels.length);
+        labels.push(item);
       }
-      if (slot < minY) slot = minY;
-      if (slot + LABEL_H > maxY) slot = maxY - LABEL_H;
-      slots.push(slot);
+    }
+
+    // Place labels above points by default
+    const slots: number[] = labels.map((l) => l.y - LABEL_H);
+
+    // Push overlapping labels apart (top-down)
+    for (let i = 1; i < slots.length; i++) {
+      if (slots[i] < slots[i - 1] + MIN_GAP) {
+        slots[i] = slots[i - 1] + MIN_GAP;
+      }
+    }
+
+    // If bottom labels overflow, push back upwards
+    for (let i = slots.length - 1; i >= 0; i--) {
+      if (slots[i] + LABEL_H > maxY) slots[i] = maxY - LABEL_H;
+      if (i < slots.length - 1 && slots[i] + MIN_GAP > slots[i + 1]) {
+        slots[i] = slots[i + 1] - MIN_GAP;
+      }
+    }
+
+    // Clamp all to minY
+    for (let i = 0; i < slots.length; i++) {
+      if (slots[i] < minY) slots[i] = minY;
+    }
+
+    // If connector would be too long, flip label below the point
+    for (let i = 0; i < labels.length; i++) {
+      const pointY = labels[i].y;
+      const dist = Math.abs(slots[i] - (pointY - LABEL_H));
+      if (dist > MAX_CONNECTOR) {
+        const below = pointY + 6;
+        if (below + LABEL_H <= maxY) {
+          const conflictsBelow = slots.some(
+            (s, j) => j !== i && Math.abs(s - below) < MIN_GAP
+          );
+          if (!conflictsBelow) {
+            slots[i] = below;
+          }
+        }
+      }
     }
 
     for (let i = 0; i < labels.length; i++) {
       const { y: pointY, value, color } = labels[i];
       const labelY = slots[i];
       const text = value.toFixed(casas).replace(".", ",");
+      const isBelow = labelY > pointY;
       const needsLine = Math.abs(labelY - (pointY - LABEL_H)) > 5;
 
       const w = text.length * CHAR_W + PAD_X * 2;
@@ -100,20 +143,23 @@ function SmartLabels({ anos, presentes, dados, casas, corDe }: SmartLabelsProps)
       if (isFirst) {
         rx = Math.max(minX, px - PAD_X);
       } else if (isLast) {
-        rx = Math.min(maxX - w, px - w + PAD_X);
+        rx = px - w + PAD_X;
       } else {
         rx = px - w / 2;
       }
       if (rx < minX) rx = minX;
       if (rx + w > maxX) rx = maxX - w;
 
+      const lineY1 = isBelow ? pointY + 3 : pointY - 3;
+      const lineY2 = isBelow ? labelY - 1 : labelY + LABEL_H - 2;
+
       elements.push(
         <g key={`${ptIdx}-${i}`}>
           {needsLine && (
             <line
-              x1={px} y1={pointY - 3}
-              x2={px} y2={labelY + LABEL_H - 2}
-              stroke={color} strokeWidth={1} strokeDasharray="2 2" opacity={0.35}
+              x1={px} y1={lineY1}
+              x2={px} y2={lineY2}
+              stroke={color} strokeWidth={1} strokeDasharray="2 2" opacity={0.3}
             />
           )}
           <rect x={rx} y={labelY - PAD_Y} width={w} height={h} rx={3} fill="white" fillOpacity={0.95} />
