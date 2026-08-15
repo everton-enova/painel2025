@@ -1,6 +1,5 @@
 export interface NteUser {
   nte: string;
-  username: string;
   password: string;
 }
 
@@ -8,25 +7,23 @@ const NTE_CREDENTIALS: NteUser[] = Array.from({ length: 27 }, (_, i) => {
   const n = i + 1;
   return {
     nte: `NTE ${n}`,
-    username: `nte${n}`,
     password: `ideb${n}@2025`,
   };
 });
 
 export function authenticateNte(
-  username: string,
+  nte: string,
   password: string
 ): NteUser | null {
   const override = process.env.NTE_CREDENTIALS_JSON;
-  const creds: NteUser[] = override
-    ? JSON.parse(override)
-    : NTE_CREDENTIALS;
+  const creds: NteUser[] = override ? JSON.parse(override) : NTE_CREDENTIALS;
 
-  return creds.find(
-    (u) =>
-      u.username.toLowerCase() === username.toLowerCase() &&
-      u.password === password
-  ) ?? null;
+  return (
+    creds.find(
+      (u) =>
+        u.nte.toLowerCase() === nte.toLowerCase() && u.password === password
+    ) ?? null
+  );
 }
 
 export function getAllNtes(): string[] {

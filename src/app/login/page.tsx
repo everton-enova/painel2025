@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+const NTE_LIST = Array.from({ length: 27 }, (_, i) => `NTE ${i + 1}`);
+
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const [nte, setNte] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,7 +22,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ nte, password }),
       });
 
       const data = await res.json();
@@ -76,21 +78,25 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
-                htmlFor="username"
+                htmlFor="nte"
                 className="block text-[12px] font-medium text-[#555] mb-1.5"
               >
-                Usuário
+                Núcleo Territorial
               </label>
-              <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="ex: nte1"
-                autoComplete="username"
-                className="w-full px-3 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] bg-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#1D5D88]/30 focus:border-[#1D5D88] transition-colors"
+              <select
+                id="nte"
+                value={nte}
+                onChange={(e) => setNte(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] bg-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#1D5D88]/30 focus:border-[#1D5D88] transition-colors appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2386868b%22%20d%3D%22M3%204.5L6%208l3-3.5%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-8"
                 required
-              />
+              >
+                <option value="">Selecione o NTE</option>
+                {NTE_LIST.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
