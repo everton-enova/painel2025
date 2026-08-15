@@ -40,7 +40,9 @@ async function fetchCredentials(): Promise<NteUser[]> {
 
 function normalizeNte(nte: string): string {
   const match = nte.match(/(\d+)/);
-  return match ? `NTE ${parseInt(match[1], 10)}` : nte.trim();
+  if (!match) return nte.trim();
+  const n = parseInt(match[1], 10);
+  return `NTE ${String(n).padStart(2, "0")}`;
 }
 
 export async function authenticateNte(
