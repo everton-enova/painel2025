@@ -3,19 +3,19 @@ import { authenticateNte } from "@/lib/nte-credentials";
 import { setNteSession } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
-  const { username, password } = await req.json();
+  const { nte, password } = await req.json();
 
-  if (!username || !password) {
+  if (!nte || !password) {
     return NextResponse.json(
-      { error: "Usuário e senha são obrigatórios" },
+      { error: "Selecione o NTE e informe a senha" },
       { status: 400 }
     );
   }
 
-  const user = authenticateNte(username, password);
+  const user = authenticateNte(nte, password);
   if (!user) {
     return NextResponse.json(
-      { error: "Usuário ou senha inválidos" },
+      { error: "NTE ou senha inválidos" },
       { status: 401 }
     );
   }
