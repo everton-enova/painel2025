@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { GrowingChart } from "@/components/GrowingChart";
 
 const NTE_LIST = Array.from({ length: 27 }, (_, i) => `NTE ${i + 1}`);
 
@@ -42,9 +43,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f5f5f7] px-4">
-      <div className="w-full max-w-sm">
-        <div className="bg-white rounded-2xl p-8 shadow-[0_2px_20px_rgba(0,0,0,0.08)]">
+    <div className="min-h-screen flex items-center justify-center bg-white px-4 relative overflow-hidden">
+      <GrowingChart />
+      <div className="w-full max-w-sm relative z-10">
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-8 shadow-[0_2px_20px_rgba(0,0,0,0.08)]">
           <div className="flex flex-col items-center gap-4 mb-8">
             <div className="flex items-center gap-4">
               <Image
