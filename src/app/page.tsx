@@ -113,7 +113,7 @@ export default function Home() {
         onClear={clearFilters}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        bahiaDisponivel={!isNteMode() && bahiaDisponivel}
+        bahiaDisponivel={bahiaDisponivel}
         bahiaSelecionada={bahiaSelecionada}
         onToggleBahia={toggleBahia}
       />
