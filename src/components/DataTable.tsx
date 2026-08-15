@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { IdebRecord, IdebValue } from "@/types/ideb";
+import { MAX_COMPARACAO } from "@/lib/constants";
 
 interface DataTableProps {
   data: IdebRecord[];
   ano: number;
   title: string;
+  onMunicipioClick?: (municipio: string) => void;
+  selectedMunicipios?: string[];
 }
 
 type SortKey = keyof IdebRecord;
@@ -18,7 +21,7 @@ function formatDecimal(n: IdebValue): string {
   return n.toFixed(2).replace(".", ",");
 }
 
-export function DataTable({ data, ano, title }: DataTableProps) {
+export function DataTable({ data, ano, title, onMunicipioClick, selectedMunicipios = [] }: DataTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>("municipio");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
@@ -98,11 +101,24 @@ export function DataTable({ data, ano, title }: DataTableProps) {
           <tbody className="divide-y divide-[var(--separator)]">
             {sorted.map((record, i) => (
               <tr key={i} className="hover:bg-[#fafafa] transition-colors">
-                {columns.map((col) => (
-                  <td key={col.key} className="px-3 sm:px-4 py-2.5 whitespace-nowrap tabular-nums">
-                    {col.format ? col.format(record) : String(record[col.key] ?? "—")}
-                  </td>
-                ))}
+                {columns.map((col) => {
+                  const isMunicipio = col.key === "municipio" && onMunicipioClick && record.municipio !== "Bahia";
+                  const isSelected = isMunicipio && selectedMunicipios.includes(record.municipio);
+                  const isFull = isMunicipio && !isSelected && selectedMunicipios.filter((m) => m !== "Bahia").length >= MAX_COMPARACAO;
+                  return (
+                    <td
+                      key={col.key}
+                      className={`px-3 sm:px-4 py-2.5 whitespace-nowrap tabular-nums ${
+                        isMunicipio && !isFull
+                          ? "cursor-pointer hover:text-[var(--accent)] transition-colors"
+                          : ""
+                      } ${isSelected ? "text-[var(--accent)] font-semibold" : ""}`}
+                      onClick={isMunicipio && !isFull ? () => onMunicipioClick(record.municipio) : undefined}
+                    >
+                      {col.format ? col.format(record) : String(record[col.key] ?? "—")}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
             {sorted.length === 0 && (
