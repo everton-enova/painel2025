@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { IdebRecord, FilterState } from "@/types/ideb";
 import { EDICOES_VIGENTES, MAX_COMPARACAO } from "@/lib/constants";
+import { isNteMode } from "@/lib/mode";
 
 interface FilterOptions {
   ntes: string[];
@@ -86,7 +87,7 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
 
   const filteredData = useMemo(() => {
     return data.filter((record) => {
-      if (filters.nte && record.nte !== filters.nte && record.municipio !== "Bahia") return false;
+      if (filters.nte && record.nte !== filters.nte && (isNteMode() || record.municipio !== "Bahia")) return false;
       if (!aceita(filters.municipios, record.municipio)) return false;
       if (!aceita(filters.redes, record.rede)) return false;
       if (!aceita(filters.etapas, record.etapa)) return false;
@@ -118,7 +119,7 @@ export function useFilters(data: IdebRecord[]): UseFiltersReturn {
       );
 
     const paraMunicipios = filters.nte
-      ? opcoesBase.filter((r) => r.nte === filters.nte || r.municipio === "Bahia")
+      ? opcoesBase.filter((r) => r.nte === filters.nte || (!isNteMode() && r.municipio === "Bahia"))
       : opcoesBase;
 
     const paraRedes = paraMunicipios.filter((r) =>
