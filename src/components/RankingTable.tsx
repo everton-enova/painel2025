@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { IdebRecord, IdebValue } from "@/types/ideb";
 import { computeVariacao } from "@/lib/aggregations";
+import { MAX_COMPARACAO } from "@/lib/constants";
 
 interface RankingTableProps {
   data: IdebRecord[];
+  onMunicipioClick?: (municipio: string) => void;
+  selectedMunicipios?: string[];
 }
 
 type FieldKey = "ideb" | "nota_padronizada" | "proficiencia_mat" | "proficiencia_lp" | "indicador_rendimento";
@@ -30,7 +33,7 @@ function formatVariacao(n: number | null): string {
   return sign + n.toFixed(2).replace(".", ",");
 }
 
-export function RankingTable({ data }: RankingTableProps) {
+export function RankingTable({ data, onMunicipioClick, selectedMunicipios = [] }: RankingTableProps) {
   const [selectedField, setSelectedField] = useState<FieldKey>("ideb");
 
   const ranking = computeVariacao(data, selectedField);
@@ -97,7 +100,22 @@ export function RankingTable({ data }: RankingTableProps) {
                 <tr key={i} className="hover:bg-[#fafafa] transition-colors">
                   <td className="px-3 sm:px-4 py-2.5 text-[var(--text-tertiary)] font-medium tabular-nums">{i + 1}</td>
                   <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">{record.nte || "—"}</td>
-                  <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap font-medium">{record.municipio}</td>
+                  <td
+                    className={`px-3 sm:px-4 py-2.5 whitespace-nowrap font-medium ${
+                      onMunicipioClick && record.municipio !== "Bahia" &&
+                      !(selectedMunicipios.filter((m) => m !== "Bahia").length >= MAX_COMPARACAO && !selectedMunicipios.includes(record.municipio))
+                        ? "cursor-pointer hover:text-[var(--accent)] transition-colors"
+                        : ""
+                    } ${selectedMunicipios.includes(record.municipio) ? "text-[var(--accent)]" : ""}`}
+                    onClick={
+                      onMunicipioClick && record.municipio !== "Bahia" &&
+                      !(selectedMunicipios.filter((m) => m !== "Bahia").length >= MAX_COMPARACAO && !selectedMunicipios.includes(record.municipio))
+                        ? () => onMunicipioClick(record.municipio)
+                        : undefined
+                    }
+                  >
+                    {record.municipio}
+                  </td>
                   <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">{record.rede}</td>
                   <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">{record.etapa}</td>
                   <td className="px-3 sm:px-4 py-2.5 text-right whitespace-nowrap tabular-nums">{formatDecimal(record.valor2023)}</td>

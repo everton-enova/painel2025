@@ -168,8 +168,18 @@ export default function Home() {
 
       {hasActiveFilter && (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 sm:gap-7">
-          <DataTable data={filteredData} ano={2025} title="Resultado 2025" />
-          <RankingTable data={filteredData} />
+          <DataTable
+            data={filteredData}
+            ano={2025}
+            title="Resultado 2025"
+            onMunicipioClick={(m) => toggle("municipios", m)}
+            selectedMunicipios={filters.municipios}
+          />
+          <RankingTable
+            data={filteredData}
+            onMunicipioClick={(m) => toggle("municipios", m)}
+            selectedMunicipios={filters.municipios}
+          />
         </div>
       )}
     </main>
