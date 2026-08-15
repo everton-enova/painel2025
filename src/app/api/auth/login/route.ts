@@ -12,15 +12,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const user = authenticateNte(nte, password);
-  if (!user) {
+  try {
+    const user = await authenticateNte(nte, password);
+    if (!user) {
+      return NextResponse.json(
+        { error: "NTE ou senha inválidos" },
+        { status: 401 }
+      );
+    }
+
+    await setNteSession(user.nte);
+    return NextResponse.json({ nte: user.nte });
+  } catch {
     return NextResponse.json(
-      { error: "NTE ou senha inválidos" },
-      { status: 401 }
+      { error: "Erro ao verificar credenciais" },
+      { status: 500 }
     );
   }
-
-  await setNteSession(user.nte);
-
-  return NextResponse.json({ nte: user.nte });
 }

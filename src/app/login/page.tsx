@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { GrowingChart } from "@/components/GrowingChart";
 
-const NTE_LIST = Array.from({ length: 27 }, (_, i) => `NTE ${i + 1}`);
+const NTE_LIST = Array.from({ length: 27 }, (_, i) => {
+  const n = i + 1;
+  return `NTE ${String(n).padStart(2, "0")}`;
+});
 
 export default function LoginPage() {
   const [nte, setNte] = useState("");
