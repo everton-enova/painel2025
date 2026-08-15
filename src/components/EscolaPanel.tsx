@@ -107,7 +107,7 @@ export function EscolaPanel({
     return (
       <section className="bg-white rounded-2xl p-6 text-center" style={{ boxShadow: "var(--card-shadow)" }}>
         <div className="inline-block w-5 h-5 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
-        <p className="text-[13px] text-[var(--text-secondary)] mt-2">Carregando escolas...</p>
+        <p className="text-[16px] text-[var(--text-secondary)] mt-2">Carregando escolas...</p>
       </section>
     );
   }
@@ -117,10 +117,10 @@ export function EscolaPanel({
   return (
     <section className="bg-white rounded-2xl p-4 sm:p-6 space-y-4" style={{ boxShadow: "var(--card-shadow)" }}>
       <div>
-        <h3 className="text-[15px] font-semibold text-[var(--foreground)]">
+        <h3 className="text-[19px] font-semibold text-[var(--foreground)]">
           Escolas — {municipio}
         </h3>
-        <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
+        <p className="text-[15px] text-[var(--text-tertiary)] mt-0.5">
           {etapaFiltro
             ? `${listaFiltrada.length} de ${escolasUnicas.length} escolas — ${etapaFiltro}`
             : `${escolasUnicas.length} escolas com dados disponíveis`}
@@ -134,7 +134,7 @@ export function EscolaPanel({
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar escola..."
-            className="w-full rounded-xl bg-[#f0f0f0] px-4 py-2.5 text-[13px] text-[var(--foreground)] placeholder:text-[var(--text-tertiary)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 transition-all duration-200"
+            className="w-full rounded-xl bg-[#f0f0f0] px-4 py-2.5 text-[16px] text-[var(--foreground)] placeholder:text-[var(--text-tertiary)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 transition-all duration-200"
           />
         </div>
         {etapasDisponiveis.length > 1 && (
@@ -142,7 +142,7 @@ export function EscolaPanel({
             <button
               type="button"
               onClick={() => setEtapaFiltro(null)}
-              className={`rounded-full px-3 py-2 text-[12px] font-medium transition-all duration-200 ${
+              className={`rounded-full px-3 py-2 text-[15px] font-medium transition-all duration-200 ${
                 etapaFiltro === null
                   ? "bg-[var(--accent)] text-white shadow-sm"
                   : "bg-[#f0f0f0] text-[var(--text-secondary)] hover:bg-[#e5e5e5]"
@@ -155,7 +155,7 @@ export function EscolaPanel({
                 key={et}
                 type="button"
                 onClick={() => setEtapaFiltro(etapaFiltro === et ? null : et)}
-                className={`rounded-full px-3 py-2 text-[12px] font-medium transition-all duration-200 ${
+                className={`rounded-full px-3 py-2 text-[15px] font-medium transition-all duration-200 ${
                   etapaFiltro === et
                     ? "bg-[var(--accent)] text-white shadow-sm"
                     : "bg-[#f0f0f0] text-[var(--text-secondary)] hover:bg-[#e5e5e5]"
@@ -169,7 +169,7 @@ export function EscolaPanel({
       </div>
 
       <div className="max-h-52 overflow-y-auto rounded-xl border border-[var(--separator)]">
-        <table className="min-w-full text-[12px] sm:text-[13px]">
+        <table className="min-w-full text-[15px] sm:text-[16px]">
           <thead className="sticky top-0 bg-white">
             <tr className="border-b border-[var(--separator)]">
               <th className="px-3 py-2 text-left font-medium text-[var(--text-tertiary)]">Escola</th>
@@ -211,7 +211,7 @@ export function EscolaPanel({
                       {e.etapas.map((et) => (
                         <span
                           key={et}
-                          className="inline-block rounded-md bg-[#f0f0f0] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-secondary)]"
+                          className="inline-block rounded-md bg-[#f0f0f0] px-1.5 py-0.5 text-[13px] font-medium text-[var(--text-secondary)]"
                         >
                           {SIGLA[et] ?? et}
                         </span>
@@ -258,8 +258,8 @@ function EscolaDetalhe({
   return (
     <div className="space-y-4 pt-2 border-t border-[var(--separator)]">
       <div>
-        <h4 className="text-[14px] font-semibold text-[var(--foreground)]">{escola}</h4>
-        <p className="text-[12px] text-[var(--text-tertiary)]">{rede}</p>
+        <h4 className="text-[17px] font-semibold text-[var(--foreground)]">{escola}</h4>
+        <p className="text-[15px] text-[var(--text-tertiary)]">{rede}</p>
       </div>
 
       {etapas.map((etapa) => {
@@ -267,7 +267,7 @@ function EscolaDetalhe({
         return (
           <div key={etapa} className="space-y-3">
             {etapas.length > 1 && (
-              <h5 className="text-[13px] font-semibold text-[var(--foreground)] border-l-[3px] border-[var(--accent)] pl-2">
+              <h5 className="text-[16px] font-semibold text-[var(--foreground)] border-l-[3px] border-[var(--accent)] pl-2">
                 {etapa}
               </h5>
             )}
@@ -293,7 +293,7 @@ function EscolaDetalhe({
                     key={ind.field}
                     className="rounded-2xl bg-[#fafafa] p-4"
                   >
-                    <h4 className="text-[13px] font-semibold text-[var(--foreground)] mb-3">
+                    <h4 className="text-[16px] font-semibold text-[var(--foreground)] mb-3">
                       {ind.label}
                     </h4>
                     <ResponsiveContainer width="100%" height={180}>
@@ -384,7 +384,7 @@ function CardResumo({ registros }: { registros: EscolaRecord[] }) {
             key={ind.field}
             className="rounded-xl bg-[#fafafa] p-3 flex flex-col gap-1"
           >
-            <span className="text-[10px] font-medium text-[var(--text-secondary)]">
+            <span className="text-[13px] font-medium text-[var(--text-secondary)]">
               {ind.label}
             </span>
             <div className="flex items-end gap-1.5">
@@ -393,7 +393,7 @@ function CardResumo({ registros }: { registros: EscolaRecord[] }) {
               </span>
               {delta !== null && (
                 <span
-                  className={`text-[10px] font-medium ${
+                  className={`text-[13px] font-medium ${
                     delta > 0
                       ? "text-[#1a7f37]"
                       : delta < 0

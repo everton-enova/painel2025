@@ -47,10 +47,10 @@ export function RankingTable({ data, onMunicipioClick, selectedMunicipios = [] }
       <div className="px-5 py-4 border-b border-[var(--separator)]">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h3 className="text-[15px] font-semibold text-[var(--foreground)]">
+            <h3 className="text-[19px] font-semibold text-[var(--foreground)]">
               Ranking por Variação (2023 → 2025)
             </h3>
-            <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
+            <p className="text-[15px] text-[var(--text-tertiary)] mt-0.5">
               Ordenado da maior para a menor variação
             </p>
           </div>
@@ -59,7 +59,7 @@ export function RankingTable({ data, onMunicipioClick, selectedMunicipios = [] }
               <button
                 key={f.key}
                 onClick={() => setSelectedField(f.key)}
-                className={`px-3 py-1.5 text-[11px] sm:text-[12px] font-medium rounded-full transition-all duration-200 ${
+                className={`px-3 py-1.5 text-[14px] sm:text-[15px] font-medium rounded-full transition-all duration-200 ${
                   selectedField === f.key
                     ? "bg-[var(--accent)] text-white shadow-sm"
                     : "bg-[#f0f0f0] text-[var(--text-secondary)] hover:bg-[#e5e5e5]"
@@ -72,7 +72,7 @@ export function RankingTable({ data, onMunicipioClick, selectedMunicipios = [] }
         </div>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full text-[12px] sm:text-[13px]">
+        <table className="min-w-full text-[15px] sm:text-[16px]">
           <thead>
             <tr className="border-b border-[var(--separator)]">
               <th className="px-3 sm:px-4 py-2.5 text-left font-medium text-[var(--text-tertiary)] whitespace-nowrap w-10">#</th>
@@ -128,7 +128,7 @@ export function RankingTable({ data, onMunicipioClick, selectedMunicipios = [] }
             })}
             {ranking.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-[13px] text-[var(--text-tertiary)]">
+                <td colSpan={8} className="px-4 py-12 text-center text-[16px] text-[var(--text-tertiary)]">
                   Sem dados para calcular variação
                 </td>
               </tr>
@@ -136,11 +136,11 @@ export function RankingTable({ data, onMunicipioClick, selectedMunicipios = [] }
           </tbody>
         </table>
       </div>
-      <p className="sm:hidden text-[10px] text-[var(--text-tertiary)] text-center py-2">
+      <p className="sm:hidden text-[13px] text-[var(--text-tertiary)] text-center py-2">
         Deslize para ver mais colunas →
       </p>
       {hasNd && (
-        <p className="px-5 py-3 border-t border-[var(--separator)] text-[11px] text-[var(--text-tertiary)]">
+        <p className="px-5 py-3 border-t border-[var(--separator)] text-[14px] text-[var(--text-tertiary)]">
           ND — Nota Não Divulgada: o município não atingiu a taxa mínima de
           participação de 80% dos estudantes no SAEB.
         </p>

@@ -43,7 +43,7 @@ function GrupoAlternavel({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[11px] font-medium text-[var(--text-secondary)] tracking-wide">
+      <span className="text-[14px] font-medium text-[var(--text-secondary)] tracking-wide">
         {label}
         {selecionados.length > 0 && (
           <button
@@ -63,7 +63,7 @@ function GrupoAlternavel({
               type="button"
               onClick={() => onToggle(opt)}
               aria-pressed={ativo}
-              className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-200 ${
+              className={`rounded-full px-3.5 py-1.5 text-[16px] font-medium transition-all duration-200 ${
                 ativo
                   ? "bg-[var(--accent)] text-white shadow-sm"
                   : "bg-[#f0f0f0] text-[var(--text-secondary)] hover:bg-[#e5e5e5]"
@@ -117,7 +117,7 @@ function MunicipioSearch({
       className="flex flex-col gap-1.5 relative flex-1 sm:min-w-[240px]"
       ref={ref}
     >
-      <label className="text-[11px] font-medium text-[var(--text-secondary)] tracking-wide">
+      <label className="text-[14px] font-medium text-[var(--text-secondary)] tracking-wide">
         Municípios
         {selecionados.length > 0 && ` (${selecionados.length}/${MAX_COMPARACAO})`}
       </label>
@@ -134,7 +134,7 @@ function MunicipioSearch({
             ? "Digite o nome do município..."
             : "Adicionar outro município..."
         }
-        className="rounded-xl bg-[#f0f0f0] px-4 py-2.5 text-[13px] text-[var(--foreground)] placeholder:text-[var(--text-tertiary)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 transition-all duration-200"
+        className="rounded-xl bg-[#f0f0f0] px-4 py-2.5 text-[16px] text-[var(--foreground)] placeholder:text-[var(--text-tertiary)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 transition-all duration-200"
       />
       {aberto && lista.length > 0 && (
         <ul className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-60 overflow-y-auto rounded-xl bg-white/95 backdrop-blur-xl shadow-lg shadow-black/10 ring-1 ring-black/5">
@@ -151,7 +151,7 @@ function MunicipioSearch({
                     onSearchChange("");
                     setAberto(false);
                   }}
-                  className={`w-full text-left px-4 py-2.5 text-[13px] transition-colors flex items-center gap-2.5 ${
+                  className={`w-full text-left px-4 py-2.5 text-[16px] transition-colors flex items-center gap-2.5 ${
                     bloqueado
                       ? "text-[var(--text-tertiary)] cursor-not-allowed"
                       : ativo
@@ -200,13 +200,13 @@ export function Filters({
         <div className="flex flex-col sm:flex-row sm:items-start gap-4 flex-wrap">
           {!nteFixed && (
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-medium text-[var(--text-secondary)] tracking-wide">
+              <label className="text-[14px] font-medium text-[var(--text-secondary)] tracking-wide">
                 NTE
               </label>
               <select
                 value={filters.nte ?? ""}
                 onChange={(e) => onNteChange(e.target.value || null)}
-                className="rounded-xl bg-[#f0f0f0] px-4 py-2.5 text-[13px] text-[var(--foreground)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2386868b%22%20d%3D%22M3%204.5L6%208l3-3.5%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-8"
+                className="rounded-xl bg-[#f0f0f0] px-4 py-2.5 text-[16px] text-[var(--foreground)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2386868b%22%20d%3D%22M3%204.5L6%208l3-3.5%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-8"
               >
                 <option value="">Todos</option>
                 {options.ntes.map((opt) => (
@@ -228,14 +228,14 @@ export function Filters({
 
           {bahiaDisponivel && (
             <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-medium text-[var(--text-secondary)] tracking-wide">
+              <span className="text-[14px] font-medium text-[var(--text-secondary)] tracking-wide">
                 Estado
               </span>
               <button
                 type="button"
                 onClick={onToggleBahia}
                 aria-pressed={bahiaSelecionada}
-                className={`rounded-full px-4 py-2.5 text-[13px] font-medium transition-all duration-200 flex items-center gap-2 ${
+                className={`rounded-full px-4 py-2.5 text-[16px] font-medium transition-all duration-200 flex items-center gap-2 ${
                   bahiaSelecionada
                     ? "bg-[var(--accent)] text-white shadow-sm"
                     : "bg-[#f0f0f0] text-[var(--text-secondary)] hover:bg-[#e5e5e5]"
@@ -265,7 +265,7 @@ export function Filters({
           {hasActiveFilter && (
             <button
               onClick={onClear}
-              className="self-end rounded-full bg-[#f0f0f0] px-4 py-2 text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[#e5e5e5] transition-all duration-200"
+              className="self-end rounded-full bg-[#f0f0f0] px-4 py-2 text-[16px] font-medium text-[var(--text-secondary)] hover:bg-[#e5e5e5] transition-all duration-200"
             >
               Limpar filtros
             </button>
@@ -277,7 +277,7 @@ export function Filters({
             {filters.municipios.map((m, i) => (
               <span
                 key={m}
-                className={`inline-flex items-center gap-1.5 rounded-full pl-2.5 pr-1.5 py-1 text-[12px] font-medium ${
+                className={`inline-flex items-center gap-1.5 rounded-full pl-2.5 pr-1.5 py-1 text-[15px] font-medium ${
                   m === "Bahia"
                     ? "bg-[var(--accent-light)] text-[var(--accent)]"
                     : "bg-[#f5f5f7] text-[var(--foreground)]"
@@ -301,12 +301,12 @@ export function Filters({
             ))}
             <button
               onClick={() => onClearKey("municipios")}
-              className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] underline underline-offset-2 px-1 transition-colors"
+              className="text-[14px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] underline underline-offset-2 px-1 transition-colors"
             >
               limpar seleção
             </button>
             {filters.municipios.filter((m) => m !== "Bahia").length === 1 && !bahiaSelecionada && (
-              <span className="text-[11px] text-[var(--text-tertiary)]">
+              <span className="text-[14px] text-[var(--text-tertiary)]">
                 adicione outro município para comparar
               </span>
             )}

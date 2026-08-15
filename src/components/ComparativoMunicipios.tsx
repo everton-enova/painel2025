@@ -285,7 +285,7 @@ export function ComparativoMunicipios({
   if (blocos.length === 0) {
     return (
       <section className="bg-white rounded-2xl p-8 text-center" style={{ boxShadow: "var(--card-shadow)" }}>
-        <p className="text-[13px] text-[var(--text-secondary)]">
+        <p className="text-[16px] text-[var(--text-secondary)]">
           Os municípios escolhidos não têm uma rede e etapa em comum para
           comparar.
         </p>
@@ -372,7 +372,7 @@ function BlocoComparativo({
     const chartData = dadosGrafico(ind.field);
     return (
       <div key={ind.field} className="rounded-2xl bg-white p-4 sm:p-5 flex flex-col" style={{ boxShadow: "var(--card-shadow)" }}>
-        <h4 className="text-[13px] font-semibold text-[var(--foreground)] mb-3">
+        <h4 className="text-[16px] font-semibold text-[var(--foreground)] mb-3">
           {ind.label}
         </h4>
         <div className="flex-1 min-h-0">
@@ -450,10 +450,10 @@ function BlocoComparativo({
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3 bg-white rounded-2xl p-4 sm:p-6 space-y-4" style={{ boxShadow: "var(--card-shadow)" }}>
           <div>
-            <h3 className="text-[15px] font-semibold text-[var(--foreground)]">
+            <h3 className="text-[19px] font-semibold text-[var(--foreground)]">
               {unico ? "Comparativo entre municípios" : `${rede} — ${etapa}`}
             </h3>
-            <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
+            <p className="text-[15px] text-[var(--text-tertiary)] mt-0.5">
               {unico ? `${rede} — ${etapa}` : `${presentes.length} municípios`}
             </p>
           </div>
@@ -496,7 +496,7 @@ function TabelaComparativa({
   return (
     <div>
       <div className="overflow-x-auto rounded-xl">
-      <table className="min-w-full text-[12px] sm:text-[13px]">
+      <table className="min-w-full text-[15px] sm:text-[16px]">
         <thead>
           <tr className="border-b border-[var(--separator)]">
             <th className="px-3 py-2.5 text-left font-medium text-[var(--text-tertiary)] whitespace-nowrap">
@@ -522,7 +522,7 @@ function TabelaComparativa({
                     style={{ backgroundColor: corDe(m) }}
                   />
                   <span className="font-medium text-[var(--foreground)]">
-                    {m}{m === "Bahia" && <span className="ml-1 text-[10px] font-normal text-[var(--text-tertiary)]">(Estado)</span>}
+                    {m}{m === "Bahia" && <span className="ml-1 text-[13px] font-normal text-[var(--text-tertiary)]">(Estado)</span>}
                   </span>
                 </span>
               </td>
@@ -550,7 +550,7 @@ function TabelaComparativa({
                     </span>
                     {delta !== null && (
                       <span
-                        className={`ml-1.5 text-[10px] sm:text-[11px] ${
+                        className={`ml-1.5 text-[13px] sm:text-[14px] ${
                           delta > 0
                             ? "text-[#1a7f37]"
                             : delta < 0
@@ -570,10 +570,10 @@ function TabelaComparativa({
         </tbody>
       </table>
       </div>
-      <p className="sm:hidden text-[10px] text-[var(--text-tertiary)] text-center py-1">
+      <p className="sm:hidden text-[13px] text-[var(--text-tertiary)] text-center py-1">
         Deslize a tabela para ver mais colunas →
       </p>
-      <p className="mt-2 text-[11px] text-[var(--text-tertiary)]">
+      <p className="mt-2 text-[14px] text-[var(--text-tertiary)]">
         Valores de {EDICAO_ATUAL}; a seta indica a variação em relação a{" "}
         {EDICAO_ANTERIOR}.
         {temNd && (

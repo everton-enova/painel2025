@@ -47,13 +47,13 @@ export function Header({ updatedAt, source, nteSession }: HeaderProps) {
             <h1 className="text-xl sm:text-3xl font-semibold tracking-tight text-[var(--foreground)]">
               Painel Ideb Bahia
             </h1>
-            <p className="text-[12px] sm:text-[13px] text-[var(--text-secondary)] mt-0.5 font-light">
+            <p className="text-[15px] sm:text-[16px] text-[var(--text-secondary)] mt-0.5 font-light">
               Secretaria da Educação do Estado da Bahia
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="text-right text-[12px] sm:text-[13px] text-[var(--text-tertiary)]">
+          <div className="text-right text-[15px] sm:text-[16px] text-[var(--text-tertiary)]">
             {formattedDate && (
               <p>
                 Atualizado em{" "}
@@ -68,7 +68,7 @@ export function Header({ updatedAt, source, nteSession }: HeaderProps) {
           </div>
           {nteSession?.nte && (
             <div className="flex items-center gap-2">
-              <span className="text-[12px] text-[var(--text-secondary)] bg-[#e8f4fd] px-3 py-1.5 rounded-full font-medium">
+              <span className="text-[15px] text-[var(--text-secondary)] bg-[#e8f4fd] px-3 py-1.5 rounded-full font-medium">
                 {nteSession.nte}
               </span>
               <button

@@ -35,7 +35,7 @@ function VariationBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${style}`}
+      className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[14px] font-medium ${style}`}
     >
       {arrow} {Math.abs(diff).toFixed(2).replace(".", ",")}
     </span>
@@ -56,7 +56,7 @@ function Card({
   return (
     <div className="bg-white rounded-2xl p-4 sm:p-5 flex flex-col gap-2 sm:gap-3 transition-shadow duration-300 hover:shadow-[var(--card-shadow-hover)]" style={{ boxShadow: "var(--card-shadow)" }}>
       <div className="flex items-center justify-between">
-        <span className="text-[11px] sm:text-xs font-medium text-[var(--text-secondary)] tracking-wide">
+        <span className="text-[14px] sm:text-xs font-medium text-[var(--text-secondary)] tracking-wide">
           {label}
         </span>
         <span
@@ -129,7 +129,7 @@ export function SummaryCards({ kpis2023, kpis2025 }: SummaryCardsProps) {
       />
     </div>
     {hasNd && (
-      <p className="mt-2 text-[11px] sm:text-xs text-[var(--text-tertiary)]">
+      <p className="mt-2 text-[14px] sm:text-xs text-[var(--text-tertiary)]">
         ND — Nota Não Divulgada: o município não atingiu a taxa mínima de
         participação de 80% dos estudantes no SAEB.
       </p>

@@ -74,7 +74,7 @@ export default function LoginPage() {
               <h1 className="text-lg font-semibold text-[#1D5D88]">
                 Painel Ideb — NTE
               </h1>
-              <p className="text-[12px] text-[#86868b] mt-0.5">
+              <p className="text-[15px] text-[#86868b] mt-0.5">
                 Acesso restrito por Núcleo Territorial
               </p>
             </div>
@@ -84,7 +84,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="nte"
-                className="block text-[12px] font-medium text-[#555] mb-1.5"
+                className="block text-[15px] font-medium text-[#555] mb-1.5"
               >
                 Núcleo Territorial
               </label>
@@ -92,7 +92,7 @@ export default function LoginPage() {
                 id="nte"
                 value={nte}
                 onChange={(e) => setNte(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] bg-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#1D5D88]/30 focus:border-[#1D5D88] transition-colors appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2386868b%22%20d%3D%22M3%204.5L6%208l3-3.5%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-8"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#e0e0e0] text-[17px] bg-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#1D5D88]/30 focus:border-[#1D5D88] transition-colors appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2386868b%22%20d%3D%22M3%204.5L6%208l3-3.5%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-8"
                 required
               >
                 <option value="">Selecione o NTE</option>
@@ -107,7 +107,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-[12px] font-medium text-[#555] mb-1.5"
+                className="block text-[15px] font-medium text-[#555] mb-1.5"
               >
                 Senha
               </label>
@@ -117,13 +117,13 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
-                className="w-full px-3 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] bg-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#1D5D88]/30 focus:border-[#1D5D88] transition-colors"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#e0e0e0] text-[17px] bg-[#fafafa] focus:outline-none focus:ring-2 focus:ring-[#1D5D88]/30 focus:border-[#1D5D88] transition-colors"
                 required
               />
             </div>
 
             {error && (
-              <p className="text-[12px] text-[#d03b3b] bg-[#fef2f2] rounded-lg px-3 py-2">
+              <p className="text-[15px] text-[#d03b3b] bg-[#fef2f2] rounded-lg px-3 py-2">
                 {error}
               </p>
             )}
@@ -131,14 +131,14 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-xl bg-[#1D5D88] text-white text-[14px] font-medium hover:bg-[#164a6e] disabled:opacity-50 transition-colors"
+              className="w-full py-2.5 rounded-xl bg-[#1D5D88] text-white text-[17px] font-medium hover:bg-[#164a6e] disabled:opacity-50 transition-colors"
             >
               {loading ? "Entrando..." : "Entrar"}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-[11px] text-[#86868b] mt-4">
+        <p className="text-center text-[14px] text-[#86868b] mt-4">
           Secretaria da Educação do Estado da Bahia
         </p>
       </div>
