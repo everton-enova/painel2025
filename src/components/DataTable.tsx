@@ -77,11 +77,11 @@ export function DataTable({ data, ano, title, onMunicipioClick, selectedMunicipi
   return (
     <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "var(--card-shadow)" }}>
       <div className="px-5 py-4 border-b border-[var(--separator)]">
-        <h3 className="text-[15px] font-semibold text-[var(--foreground)]">{title}</h3>
-        <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">{sorted.length} registros</p>
+        <h3 className="text-[19px] font-semibold text-[var(--foreground)]">{title}</h3>
+        <p className="text-[15px] text-[var(--text-tertiary)] mt-0.5">{sorted.length} registros</p>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full text-[12px] sm:text-[13px]">
+        <table className="min-w-full text-[15px] sm:text-[16px]">
           <thead>
             <tr className="border-b border-[var(--separator)]">
               {columns.map((col) => (
@@ -123,7 +123,7 @@ export function DataTable({ data, ano, title, onMunicipioClick, selectedMunicipi
             ))}
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-12 text-center text-[13px] text-[var(--text-tertiary)]">
+                <td colSpan={columns.length} className="px-4 py-12 text-center text-[16px] text-[var(--text-tertiary)]">
                   Sem dados para {ano}
                 </td>
               </tr>
@@ -131,11 +131,11 @@ export function DataTable({ data, ano, title, onMunicipioClick, selectedMunicipi
           </tbody>
         </table>
       </div>
-      <p className="sm:hidden text-[10px] text-[var(--text-tertiary)] text-center py-2">
+      <p className="sm:hidden text-[13px] text-[var(--text-tertiary)] text-center py-2">
         Deslize para ver mais colunas →
       </p>
       {hasNd && (
-        <p className="px-5 py-3 border-t border-[var(--separator)] text-[11px] text-[var(--text-tertiary)]">
+        <p className="px-5 py-3 border-t border-[var(--separator)] text-[14px] text-[var(--text-tertiary)]">
           ND — Nota Não Divulgada: o município não atingiu a taxa mínima de
           participação de 80% dos estudantes no SAEB.
         </p>

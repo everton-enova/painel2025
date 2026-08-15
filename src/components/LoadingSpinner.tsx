@@ -7,7 +7,7 @@ export function LoadingSpinner() {
         <div className="absolute inset-0 rounded-full border-[2.5px] border-[#f0f0f0]" />
         <div className="absolute inset-0 rounded-full border-[2.5px] border-transparent border-t-[var(--accent)] animate-spin" />
       </div>
-      <p className="mt-5 text-[13px] text-[var(--text-tertiary)] font-light">
+      <p className="mt-5 text-[16px] text-[var(--text-tertiary)] font-light">
         Carregando dados...
       </p>
     </div>

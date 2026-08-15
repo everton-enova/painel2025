@@ -68,7 +68,7 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
           <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#1D5D88]">
             Painel Ideb Bahia
           </h1>
-          <p className="text-[12px] sm:text-[13px] text-[#86868b] font-light">
+          <p className="text-[15px] sm:text-[16px] text-[#86868b] font-light">
             Secretaria da Educação do Estado da Bahia
           </p>
         </div>

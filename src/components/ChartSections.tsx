@@ -31,7 +31,7 @@ function SectionContent({ data, suffix }: { data: IdebRecord[]; suffix: string }
   return (
     <>
       <div>
-        <p className="text-[11px] text-[var(--text-tertiary)] mb-3">
+        <p className="text-[14px] text-[var(--text-tertiary)] mb-3">
           Variação em relação à edição anterior (2023)
         </p>
         <SummaryCards kpis2023={kpis2023} kpis2025={kpis2025} />
@@ -101,7 +101,7 @@ export function ChartSections({ data, filters }: ChartSectionsProps) {
     <div className="space-y-10">
       {groups.map((group) => (
         <div key={group.label} className="space-y-5 sm:space-y-6">
-          <h3 className="text-[15px] font-semibold text-[var(--foreground)] border-l-[3px] border-[var(--accent)] pl-3">
+          <h3 className="text-[19px] font-semibold text-[var(--foreground)] border-l-[3px] border-[var(--accent)] pl-3">
             {group.label}
           </h3>
           <SectionContent data={group.records} suffix={group.label} />

@@ -72,10 +72,10 @@ export default function Home() {
     return (
       <main className="mx-auto px-6 lg:px-10 xl:px-16 py-8">
         <div className="rounded-2xl bg-[#fce8e8] p-8 text-center">
-          <p className="text-[15px] font-medium text-[#d03b3b]">
+          <p className="text-[19px] font-medium text-[#d03b3b]">
             Erro ao carregar dados
           </p>
-          <p className="mt-1 text-[13px] text-[#d03b3b]/70">{error}</p>
+          <p className="mt-1 text-[16px] text-[#d03b3b]/70">{error}</p>
         </div>
       </main>
     );
@@ -119,7 +119,7 @@ export default function Home() {
       />
 
       {!comparando && hasActiveFilter && selectedLabel && (
-        <h2 className="text-[18px] sm:text-[22px] font-semibold text-[var(--foreground)] tracking-tight">
+        <h2 className="text-[22px] sm:text-[27px] font-semibold text-[var(--foreground)] tracking-tight">
           {selectedLabel}
         </h2>
       )}
@@ -146,7 +146,7 @@ export default function Home() {
                   key={m}
                   type="button"
                   onClick={() => setEscolaTab(m)}
-                  className={`rounded-full px-4 py-2 text-[13px] font-medium transition-all duration-200 ${
+                  className={`rounded-full px-4 py-2 text-[16px] font-medium transition-all duration-200 ${
                     escolaTab === m
                       ? "bg-[var(--accent)] text-white shadow-sm"
                       : "bg-[#f0f0f0] text-[var(--text-secondary)] hover:bg-[#e5e5e5]"
