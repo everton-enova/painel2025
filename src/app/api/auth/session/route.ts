@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { getNteSession } from "@/lib/auth";
+import { getAccessSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const nte = await getNteSession();
-  return NextResponse.json({ nte });
+  const session = await getAccessSession();
+  return NextResponse.json(session ?? { acesso: null, nte: null, perfil: null, rede: null });
 }
