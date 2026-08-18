@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ESCOLA_SHEETS, sheetCsvUrlByName } from "@/lib/constants";
 import { parseEscolaTabs } from "@/lib/parseEscola";
+import { getAccessSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -26,19 +27,25 @@ async function getAll() {
   return data;
 }
 
+function normalize(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+}
+
 export async function GET(request: NextRequest) {
   const codigoMunicipio = request.nextUrl.searchParams.get("municipio");
-
   if (!codigoMunicipio) {
-    return NextResponse.json(
-      { error: "Parâmetro 'municipio' (código) é obrigatório" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Parâmetro 'municipio' (código) é obrigatório" }, { status: 400 });
   }
 
   try {
     const all = await getAll();
-    const escolas = all.filter((r) => r.codigo_municipio === codigoMunicipio);
+    const session = await getAccessSession();
+    let escolas = all.filter((r) => r.codigo_municipio === codigoMunicipio);
+
+    if (session?.rede && session.rede !== "TODAS") {
+      escolas = escolas.filter((r) => normalize(r.rede) === normalize(session.rede));
+    }
+
     return NextResponse.json(
       { data: escolas, total: escolas.length },
       { headers: { "Cache-Control": "no-store" } }
