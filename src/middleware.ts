@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
-  if (process.env.NEXT_PUBLIC_MODE !== "nte") {
-    return NextResponse.next();
-  }
-
   const { pathname } = req.nextUrl;
 
   if (
     pathname.startsWith("/login") ||
-    pathname.startsWith("/api/") ||
+    pathname.startsWith("/api/auth/") ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/favicon") ||
     pathname.endsWith(".svg") ||
@@ -21,6 +17,9 @@ export function middleware(req: NextRequest) {
 
   const session = req.cookies.get("painel-nte-session");
   if (!session?.value) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
